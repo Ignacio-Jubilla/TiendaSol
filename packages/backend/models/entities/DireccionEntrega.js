@@ -12,3 +12,64 @@ export default class DireccionEntrega {
     this.lon = lon;
   }
 }
+
+import DireccionEntrega from "./DireccionEntrega.js";
+
+export class DireccionEntregaBuilder {
+  constructor() {
+    this.calle = "";
+    this.numero = "";
+    this.departamento = "";
+    this.codigoPostal = "";
+    this.localidad = "";
+    this.provincia = "";
+    this.pais = "";
+  }
+
+  withCalle(calle) {
+    this.calle = calle;
+    return this;
+  }
+
+  withNumero(numero) {
+    this.numero = numero;
+    return this;
+  }
+
+  withDepartamento(departamento) {
+    this.departamento = departamento;
+    return this;
+  }
+
+  withCodigoPostal(codigoPostal) {
+    this.codigoPostal = codigoPostal;
+    return this;
+  }
+
+  withLocalidad(localidad) {
+    this.localidad = localidad;
+    return this;
+  }
+
+  withProvincia(provincia) {
+    this.provincia = provincia;
+    return this;
+  }
+
+  withPais(pais) {
+    this.pais = pais;
+    return this;
+  }
+
+  build() {
+    return new DireccionEntrega(
+      this.calle,
+      this.numero,
+      this.departamento,
+      this.codigoPostal,
+      this.localidad,
+      this.provincia,
+      this.pais
+    );
+  }
+}

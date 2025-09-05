@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-
+import { PedidosRouter } from "./controllers/PedidosController";
 const app = express();
 app.use(express.json());
 app.use(
@@ -11,6 +11,8 @@ app.use(
       : true,
   }),
 );
+
+app.use("/api/pedidos", PedidosRouter)
 
 app.get("/hello", (req, res) => {
   res.json({ message: "hello world" });
