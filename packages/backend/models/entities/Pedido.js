@@ -1,15 +1,16 @@
-import CambioEstadoPedido from "./CambioEstadoPedido";
-import DireccionEntrega from "./DireccionEntrega";
-import { EstadoPedido } from "./enums/EstadoPedido";
-import Usuario from "./Usuario";
+import CambioEstadoPedido from "./CambioEstadoPedido.js";
+import DireccionEntrega from "./DireccionEntrega.js";
+import { EstadoPedido } from "./enums/EstadoPedido.js";
+import { TipoUsuario } from "./enums/TipoUsuario.js";
+import {Usuario} from "./Usuario.js";
 import { v4 as uuidv4 } from 'uuid';
 
 
 export class Pedido {
   static id = 0;
-  constructor() {
+  constructor() { // por qué no pasar los parametros al constructor?
     this.id = uuidv4();
-    this.comprador = null
+    this.comprador = new Usuario(null,null,null,TipoUsuario.COMPRADOR)
     this.items = []
     this.total = this.calcularTotal();
     this.moneda = null;

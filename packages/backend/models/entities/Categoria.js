@@ -1,6 +1,6 @@
 
 
-export default class Categoria{
+export class Categoria{
 
     constructor(nombre){
         this.nombre=nombre;

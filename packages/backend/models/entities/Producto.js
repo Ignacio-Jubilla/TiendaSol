@@ -2,7 +2,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 
-export default class Producto{
+export class Producto{
     constructor(vendedor,titulo,descripcion,categorias,precio,moneda,stock,fotos){
         this.id= uuidv4();
         this.vendedor = vendedor;
