@@ -1,12 +1,32 @@
-export const PedidosRouter = require('express').Router()
-import { DireccionEntregaBuilder } from '../models/entities/DireccionEntrega';
+//export const PedidosRouter = require('express').Router()// ojo con importar con distintos metodos
+//                                                      no se puede mezclar import y require
+import express from 'express';
+export const PedidosRouter = express.Router();
+import { DireccionEntregaBuilder } from '../models/entities/DireccionEntrega.js';
+/*
 import PedidosServices from '../services/PedidoService';
 import { PedidoDTO } from '../models/entities/dtos/input/PedidoDTO';
 import ProductoService from '../services/ProductoService';
 import UsuarioService from '../services/UsuarioService';
 import NotificacionService from '../services/NotificacionService';
 const pedidoService = new PedidosServices(new ProductoService(), new UsuarioService(), new NotificacionService());
+*/
 const direccionEntregaBuilder = new DireccionEntregaBuilder();
+
+const app = express();
+
+app.listen(3000,() =>{
+    console.log("Servidor corriendo sobre el puerto 3000");
+})
+
+app.get("/api/health", (req,res) =>{
+    res.status(200).json({
+        status: "ok",
+        message: "Tienda sol API is running",
+        timestamp: new Date().toLocaleString()
+    });
+});
+
 
 PedidosRouter.post('/', (req, res) => {
   const body = req.body;
