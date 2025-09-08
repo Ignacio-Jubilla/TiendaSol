@@ -1,4 +1,4 @@
-export default class DireccionEntrega {
+export class DireccionEntrega {
   constructor(calle, altura, piso, departamento, codigoPostal, ciudad, provincia, pais, lat, lon) {
     this.calle = calle;
     this.altura = altura;
@@ -13,7 +13,7 @@ export default class DireccionEntrega {
   }
 }
 
-import DireccionEntrega from "./DireccionEntrega.js";
+//import DireccionEntrega from "./DireccionEntrega.js";
 
 export class DireccionEntregaBuilder {
   constructor() {

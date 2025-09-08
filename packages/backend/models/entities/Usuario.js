@@ -1,14 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 
-class Usuario {
+export class Usuario {
   constructor(nombre, email, telefono, tipo) {
     this.id = uuidv4();                
     this.nombre = nombre;        
     this.email = email;          
     this.telefono = telefono;    
     this.tipo = tipo;            
-    this.fechaAlta = new Date()
+    this.fechaAlta = new Date().toLocaleString();
   }
 }
 
-export default Usuario

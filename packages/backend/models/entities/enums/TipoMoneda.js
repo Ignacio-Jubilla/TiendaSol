@@ -1,7 +1,7 @@
 export const TipoMoneda = Object.freeze({
-  Peso_arg: "Peso_arg",
-  Dolar_Usa: "Dolar_Usa",
-  Real: "Real"
+  PESO_ARG: "PESO_ARG",
+  DOLAR_USA: "DOLAR_USA",
+  REAL: "REAL"
 });
 
 export const obtenerMoneda = (str) => {
