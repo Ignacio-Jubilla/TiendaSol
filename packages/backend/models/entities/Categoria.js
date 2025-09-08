@@ -1,5 +1,3 @@
-
-
 export class Categoria{
 
     constructor(nombre){

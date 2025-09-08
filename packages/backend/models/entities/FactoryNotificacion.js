@@ -1,8 +1,8 @@
 import {EstadoPedido} from "./enums/EstadoPedido.js"
 import {Pedido} from "./Pedido.js"
-import Notificacion from "./Notificacion.js"
+import {Notificacion} from "./Notificacion.js"
 
-export default class FactoryNotificacion{
+export class FactoryNotificacion{
     constructor(traductor) {
       this.lenguaje = "ES"
       this.traductor = traductor

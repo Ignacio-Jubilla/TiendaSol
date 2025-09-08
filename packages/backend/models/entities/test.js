@@ -1,7 +1,7 @@
-import { Categoria } from "./Categoria.js";
+/*import { Categoria } from "./Categoria.js";
 import { TipoMoneda } from "./enums/TipoMoneda.js";
 import { TipoUsuario } from "./enums/TipoUsuario.js";
-import FactoryNotificacion from "./FactoryNotificacion.js"
+import { FactoryNotificacion } from "./FactoryNotificacion.js"
 import { ItemPedido } from "./ItemPedido.js";
 import {Pedido} from "./Pedido.js"
 import { Producto } from "./Producto.js";
@@ -25,7 +25,7 @@ const items = [];
 items.push(item1);
 
 
-const pedido = new Pedido();
+const pedido = new Pedido(comprador,items,TipoMoneda.DOLAR_USA,"direccionEntrega");
 
 // setear el pedido
 pedido.setComprador(comprador);
@@ -40,3 +40,18 @@ console.log(pedido.getItems())
 const respuesta = noti.crearSegunPedido(pedido);
 
 console.log(`Prueba de crearSegunPedido(pedido): \n`,respuesta);
+*/
+
+import { CambioEstadoPedido } from "./CambioEstadoPedido.js";
+import { Pedido } from "./Pedido.js";
+import { Usuario } from "./Usuario.js";
+import { EstadoPedido } from "./enums/EstadoPedido.js";
+import {TipoMoneda} from "./enums/TipoMoneda.js"
+
+const user = new Usuario("1","2","3","4")
+const ped = new Pedido(user,[],TipoMoneda.DOLAR_USA,"direc")
+ped.actualizarEstado(new CambioEstadoPedido(EstadoPedido.CONFIRMADO),user,"porque pinto")
+ped.actualizarEstado(new CambioEstadoPedido(EstadoPedido.ENTREGADO),user,"se envio")
+
+console.log(ped)
+

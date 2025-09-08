@@ -1,8 +1,7 @@
-
 import { v4 as uuidv4 } from 'uuid';
 
 
-export default class Notificacion{
+export class Notificacion{
 
     constructor(usuarioDestino,mensaje){
         this.id=uuidv4();

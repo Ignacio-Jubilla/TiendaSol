@@ -1,4 +1,4 @@
-class CambioEstadoPedido {
+export class CambioEstadoPedido {
   constructor(estado, pedido, usuario, motivo){
     this.fecha = new Date();
     this.estado = estado;
@@ -7,4 +7,4 @@ class CambioEstadoPedido {
     this.motivo = motivo;
   }
 }
- export default CambioEstadoPedido
+ 

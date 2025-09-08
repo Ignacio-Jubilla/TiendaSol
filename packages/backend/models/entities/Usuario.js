@@ -7,7 +7,7 @@ export class Usuario {
     this.email = email;          
     this.telefono = telefono;    
     this.tipo = tipo;            
-    this.fechaAlta = new Date()
+    this.fechaAlta = new Date().toLocaleString();
   }
 }
 

@@ -22,7 +22,7 @@ app.listen(3000,() =>{
 app.get("/api/health", (req,res) =>{
     res.status(200).json({
         status: "ok",
-        message: "Tienda sol API is running",
+        message: "Tienda sol API Health Check EXITOSO",
         timestamp: new Date().toLocaleString()
     });
 });
