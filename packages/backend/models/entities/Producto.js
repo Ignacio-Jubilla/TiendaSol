@@ -8,20 +8,15 @@ export class Producto{
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.categorias = categorias;
-        this.precio = precio
+        this.precio = precio;
         this.moneda = moneda;
-        this.stock = stock
-        this.fotos = fotos
+        this.stock = stock;
+        this.fotos = fotos;
         this.activo = true;
-        
     }
 
     estaDisponible(cantidad){
-        if(cantidad<this.stock){
-            return true;
-        }else{
-            return false;
-        }
+        return cantidad<this.stock;
     }
 
     reducirStock(cantARestar){

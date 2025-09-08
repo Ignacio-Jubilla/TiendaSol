@@ -9,7 +9,7 @@ export class Notificacion{
         this.mensaje = mensaje;
         this.fechaAlta = new Date().toLocaleString();
         this.leida = false;
-        this.fechaLeida;
+        this.fechaLeida=null;
     }
 
     marcarComoLeida(){

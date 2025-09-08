@@ -17,8 +17,8 @@ export class Pedido {
     this.direccionEntrega = direccionEntrega
     this.estado = EstadoPedido.PENDIENTE;
     this.fechaCreacion = new Date();
-    this.historialEstados = []; // arranca vacío o como [CambioEstadoPedido(PENDIENTE,...,...)]
-  } //                        deberiamos ver como conviene inicializarlo
+    this.historialEstados = [];
+  } 
   
   calcularTotal() {
     return this.items.reduce((acum, item) => acum + item.subtotal(), 0);
@@ -30,5 +30,6 @@ export class Pedido {
     this.estado = nuevoEstado
   }
 
-  validarStock = () => this.items.reduce((itemAnt, itemAct) => itemAnt && item.getProducto().estaDisponible(item.getCantidad()), true)
+  validarStock = () => this.items.reduce((itemAnt, itemAct) => itemAnt && itemAct.getProducto().estaDisponible(itemAct.getCantidad()), true)
+
 }

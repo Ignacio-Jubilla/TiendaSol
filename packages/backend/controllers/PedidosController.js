@@ -28,7 +28,8 @@ app.get("/api/health", (req,res) =>{
 });
 
 
-PedidosRouter.post('/', (req, res) => {
+
+PedidosRouter.post('/pedido', (req, res) => {
   const body = req.body;
   
   const direccionEntrega = direccionEntregaBuilder
@@ -46,12 +47,12 @@ PedidosRouter.post('/', (req, res) => {
   res.status(201).json("Pedido creado")
 })
 
-PedidosRouter.post('/:id/marcarEnviado', (req, res) => {
+PedidosRouter.post('/pedido/:id/enviado', (req, res) => {
   const {pedidoId} = req.params
   pedidoService.marcarEnviado(pedidoId)
 })
 
-PedidosRouter.post('/:id/cancelar', (req, res) => {
+PedidosRouter.post('/pedido/:id/cancelado', (req, res) => {
   const { pedidoId } = req.params
   const { motivo } = req.body
   pedidoService.cancelarPedido(pedidoId, motivo);
