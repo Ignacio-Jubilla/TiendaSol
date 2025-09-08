@@ -1,40 +1,71 @@
-export class TraductorManual{
+import { EstadoPedido } from "./enums/EstadoPedido"
+
+export class TraductorManual {
   constructor() {
     this.mensajes = {
-      "ENVIADO": {
-      ES: "Tu pedido ha sido enviado",
-      EN: "Your order has been shipped",
-      BR: "Peido emviado",
+      [EstadoPedido.ENVIADO]: {
+        ES: "Tu pedido ha sido enviado",
+        EN: "Your order has been shipped",
+        BR: "Pedido enviado",
       },
-      "PENDIENTE":{
-        ES: "Tu pedido esta pendiente",
+      [EstadoPedido.PENDIENTE]: {
+        ES: "Tu pedido está pendiente",
         EN: "Pending order",
-        BR: "pedido",
+        BR: "Pedido pendente",
       },
-      "CANCELADO":{
+      [EstadoPedido.CANCELADO]: {
         ES: "Tu pedido ha sido cancelado",
         EN: "Your order has been cancelled",
-        BR: "pedido",
+        BR: "Pedido cancelado",
       },
-      "CONFIRMADO":{
+      [EstadoPedido.CONFIRMADO]: {
         ES: "Tu pedido fue confirmado",
         EN: "Your order is confirmed",
-        BR: "pedido",
+        BR: "Pedido confirmado",
       },
-      "EN PREPARACION":{
-        ES: "Tu pedido esta en preparacion",
+      [EstadoPedido.EN_PREPARACION]: {
+        ES: "Tu pedido está en preparación",
         EN: "We are preparing your order, soon we'll send it",
-        BR: "pedido",
+        BR: "Pedido em preparação",
       },
-      "ENTREGADO":{
+      [EstadoPedido.ENTREGADO]: {
         ES: "Tu pedido fue entregado",
-        EN: "Your order was shipped",
-        BR: "pedido",
+        EN: "Your order was delivered",
+        BR: "Pedido entregue",
       }
-    }
+    };
   }
+
   traducir = (estado, idioma) => {
-    const mensaje = this.mensajes[estado].idioma 
-    mensaje === undefined ? "Idioma no soportado, Not supported language" : mensaje
-  }
+    const traducciones = this.mensajes[estado];
+    if (!traducciones) {
+      return `Estado no soportado: ${estado}`;
+    }
+
+    const mensaje = traducciones[idioma];
+    return mensaje === undefined
+      ? `Idioma no soportado: ${idioma}`
+      : mensaje;
+  };
+
+  agregarTraduccion = (idioma, traducciones) => {
+    const estados = Object.values(EstadoPedido);
+
+      const estadosFaltantes = estados.filter(e => !traducciones[e])
+      if (estadosFaltantes.length > 0) throw new Error(`Falta traducciones para alguno/s de los estados`);
+
+    // agregar traducciones
+    estados.forEach(e => {this.mensajes[e][idioma] = traducciones[e]})
+  };
 }
+
+//ejemplo
+// let xd = new TraductorManual()
+// xd.agregarTraduccion("CHN", {
+//     "ENVIADO" : "chin chon chin chon",
+//     "PENDIENTE" : "chin chon chin chon",
+//     "CANCELADO" : "chin chon chin chon",
+//     "CONFIRMADO" : "chin chon chin chon",
+//     "EN_PREPARACION" : "chin chon chin chon",
+//     "ENTREGADO" : "SDSDSFDSF"
+// })
