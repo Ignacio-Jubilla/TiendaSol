@@ -88,3 +88,8 @@ Para iniciar el backend en modo `dev` y el frontend simultáneamente, usá:
 ```bash
 npm run start:dev
 ```
+
+#### Gti Flow a utilizar:
+Crear una branch ENTREGA_N para cada entrega
+Por cada funcionalidad a desarollar se crea una branch a partir de ENTREGA_N Estas branchs se mergearan a ENTREGA_N una vez se complete la funcionalidad 
+Antes de cada entrega se mergeara ENTREGA_N a Main

@@ -39,13 +39,12 @@ export class TraductorManual {
   traducir = (estado, idioma) => {
     const traducciones = this.mensajes[estado];
     if (!traducciones) {
-      return `Estado no soportado: ${estado}`;
+      throw new Error(`Estado no soportado: ${estado}`);
     }
-
-    const mensaje = traducciones[idioma];
-    return mensaje === undefined
-      ? `Idioma no soportado: ${idioma}`
-      : mensaje;
+    const mensaje = traducciones[idioma]
+    if (!mensaje) {
+      throw new Error(`Idioma no soportado: ${idioma}`)
+    }
   };
 
   agregarTraduccion = (idioma, traducciones) => {

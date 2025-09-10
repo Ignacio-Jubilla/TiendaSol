@@ -13,23 +13,7 @@ const pedidoService = new PedidosServices(new ProductoService(), new UsuarioServ
 */
 const direccionEntregaBuilder = new DireccionEntregaBuilder();
 
-const app = express();
-
-app.listen(3000,() =>{
-    console.log("Servidor corriendo sobre el puerto 3000");
-})
-
-app.get("/api/health", (req,res) =>{
-    res.status(200).json({
-        status: "ok",
-        message: "Tienda sol API Health Check EXITOSO",
-        timestamp: new Date().toLocaleString()
-    });
-});
-
-
-
-PedidosRouter.post('/pedido', (req, res) => {
+PedidosRouter.post('/', (req, res) => {
   const body = req.body;
   
   const direccionEntrega = direccionEntregaBuilder
@@ -42,18 +26,28 @@ PedidosRouter.post('/pedido', (req, res) => {
     .withProvincia(body.provincia)
     .build()
 
+  if (!body.compradorId || !body.items || !body.moneda ) {
+    return res.status(400).json({ error: 'Faltan datos obligatorios' });
+  }
+
   const pedidoDTO = new PedidoDTO(body.compradorId, body.items, body.moneda, direccionEntrega)
   pedidoService.crearPedido(pedidoDTO)
   res.status(201).json("Pedido creado")
 })
 
-PedidosRouter.post('/pedido/:id/enviado', (req, res) => {
-  const {pedidoId} = req.params
+PedidosRouter.post('/:id/enviado', (req, res) => {
+  const pedidoId = req.params.id
+  if (!pedidoId) {
+    return res.status(400).json({ error: 'Falta id de pedido' });
+  }
   pedidoService.marcarEnviado(pedidoId)
 })
 
-PedidosRouter.post('/pedido/:id/cancelado', (req, res) => {
-  const { pedidoId } = req.params
+PedidosRouter.post('/:id/cancelado', (req, res) => {
+  const pedidoId = req.params.id
   const { motivo } = req.body
+  if (!pedidoId) {
+    return res.status(400).json({ error: 'Falta id de pedido' });
+  }
   pedidoService.cancelarPedido(pedidoId, motivo);
 })
