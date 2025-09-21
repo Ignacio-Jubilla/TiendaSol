@@ -1,10 +1,10 @@
 import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
-import { PedidosRouter } from './controllers/PedidosController.js'
-const app = express()
+import pedidosRouter  from './routes/pedidosRoutes.js'
 import middleware from './utils/middleware.js'
 import config from './utils/config.js'
+const app = express()
 
 app.use(express.json())
 app.use(
@@ -15,7 +15,7 @@ app.use(
   }),
 )
 
-app.use('/api/pedidos', PedidosRouter)
+app.use('/api/pedidos', pedidosRouter)
 app.get('/api/health', (req,res) => {
     res.status(200).json({
         status: 'ok',
@@ -29,8 +29,9 @@ app.get('/hello', (req, res) => {
     'hello world' })
 })
 
-app.use(middleware.errorHandler)
 app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
+
 
 const { PORT } = config
 app.listen(PORT, () => {
