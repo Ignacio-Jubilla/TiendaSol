@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 
-
 export class Producto{
     constructor(vendedor,titulo,descripcion,categorias,precio,moneda,stock,fotos){
         this.id= uuidv4();
@@ -23,8 +22,7 @@ export class Producto{
         if(this.stock-cantARestar>=0){
             this.stock-=cantARestar;
         }else{
-            this.stock=0;
-            console.log("SIN STOCK: no se puede reducir más, la cantidad a reducir se excede por ${cant}",Math.abs(this.stock-cantARestar));
+            throw new Error("No hay stock suficiente");
         }
     }
 

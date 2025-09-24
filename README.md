@@ -88,3 +88,55 @@ Para iniciar el backend en modo `dev` y el frontend simultáneamente, usá:
 ```bash
 npm run start:dev
 ```
+
+#### Git Flow a utilizar:
+*Resumen* <br>
+Crear una branch ENTREGA_N para cada entrega
+Por cada funcionalidad a desarollar se crea una branch a partir de ENTREGA_N Estas branchs se mergearan a ENTREGA_N una vez se complete la funcionalidad 
+Antes de cada entrega se mergeara ENTREGA_N a Main
+
+#### Detalle del Git Flow, Tienda Sol
+
+Para la gestión del versionado y el trabajo colaborativo en el proyecto utilizaremos **Git** siguiendo un flujo de ramas simple, adaptado a las entregas parciales del trabajo práctico.
+
+### 📂 Estructura de ramas
+
+Durante el desarrollo de cada entrega, los integrantes podrán crear ramas nuevas específicas para:
+
+- **Funcionalidades particulares**
+- **Componentes del modelo**
+- **Correcciones puntuales**
+
+Cada una de estas ramas partirá de la rama base correspondiente a la iteración en curso.
+
+### 📦 Integración y Entregas
+
+Al finalizar el trabajo de una iteración, todas las ramas desarrolladas se integrarán en una rama de entrega única con el formato:
+
+E_n
+
+donde `n` es el número de la entrega. Ejemplos:
+
+- `E_1` → primera entrega  
+- `E_2` → segunda entrega  
+- y así sucesivamente
+
+La integración a la rama de entrega se realizará mediante **Pull Request (PR)**, asegurando revisión y aprobación antes del *merge*.
+
+### 🚧 Flujo de trabajo resumido
+
+1. Crear una rama de desarrollo específica para la funcionalidad/componente  
+   *(ejemplo: `feature/notificaciones`, `feature/endpoint-health`)*.  
+2. Desarrollar y commitear en la rama creada.  
+3. Abrir un **Pull Request** hacia la rama de entrega correspondiente (`E_n`).  
+4. Revisar, aprobar y mergear los cambios.  
+
+La rama `E_n` representará la versión consolidada y estable de la entrega.  
+Antes de cada entrega oficial, se mergeará `E_n` a `main`.
+
+### ✅ Buenas prácticas adoptadas
+
+- Commits **descriptivos** que reflejen claramente los cambios realizados.  
+- Uso de **Pull Requests** como único mecanismo de integración *(evitando pushes directos a las ramas de entrega)*.  
+- **Revisión entre compañeros** antes de aprobar un PR.  
+- Nombres de ramas claros que indiquen el objetivo de desarrollo.

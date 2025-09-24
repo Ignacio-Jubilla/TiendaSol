@@ -30,7 +30,7 @@ export default defineConfig([
       'arrow-spacing': ['error', { before: true, after: true }],
 
       // No console.log en producción
-      'no-console': 'warn',
+      'no-console': 0,
 
       // Uso de const si no se reasigna
       'prefer-destructuring': ['error', {
