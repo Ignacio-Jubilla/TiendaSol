@@ -4,7 +4,13 @@ import express from 'express'
 import pedidosRouter  from './routes/pedidosRoutes.js'
 import middleware from './utils/middleware.js'
 import config from './utils/config.js'
+
+import { DBConnector } from './utils/dbConnector.js'
+
 const app = express()
+
+const connector = new DBConnector()
+connector.connect()
 
 app.use(express.json())
 app.use(
@@ -14,7 +20,8 @@ app.use(
       : true,
   }),
 )
-
+//loggear requests
+app.use(middleware.requestLogger)
 app.use('/api/pedidos', pedidosRouter)
 app.get('/api/health', (req,res) => {
     res.status(200).json({
@@ -23,15 +30,13 @@ app.get('/api/health', (req,res) => {
         timestamp: new Date().toLocaleString()
     })
 })
-
 app.get('/hello', (req, res) => {
   res.json({ message: 
     'hello world' })
 })
 
-app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
-
+app.use(middleware.unknownEndpoint)
 
 const { PORT } = config
 app.listen(PORT, () => {

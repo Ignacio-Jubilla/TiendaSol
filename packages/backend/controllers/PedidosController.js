@@ -11,25 +11,25 @@ export class PedidosController {
   // }
 
   crearPedido = (req, res) => {
-    const body = req.body;
+    // const body = req.body;
 
-    const direccionEntrega = direccionEntregaBuilder
-      .withCalle(body.calle)
-      .withCodigoPostal(body.codigoPostal)
-      .withDepartamento(body.departamento)
-      .withLocalidad(body.localidad)
-      .withNumero(body.numero)
-      .withPais(body.pais)
-      .withProvincia(body.provincia)
-      .build()
+    // const direccionEntrega = direccionEntregaBuilder
+    //   .withCalle(body.calle)
+    //   .withCodigoPostal(body.codigoPostal)
+    //   .withDepartamento(body.departamento)
+    //   .withLocalidad(body.localidad)
+    //   .withNumero(body.numero)
+    //   .withPais(body.pais)
+    //   .withProvincia(body.provincia)
+    //   .build()
 
-    if (!body.compradorId || !body.items || !body.moneda) {
-      return res.status(400).json({ error: 'Faltan datos obligatorios' });
-    }
+    // if (!body.compradorId || !body.items || !body.moneda) {
+    //   return res.status(400).json({ error: 'Faltan datos obligatorios' });
+    // }
 
-    const pedidoDTO = new PedidoDTO(body.compradorId, body.items, body.moneda, direccionEntrega)
-    //pedidoService.crearPedido(pedidoDTO)
-    res.status(201).json("Pedido creado")
+    // const pedidoDTO = new PedidoDTO(body.compradorId, body.items, body.moneda, direccionEntrega)
+    // //pedidoService.crearPedido(pedidoDTO)
+    res.status(201).json("En construccion")
   }
 
   marcarEnviado = (req, res) => {
