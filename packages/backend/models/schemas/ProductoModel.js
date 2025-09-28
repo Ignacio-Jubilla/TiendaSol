@@ -25,5 +25,6 @@ activo: Boolean
 });
 productoSchema.loadClass(Producto);
 
+
 const ProductoModel = mongoose.model('Producto', productoSchema);
 export default ProductoModel

@@ -4,7 +4,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:unit": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --testPathPatterns=unit",
+    "test:integration": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --testPathPatterns=integration"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +15,8 @@
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
+    "cross-env": "^10.0.0",
+    "crossenv": "^0.0.2-security",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "express-async-handler": "^1.2.0",

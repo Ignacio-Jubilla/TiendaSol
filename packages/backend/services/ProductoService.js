@@ -3,17 +3,24 @@ import { CategoriaRepository } from '../models/repositories/CategoriaRepository.
 import { UsuarioRepository } from '../models/repositories/UsuariosRepotisory.js'
 import { EntidadNotFoundError, InputValidationError } from '../errors/ProductosErrors.js'
 import { Producto } from '../models/entities/Producto.js'
-import mongoose from 'mongoose'
+import mongoose, { mongo, Mongoose } from 'mongoose'
 import { Categoria } from '../models/entities/Categoria.js'
 import expressAsyncHandler from 'express-async-handler'
-
+import { ConversorMonedas } from '../utils/conversorMonedas.js'
+import tiposCambioManual from './../utils/tiposCambioManual.js'
 export class ProductoService {
-  constructor(productoRepo, categoriaRepo, usuarioRepo) {
+  constructor(productoRepo, categoriaRepo, usuarioRepo, tiposCambio) {
     this.productoRepo = productoRepo
     this.categoriaRepo = categoriaRepo
     this.usuarioRepo = usuarioRepo
+    this.tiposCambio = tiposCambio || tiposCambioManual
+    this.conversorMonedas = new ConversorMonedas(this.tiposCambio)
   }
+
   async crearProducto(productoDto) {
+    if (!mongoose.isValidObjectId(productoDto.vendedorId)) {
+      throw new InputValidationError("vendedorId no es un id valido")
+    }
     const vendedor = await this.usuarioRepo.findById(productoDto.vendedorId)
     if (!vendedor) { throw new EntidadNotFoundError(`usuario con id ${productoDto.vendedorId} no encontrado`) }
 
@@ -29,23 +36,20 @@ export class ProductoService {
     const producto = new Producto(vendedor, productoDto.titulo, productoDto.descripcion, categorias, productoDto.precio, productoDto.moneda, productoDto.stock, productoDto.fotos || [])
     return await this.productoRepo.saveProducto(producto)
   }
+  async obtenerProducto(idProducto) {
+    const producto = await this.productoRepo.findById(idProducto)
+    if (!producto) throw new EntidadNotFoundError("producto con id " + idProducto + " no encontrado")
+    return producto
+  }
   async obtenerProductos(filtro) {
-    console.log(filtro)
     const query = {}
-    const sorting = {}
     const vendedor = await this.usuarioRepo.findById(filtro.vendedorId)
-
     if (!vendedor) {
       throw new EntidadNotFoundError(`usuario con id ${filtro.vendedorId} no encontrado`)
     }
 
-
     query.vendedor = new mongoose.Types.ObjectId(vendedor.id)
-    if (filtro.precioMin || filtro.precioMax) {
-      query.precio = {};
-      if (filtro.precioMin) query.precio.$gte = Number(filtro.precioMin);
-      if (filtro.precioMax) query.precio.$lte = Number(filtro.precioMax);
-    }
+
     //buscar por valor busqueda
     if (filtro.valorBusqueda) {
       const regex = new RegExp(filtro.valorBusqueda, "i");
@@ -56,22 +60,64 @@ export class ProductoService {
       ];
     }
 
-    //agrego filtro itemPedido
-    //    ordenarPor: z.enum(["PRECIO", "VENTAS"]).optional(),
-    if (filtro.ordenarPor === "VENTAS") {
-      sorting.totalVentas = -1
-    } else if (filtro.ordenarPor === "PRECIO") {
-      if (filtro.ordenPrecio === "DESC") {
-        sorting.precio = -1
-      } else if (filtro.ordenPrecio === "ASC") {
-        sorting.precio = 1
-      } else if (filtro.ordenPrecio) {
-        throw new InputValidationError(`orden de precio ${filtro.ordenPrecio} no soportado`)
+    let productos = await this.productoRepo.getProductos(query)
+
+    if (filtro.precioMin || filtro.precioMax) {
+      if (filtro.precioMin) {
+        productos = productos.filter(p => {
+          if (filtro.tipoMoneda === p.moneda) return p.precio >= filtro.precioMin
+          else {
+            return p.precio >= this.conversorMonedas.convertir(filtro.tipoMoneda, p.moneda, filtro.precioMin)
+          }
+        }
+        )
+      }
+      if (filtro.precioMax) {
+        productos = productos.filter(p => {
+          if (filtro.tipoMoneda === p.moneda) return p.precio <= filtro.precioMax
+          else {
+            return p.precio <= this.conversorMonedas.convertir(filtro.tipoMoneda, p.moneda, filtro.precioMax)
+          }
+        }
+        )
       }
     }
 
-    const page = filtro.page ? Number(filtro.page) : 1;
-    const perPage = filtro.perPage ? Number(filtro.perPage) : 30;
-    return await this.productoRepo.getProductos(query, sorting, page, perPage)
+    if (filtro.ordenarPor === "VENTAS") {
+      productos.sort((a, b) => {
+        const ventasA = a.totalVentas;
+        const ventasB = b.totalVentas;
+        return ventasB - ventasA
+      });
+    } else if (filtro.ordenarPor === "PRECIO") {
+      //ordeno por precio en diferentes monedas
+      productos.sort((a, b) => {
+        let precioA = a.precio
+        let precioB = b.precio
+        if (a.moneda !== b.moneda) {
+            precioB = this.conversorMonedas.convertir(b.moneda, a.moneda, precioB)
+          }
+        if (filtro.ordenPrecio === "DESC") return precioB - precioA
+        if (filtro.ordenPrecio === "ASC") return precioA - precioB
+      });
+    }
+    //armar paginado
+    let page = filtro.page ? Number(filtro.page) : 1;
+    let perPage = filtro.perPage ? Number(filtro.perPage) : 30;
+
+    const total = productos.length
+    const totalPages = Math.ceil(total / perPage)
+    if (page > totalPages) {
+      page = 1;
+      perPage = 30;
+    }
+    const skipPages = (page - 1) * perPage;
+    const paginados = productos.slice(skipPages, skipPages + perPage)
+    return {
+      productos: paginados,
+      page,
+      perPage,
+      totalPages
+    }
   }
 }
