@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
-import pedidosRouter  from './routes/pedidosRoutes.js'
+import pedidosRouter  from './routes.js'
 import middleware from './utils/middleware.js'
 import config from './utils/config.js'
 
@@ -22,7 +22,9 @@ app.use(
 )
 //loggear requests
 app.use(middleware.requestLogger)
+
 app.use('/api/pedidos', pedidosRouter)
+
 app.get('/api/health', (req,res) => {
     res.status(200).json({
         status: 'ok',

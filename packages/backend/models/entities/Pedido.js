@@ -32,4 +32,26 @@ export class Pedido {
 
   validarStock = () => this.items.reduce((itemAnt, itemAct) => itemAnt && itemAct.getProducto().estaDisponible(itemAct.getCantidad()), true)
 
+  cambioDeEstado(nuevoEstado) {
+    this.historialEstados.push(this.estado);
+    this.estado = nuevoEstado;
+  }
+
+  cancelar(motivo) {
+    if (this.estado === EstadoPedido.CANCELADO) {
+      throw new Error('El pedido ya está cancelado');
+    }
+    this.cambioDeEstado(EstadoPedido.CANCELADO);
+    this.motivo=motivo;
+    return console.log(`Pedido ${this.id} cancelado. Motivo: ${this.motivo}`);
+  }
+
+  marcarEnviado() {
+    const estadosValidos = [EstadoPedido.CONFIRMADO, EstadoPedido.EN_PREPARACION];
+    if (!estadosValidos.includes(this.estado)) {
+      throw new Error('El pedido no puede ser marcado como enviado');
+    }
+    this.cambioDeEstado(EstadoPedido.ENVIADO);
+    return console.log(`Pedido ${this.id} marcado como enviado`);
+  }
 }
