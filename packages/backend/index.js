@@ -20,6 +20,7 @@ app.use(
       : true,
   }),
 )
+
 //loggear requests
 app.use(middleware.requestLogger)
 
@@ -36,7 +37,7 @@ app.get('/hello', (req, res) => {
   res.json({ message: 
     'hello world' })
 })
-
+app.use('/api/productos', productosRouter)
 app.use(middleware.errorHandler)
 app.use(middleware.unknownEndpoint)
 
