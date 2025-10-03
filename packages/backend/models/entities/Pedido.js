@@ -7,9 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 export class Pedido {
-  static id = 0;
   constructor(usuario,items,moneda,direccionEntrega) {
-    this.id = uuidv4();
     this.comprador = usuario
     this.items = items
     this.total = this.calcularTotal();
@@ -38,7 +36,8 @@ export class Pedido {
   }
 
   cancelar(motivo) {
-    if (this.estado === EstadoPedido.CANCELADO) {
+    const lista = [EstadoPedido.PENDIENTE, EstadoPedido.EN_PREPARACION,EstadoPedido.CONFIRMADO];
+    if (!lista.includes(this.estado)) {
       throw new Error('El pedido ya está cancelado');
     }
     this.cambioDeEstado(EstadoPedido.CANCELADO);

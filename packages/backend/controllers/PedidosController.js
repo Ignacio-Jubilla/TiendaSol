@@ -31,7 +31,7 @@ export class PedidosController {
     const nuevoPedido = await pedidoService.crearPedido(pedidoInputDTO);
     res.status(200).json(nuevoPedido);
   }
-
+  
   cancelarPedido = async (req, res) => {
     const pedidoId = req.params.id
     const { motivo } = req.body

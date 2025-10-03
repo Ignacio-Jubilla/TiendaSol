@@ -17,7 +17,7 @@ pedidosRouter.post('/', (req, res) => {
   pedidosController.crearPedido(req, res);
 })
 
-pedidosRouter.post('/:id/cancelado', (req, res) => {
+pedidosRouter.put('/:id/cancelado', (req, res) => {
   pedidosController.cancelarPedido(req, res);
 })
 
@@ -25,7 +25,7 @@ pedidosRouter.get('/usuario/:id/historial', (req, res) => {
   pedidosController.obtenerHistorialPedidos(req, res);
 })
 
-pedidosRouter.post('/:id/enviado', (req, res) => {
+pedidosRouter.put('/:id/enviado', (req, res) => {
   pedidosController.marcarEnviado(req, res);
 })
 

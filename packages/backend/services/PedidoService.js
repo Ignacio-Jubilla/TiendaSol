@@ -1,3 +1,4 @@
+import { PedidoNotFound } from "../errors/PedidosErrors.js";
 import { EstadoPedido } from "../models/entities/enums/EstadoPedido.js";
 import Pedido from "../models/Pedido.js";
 
@@ -11,7 +12,7 @@ export class PedidoService {
     }
     
     async crearPedido(pedidoInputDTO) {
-        const usuario = usuariosRepository.findById(pedidoInputDTO.compradorId);
+        const usuario = await this.usuariosRepository.findById(pedidoInputDTO.compradorId);
         if (!usuario) {
             throw new Error('El usuario comprador no existe');
         }
@@ -24,7 +25,7 @@ export class PedidoService {
     async cancelarPedido(pedidoId, motivo) {
         const pedido = await this.pedidoRepository.findById(pedidoId);
         if (!pedido) {
-            throw new Error('El pedido no existe');
+            throw new PedidoNotFound();
         }
         return pedido.cancelar(motivo);
     }
@@ -37,7 +38,7 @@ export class PedidoService {
     async marcarEnviado(pedidoId) {
         const pedido = await this.pedidoRepository.findById(pedidoId);
         if (!pedido) {
-            throw new Error('El pedido no existe');
+            throw new PedidoNotFound();
         }
         return pedido.marcarEnviado();
     }

@@ -7,7 +7,6 @@ import ItemSchema from "./item.js";
 import { EstadoPedido } from "../models/EstadoPedido.js";
 
 const pedidoSchema = new mongoose.Schema({
-  _id: { type: String, default: () => uuidv4() }, // se mantendria el UUID
   comprador: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Usuario',
