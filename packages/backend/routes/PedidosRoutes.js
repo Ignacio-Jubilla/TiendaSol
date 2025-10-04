@@ -13,6 +13,10 @@ const pedidoService = new PedidosServices(new ProductoService(), new UsuarioServ
 */
 const pedidosController = new PedidosController();
 
+pedidosRouter.get('/', (req, res) => {
+  pedidosController.obtenerTodosLosPedidos(req, res);
+})
+
 pedidosRouter.post('/', (req, res) => {
   pedidosController.crearPedido(req, res);
 })

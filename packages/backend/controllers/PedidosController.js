@@ -1,7 +1,8 @@
 //export const PedidosRouter = require('express').Router()// ojo con importar con distintos metodos
 //                                                      no se puede mezclar import y require
 import { DireccionEntregaBuilder } from '../models/entities/DireccionEntrega.js';
-import { PedidoDTO } from '../models/entities/dtos/input/PedidoInputDTO.js';
+import { PedidoInputDTO } from '../models/entities/dtos/input/PedidoInputDTO.js';
+import { PedidoOutputDTO } from '../models/entities/dtos/output/PedidoOutputDTO.js';
 import express from 'express';
 const direccionEntregaBuilder = new DireccionEntregaBuilder();
 
@@ -9,6 +10,14 @@ export class PedidosController {
  constructor(pedidoService) {
    this.pedidoService = pedidoService;
  }
+  obtenerTodosLosPedidos = async (req, res) => {
+    try {
+      const pedidos = await this.pedidoService.obtenerTodosLosPedidos();
+      res.status(200).json(pedidos);
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
+    }
+  }
 
   crearPedido = async (req, res) => {
     try{

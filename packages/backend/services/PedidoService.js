@@ -10,7 +10,11 @@ export class PedidoService {
         this.productosRepository=ProductosRepository;
     }
     async obtenerTodosLosPedidos() {
-        return await this.pedidoRepository.findAll();
+        const pedidos = await this.pedidoRepository.findAll();
+        if (!pedidos || pedidos.length === 0) {
+            throw new PedidoNotFound('No se encontraron pedidos');
+        }
+        return this.toOutputDTOs(pedidos);
     }
     
     async crearPedido(pedidoInputDTO) {

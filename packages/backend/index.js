@@ -1,7 +1,8 @@
 import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
-import pedidosRouter  from './routes.js'
+import pedidosRouter from './routes/PedidosRoutes.js'
+import productosRouter from './routes/ProductosRouter.js'
 import middleware from './utils/middleware.js'
 import config from './utils/config.js'
 
@@ -36,6 +37,7 @@ app.get('/hello', (req, res) => {
   res.json({ message: 
     'hello world' })
 })
+
 
 app.use('/api/pedidos', pedidosRouter)
 
