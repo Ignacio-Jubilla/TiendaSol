@@ -1,7 +1,8 @@
 import pedidosRouter from "./PedidosRoutes";
 
 const routes = [
-    pedidosRouter
+    pedidosRouter,
+    
 ]
 
 export default routes;

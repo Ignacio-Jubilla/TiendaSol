@@ -24,7 +24,6 @@ app.use(
 //loggear requests
 app.use(middleware.requestLogger)
 
-app.use('/api/pedidos', pedidosRouter)
 
 app.get('/api/health', (req,res) => {
     res.status(200).json({
@@ -37,6 +36,9 @@ app.get('/hello', (req, res) => {
   res.json({ message: 
     'hello world' })
 })
+
+app.use('/api/pedidos', pedidosRouter)
+
 app.use('/api/productos', productosRouter)
 app.use(middleware.errorHandler)
 app.use(middleware.unknownEndpoint)

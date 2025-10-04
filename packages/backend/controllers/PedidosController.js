@@ -11,9 +11,10 @@ export class PedidosController {
  }
 
   crearPedido = async (req, res) => {
-   const body = req.body;
+    try{
+    const body = req.body;
 
-   const direccionEntrega = direccionEntregaBuilder
+    const direccionEntrega = direccionEntregaBuilder
      .withCalle(body.calle)
      .withCodigoPostal(body.codigoPostal)
      .withDepartamento(body.departamento)
@@ -30,9 +31,13 @@ export class PedidosController {
     const pedidoInputDTO = new PedidoInputDTO(body.compradorId, body.items, body.moneda, direccionEntrega);
     const nuevoPedido = await pedidoService.crearPedido(pedidoInputDTO);
     res.status(200).json(nuevoPedido);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
+  }
   }
   
   cancelarPedido = async (req, res) => {
+  try {
     const pedidoId = req.params.id
     const { motivo } = req.body
     if (!pedidoId) {
@@ -43,16 +48,24 @@ export class PedidosController {
       return res.status(500).json({ error: 'error de cancelacion' });
     }
     res.status(200).json(resultado);
+  } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
+  }
   }
 
   obtenerHistorialPedidos = async (req, res) => {
-    const usuarioId = req.params.id
-    if (!usuarioId) {
-      return res.status(400).json({ error: 'id de usuario no valido' });
+    try {
+      const usuarioId = req.params.id;
+      if (!usuarioId) {
+        return res.status(400).json({ error: 'id de usuario no valido' });
+      }
+      const historial = await pedidoService.obtenerHistorialPedidos(usuarioId);
+      res.status(200).json(historial);
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
     }
-    const historial = await pedidoService.obtenerHistorialPedidos(usuarioId)
-    res.status(200).json(historial);
   }
+  
 
   marcarEnviado = async (req, res) => {
     const pedidoId = req.params.id
