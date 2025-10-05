@@ -1,4 +1,4 @@
-import { CustomError } from "./CustomError";
+import { CustomError } from "./CustomError.js";
 
 export class PedidoNotFound extends CustomError {
   constructor(message) {

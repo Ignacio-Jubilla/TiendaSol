@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import direccionEntrega from "../models/DireccionEntrega.js";
+import DireccionEntrega  from "../entities/DireccionEntrega.js";
 
 const direccionEntregaSchema = new mongoose.Schema({
     calle: { type: String, required: true },
@@ -14,6 +14,9 @@ const direccionEntregaSchema = new mongoose.Schema({
     lng: { type: Number }
 },{_id: false});
 
-direccionEntregaSchema.loadClass(direccionEntrega);
+direccionEntregaSchema.loadClass(DireccionEntrega);
 
-export default mongoose.model("DireccionEntrega", direccionEntregaSchema);
+const DireccionEntregaModel = mongoose.model("DireccionEntrega", direccionEntregaSchema);
+
+export default DireccionEntregaModel;
+export { direccionEntregaSchema };

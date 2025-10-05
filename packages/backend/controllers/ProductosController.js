@@ -5,7 +5,7 @@ import { TipoMoneda } from '../models/entities/enums/TipoMoneda.js';
 import expressAsyncHandler from 'express-async-handler';
 import { ProductoRepository } from '../models/repositories/ProductosRepository.js';
 import { CategoriaRepository } from '../models/repositories/CategoriaRepository.js';
-import { UsuarioRepository } from '../models/repositories/UsuariosRepotisory.js';
+import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js';
 import mongoose from 'mongoose';
 
 export class ProductosController {

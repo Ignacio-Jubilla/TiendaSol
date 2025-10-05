@@ -25,12 +25,12 @@ export class PedidosController {
 
     const direccionEntrega = direccionEntregaBuilder
      .withCalle(body.calle)
-     .withCodigoPostal(body.codigoPostal)
+     .withAltura(body.altura)
      .withDepartamento(body.departamento)
-     .withLocalidad(body.localidad)
-     .withNumero(body.numero)
-     .withPais(body.pais)
+     .withCodigoPostal(body.codigoPostal)
+     .withCiudad(body.ciudad)
      .withProvincia(body.provincia)
+     .withPais(body.pais)
      .build();
 
     if (!body.compradorId || !body.items || !body.moneda) {
@@ -38,7 +38,7 @@ export class PedidosController {
     }
 
     const pedidoInputDTO = new PedidoInputDTO(body.compradorId, body.items, body.moneda, direccionEntrega);
-    const nuevoPedido = await pedidoService.crearPedido(pedidoInputDTO);
+    const nuevoPedido = await this.pedidoService.crearPedido(pedidoInputDTO);
     res.status(200).json(nuevoPedido);
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });

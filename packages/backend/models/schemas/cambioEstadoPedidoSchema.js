@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import cambioEstadoPedido from "../models/CambioEstadoPedido.js";
+import cambioEstadoPedido from "../entities/CambioEstadoPedido.js";
 
 
 const cambioEstadoPedidoSchema = new mongoose.Schema({
@@ -12,5 +12,7 @@ const cambioEstadoPedidoSchema = new mongoose.Schema({
 
 cambioEstadoPedidoSchema.loadClass(cambioEstadoPedido);
 
-export default mongoose.model("CambioEstadoPedido", cambioEstadoPedidoSchema);
+const CambioEstadoPedidoModel = mongoose.model("CambioEstadoPedido", cambioEstadoPedidoSchema);
 
+export default CambioEstadoPedidoModel;
+export { cambioEstadoPedidoSchema };

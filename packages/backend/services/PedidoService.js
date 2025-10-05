@@ -1,7 +1,7 @@
 import { PedidoNotFound } from "../errors/PedidosErrors.js";
 import { UsuarioNotExists } from "../errors/UsuariosErrors.js";
 import { EstadoPedido } from "../models/entities/enums/EstadoPedido.js";
-import Pedido from "../models/Pedido.js";
+import { Pedido } from "../models/entities/Pedido.js";
 
 export class PedidoService {
     constructor(PedidoRepository,UsuariosRepository,ProductosRepository) {

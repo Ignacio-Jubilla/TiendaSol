@@ -1,23 +1,25 @@
 import mongoose from "mongoose";
-import Pedido from "../models/Pedido.js";
+import { Pedido } from "../entities/Pedido.js";
 import { v4 as uuidv4 } from 'uuid';
-import DireccionEntregaSchema from "./direccionEntrega.js";
-import CambioEstadoPedidoSchema from "./cambioEstadoPedido.js";
-import ItemSchema from "./item.js";
-import { EstadoPedido } from "../models/EstadoPedido.js";
+import { direccionEntregaSchema } from "./direccionEntregaSchema.js";
+import { cambioEstadoPedidoSchema } from "./cambioEstadoPedidoSchema.js"; 
+import { itemPedidoSchema } from "./ItemPedidoModel.js";
+import { EstadoPedido } from "../entities/enums/EstadoPedido.js";
+import { ca } from "zod/v4/locales";
 
 const pedidoSchema = new mongoose.Schema({
   comprador: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Usuario',
-    required: true },
-  items: [ItemSchema],
+    required: true 
+  },
+  items: [itemPedidoSchema],
   total: { type: Number, required: true },
   moneda: { type: String, required: true },
-  direccionEntrega: DireccionEntregaSchema,
+  direccionEntrega: direccionEntregaSchema,
   estado: { type: String, enum: Object.values(EstadoPedido), default: EstadoPedido.PENDIENTE },
   fechaCreacion: { type: Date, default: Date.now },
-  historialEstados: [CambioEstadoPedidoSchema]
+  historialEstados: [cambioEstadoPedidoSchema],
 },{
     timestamps: true,
     collection: 'pedidos'
@@ -25,4 +27,5 @@ const pedidoSchema = new mongoose.Schema({
 
 pedidoSchema.loadClass(Pedido);
 
-export const PedidoModel = mongoose.model('Pedido', pedidoSchema);
+const pedidoModel = mongoose.model('Pedido', pedidoSchema);
+export default pedidoModel;

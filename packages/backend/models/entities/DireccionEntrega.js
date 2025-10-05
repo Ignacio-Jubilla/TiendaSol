@@ -1,5 +1,6 @@
-export class DireccionEntrega {
-  constructor(calle, altura, piso, departamento, codigoPostal, ciudad, provincia, pais, lat, lon) {
+
+export default class DireccionEntrega {
+  constructor({calle, altura, piso, departamento, codigoPostal, ciudad, provincia, pais, lat, lon}) {
     this.calle = calle;
     this.altura = altura;
     this.piso = piso;
@@ -62,14 +63,17 @@ export class DireccionEntregaBuilder {
   }
 
   build() {
-    return new DireccionEntrega(
-      this.calle,
-      this.altura,
-      this.departamento,
-      this.codigoPostal,
-      this.ciudad,
-      this.provincia,
-      this.pais
-    );
+    return new DireccionEntrega({
+      calle: this.calle,
+      altura: this.altura,
+      piso: this.piso,
+      departamento: this.departamento,
+      codigoPostal: this.codigoPostal,
+      ciudad: this.ciudad,
+      provincia: this.provincia,
+      pais: this.pais,
+      lat: this.lat,
+      lon: this.lon
+    });
   }
 }

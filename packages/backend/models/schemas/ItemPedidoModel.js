@@ -19,3 +19,4 @@ itemPedidoSchema.loadClass(ItemPedido)
 
 const ItemProductoModel = mongoose.model('ItemPedido', itemPedidoSchema)
 export default ItemProductoModel
+export { itemPedidoSchema }

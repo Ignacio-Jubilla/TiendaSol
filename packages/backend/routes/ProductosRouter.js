@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler'
 import { ProductosController } from '../controllers/Productoscontroller.js';
 import { ProductoService } from '../services/ProductoService.js';
 import { ProductoRepository } from '../models/repositories/ProductosRepository.js';
-import { UsuarioRepository } from '../models/repositories/UsuariosRepotisory.js';
+import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js';
 import { CategoriaRepository } from '../models/repositories/CategoriaRepository.js';
 import { obtenerTipoCambio } from '../utils/exchangeApiExternal.js';
 const productoRepo = new ProductoRepository()

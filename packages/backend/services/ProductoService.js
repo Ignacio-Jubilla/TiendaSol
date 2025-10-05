@@ -1,6 +1,6 @@
 import { ProductoRepository } from '../models/repositories/ProductosRepository.js'
 import { CategoriaRepository } from '../models/repositories/CategoriaRepository.js'
-import { UsuarioRepository } from '../models/repositories/UsuariosRepotisory.js'
+import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js'
 import { EntidadNotFoundError, InputValidationError } from '../errors/ProductosErrors.js'
 import { Producto } from '../models/entities/Producto.js'
 import mongoose, { mongo, Mongoose } from 'mongoose'
