@@ -1,7 +1,13 @@
-import { CustomError } from "./CustomError";
+import { CustomError } from "./CustomError.js";
 
-export class ProductoError extends CustomError {
-  // constructor() {
-  //   super(404, "Pedido não encontrado");
-  // }
+export class EntidadNotFoundError extends CustomError {
+  constructor(message) {
+    super(message, 404)
+  }  
+}
+
+export class InputValidationError extends CustomError {
+  constructor(message) {
+    super(message, 400)
+  }  
 }

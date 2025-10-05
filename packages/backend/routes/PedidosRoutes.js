@@ -3,26 +3,46 @@
 import express from 'express';
 const pedidosRouter = express.Router();
 import { PedidosController} from '../controllers/PedidosController.js'
+import { PedidoService } from '../services/PedidoService.js';
+
 /*
-import PedidosServices from '../services/PedidoService';
 import { PedidoDTO } from '../models/entities/dtos/input/PedidoDTO';
 import ProductoService from '../services/ProductoService';
 import UsuarioService from '../services/UsuarioService';
 import NotificacionService from '../services/NotificacionService';
 const pedidoService = new PedidosServices(new ProductoService(), new UsuarioService(), new NotificacionService());
 */
-const pedidosController = new PedidosController();
+import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js';
+import { PedidoRepository } from '../models/repositories/PedidoRepository.js';
+import { ProductoRepository } from '../models/repositories/ProductosRepository.js';
+
+const usuarioRepo = new UsuarioRepository();
+const pedidoRepo = new PedidoRepository();
+const productoRepo = new ProductoRepository();
+const pedidosService = new PedidoService(pedidoRepo, usuarioRepo, productoRepo);
+
+const pedidosController = new PedidosController(pedidosService);
+
+pedidosRouter.get('/', (req, res) => {
+  pedidosController.obtenerTodosLosPedidos(req, res);
+})
 
 pedidosRouter.post('/', (req, res) => {
   pedidosController.crearPedido(req, res);
 })
 
-pedidosRouter.post('/:id/enviado', (req, res) => {
+pedidosRouter.put('/:id/cancelado', (req, res) => {
+  pedidosController.cancelarPedido(req, res);
+})
+
+pedidosRouter.get('/usuario/:id/historial', (req, res) => {
+  pedidosController.obtenerHistorialPedidos(req, res);
+})
+
+pedidosRouter.put('/:id/enviado', (req, res) => {
   pedidosController.marcarEnviado(req, res);
 })
 
-pedidosRouter.post('/:id/cancelado', (req, res) => {
-  pedidosController.cancelarPedido(req, res);
-})
+
 
 export default pedidosRouter

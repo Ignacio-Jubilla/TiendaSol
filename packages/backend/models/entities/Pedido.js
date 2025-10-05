@@ -1,5 +1,5 @@
-import { CambioEstadoPedido } from "./CambioEstadoPedido.js";
-import { DireccionEntrega } from "./DireccionEntrega.js";
+import  CambioEstadoPedido  from "./CambioEstadoPedido.js";
+import  DireccionEntrega  from "./DireccionEntrega.js";
 import { EstadoPedido } from "./enums/EstadoPedido.js";
 import { TipoUsuario } from "./enums/TipoUsuario.js";
 import {Usuario} from "./Usuario.js";
@@ -7,9 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 export class Pedido {
-  static id = 0;
   constructor(usuario,items,moneda,direccionEntrega) {
-    this.id = uuidv4();
     this.comprador = usuario
     this.items = items
     this.total = this.calcularTotal();
@@ -31,5 +29,4 @@ export class Pedido {
   }
 
   validarStock = () => this.items.reduce((itemAnt, itemAct) => itemAnt && itemAct.getProducto().estaDisponible(itemAct.getCantidad()), true)
-
 }

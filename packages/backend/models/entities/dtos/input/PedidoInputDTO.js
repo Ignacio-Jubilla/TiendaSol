@@ -1,4 +1,4 @@
-export class PedidoDTO{
+export class PedidoInputDTO{
   constructor(compradorId, items, moneda, direccionEntrega) {
     this.compradorId = compradorId
     this.items = items 

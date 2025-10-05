@@ -1,11 +1,12 @@
 import { CustomError } from "../errors/CustomError.js";
+import { EntidadNotFoundError } from "../errors/ProductosErrors.js";
 import logger from './logger.js'
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
 
 const errorHandler = (err , req, res, next) => {
-  if (err instanceof CustomError || err instanceof Error) {
+  if (err instanceof CustomError) {
     const statusCode = parseInt(err.statusCode, 10) || 400;
     return res.status(statusCode).json({
       success: false,
