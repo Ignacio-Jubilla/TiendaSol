@@ -13,7 +13,8 @@ export class ProductoRepository {
   async findAll() {
     return await ProductoModel.find({})
   }
-  async getProductos(filtro) {
+
+  async getProductos(filtro, orden = {}) {
 
     const aggregateFields = [
       { $match: filtro },
@@ -37,8 +38,16 @@ export class ProductoRepository {
         }
       }
     ]      
-    
-    return await ProductoModel.aggregate(aggregateFields)
+  
+
+if (Object.keys(orden).length > 0) {
+  pipeline.push({ $sort: orden });
+}
+
+
+    const productos = await ProductoModel.aggregate(aggregateFields)
+    await ProductoModel.populate(productos, { path: "vendedor", select: "_id nombre email"})
+    return productos
   }
 
 }
