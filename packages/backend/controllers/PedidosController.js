@@ -6,6 +6,7 @@ import { DireccionEntregaBuilder } from '../models/entities/DireccionEntrega.js'
 import { PedidoInputDTO } from '../models/entities/dtos/input/PedidoInputDTO.js';
 import { PedidoOutputDTO } from '../models/entities/dtos/output/PedidoOutputDTO.js';
 import express from 'express';
+import { itemPedidoSchema } from '../models/schemas/ItemPedidoModel.js';
 const direccionEntregaBuilder = new DireccionEntregaBuilder();
 
 export class PedidosController {
@@ -114,7 +115,7 @@ const crearPedidoSchema = z.object({
   compradorId: z.string().refine((id) => mongoose.isValidObjectId(id), {
     message: "Id de comprador no válido",
   }),
-  items: z.array(itemSchema).nonempty({ message: "Debe haber al menos un item" }),
+  items: z.array(itemPedidoSchema).nonempty({ message: "Debe haber al menos un item" }),
   moneda: z.string().nonempty({ message: "Moneda es obligatoria" }),
   calle: z.string(),
   altura: z.string(),

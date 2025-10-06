@@ -15,6 +15,8 @@ const pedidoService = new PedidosServices(new ProductoService(), new UsuarioServ
 import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js';
 import { PedidoRepository } from '../models/repositories/PedidoRepository.js';
 import { ProductoRepository } from '../models/repositories/ProductosRepository.js';
+import asyncHandler from 'express-async-handler'
+
 
 const usuarioRepo = new UsuarioRepository();
 const pedidoRepo = new PedidoRepository();
