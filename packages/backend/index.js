@@ -7,6 +7,7 @@ import middleware from './utils/middleware.js'
 import config from './utils/config.js'
 
 import { DBConnector } from './utils/dbConnector.js'
+import notificacionesRouter from './routes/NotificacionRoutes.js'
 
 const app = express()
 
@@ -42,6 +43,9 @@ app.get('/hello', (req, res) => {
 app.use('/api/pedidos', pedidosRouter)
 
 app.use('/api/productos', productosRouter)
+
+app.use('/api/notificaciones', notificacionesRouter)
+
 app.use(middleware.errorHandler)
 app.use(middleware.unknownEndpoint)
 
