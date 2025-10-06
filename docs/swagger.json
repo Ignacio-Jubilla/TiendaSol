@@ -1,0 +1,205 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "TiendaSol",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Servidor Principal"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Pedidos",
+      "description": "Operaciones relacionadas con pedidos"
+    },
+    {
+      "name": "Productos",
+      "description": "Gestión de productos"
+    },
+    {
+      "name": "Notificaciones",
+      "description": "Manejo de notificaciones"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Verifica el estado de salud del API",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/hello": {
+      "get": {
+        "summary": "Devuelve un saludo",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/pedidos": {
+      "get": {
+        "summary": "Obtener lista de pedidos",
+        "tags": ["Pedidos"],
+        "responses": {
+          "200": {
+            "description": "Lista de pedidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo pedido",
+        "tags": ["Pedidos"],
+        "responses": {
+          "201": {
+            "description": "Pedido creado"
+          }
+        }
+      }
+    },
+    "/api/pedidos/{id}/cancelado": {
+      "put": {
+        "summary": "Cancelar un pedido por ID",
+        "tags": ["Pedidos"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pedido cancelado"
+          }
+        }
+      }
+    },
+    "/api/pedidos/usuario/{id}/historial": {
+      "get": {
+        "summary": "Obtener historial de pedidos de un usuario",
+        "tags": ["Pedidos"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historial de pedidos"
+          }
+        }
+      }
+    },
+    "/api/pedidos/{id}/enviado": {
+      "get": {
+        "summary": "Obtener estado de envío de un pedido",
+        "tags": ["Pedidos"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado de envío del pedido"
+          }
+        }
+      }
+    },
+    "/api/productos": {
+      "get": {
+        "summary": "Obtener lista de productos",
+        "tags": ["Productos"],
+        "responses": {
+          "200": {
+            "description": "Lista de productos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo producto",
+        "tags": ["Productos"],
+        "responses": {
+          "201": {
+            "description": "Producto creado"
+          }
+        }
+      }
+    },
+    "/api/productos/{id}": {
+      "get": {
+        "summary": "Obtener un producto por ID",
+        "tags": ["Productos"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del producto"
+          }
+        }
+      }
+    },
+    "/api/notificaciones": {
+      "get": {
+        "summary": "Obtener lista de notificaciones",
+        "tags": ["Notificaciones"],
+        "responses": {
+          "200": {
+            "description": "Lista de notificaciones"
+          }
+        }
+      }
+    },
+    "/api/notificaciones/{id}/leida": {
+      "put": {
+        "summary": "Marcar notificación como leída",
+        "tags": ["Notificaciones"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notificación marcada como leída"
+          }
+        }
+      }
+    }
+  }
+}
