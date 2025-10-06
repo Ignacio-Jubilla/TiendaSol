@@ -32,7 +32,7 @@ export class NotificacionesController {
         try {
             const notificacion = await this.notificacionService.marcarNotificacionLeida(req.params.id, req.query.usuario)
 
-            res.status(200).json(notificacion)
+            res.status(201).json(notificacion)
 
             return
         } catch (error){

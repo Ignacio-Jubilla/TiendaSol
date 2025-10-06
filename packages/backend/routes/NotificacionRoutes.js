@@ -11,11 +11,11 @@ const notificacionService = new NotificacionService(notificacionesRepository)
 const notificacionesController = new NotificacionesController(notificacionService)
 
 notificacionesRouter.get('/', asyncHandler(async (req, res) => {
-    notificacionesController.obtenerNotificaciones(req, res)
+    return await notificacionesController.obtenerNotificaciones(req, res)
 }))
 
 notificacionesRouter.put('/:id/leida', asyncHandler(async (req, res) => {
-    notificacionesController.marcarNotificacionLeida(req, res)
+    return await notificacionesController.marcarNotificacionLeida(req, res)
 }))
 
 export default notificacionesRouter

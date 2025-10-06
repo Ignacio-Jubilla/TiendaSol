@@ -23,25 +23,25 @@ const pedidosService = new PedidoService(pedidoRepo, usuarioRepo, productoRepo);
 
 const pedidosController = new PedidosController(pedidosService);
 
-pedidosRouter.get('/', (req, res) => {
-  pedidosController.obtenerTodosLosPedidos(req, res);
-})
+pedidosRouter.get('/', asyncHandler(async (req, res) => {
+  return await pedidosController.obtenerTodosLosPedidos(req, res);
+}))
 
-pedidosRouter.post('/', (req, res) => {
-  pedidosController.crearPedido(req, res);
-})
+pedidosRouter.post('/', asyncHandler(async (req, res) => {
+  return await pedidosController.crearPedido(req, res);
+}))
 
-pedidosRouter.put('/:id/cancelado', (req, res) => {
-  pedidosController.cancelarPedido(req, res);
-})
+pedidosRouter.put('/:id/cancelado', asyncHandler(async (req, res) => {
+  return await pedidosController.cancelarPedido(req, res);
+}))
 
-pedidosRouter.get('/usuario/:id/historial', (req, res) => {
-  pedidosController.obtenerHistorialPedidos(req, res);
-})
+pedidosRouter.get('/usuario/:id/historial', asyncHandler(async (req, res) => {
+  return await pedidosController.obtenerHistorialPedidos(req, res);
+}))
 
-pedidosRouter.put('/:id/enviado', (req, res) => {
-  pedidosController.marcarEnviado(req, res);
-})
+pedidosRouter.put('/:id/enviado', asyncHandler( async (req, res) => {
+  return await pedidosController.marcarEnviado(req, res);
+}))
 
 
 
