@@ -1,3 +1,5 @@
+import { NotificacionUsuarioError } from "../errors/NotificacionesErrors.js";
+
 export class NotificacionesController {
 
     constructor(notificacionService) {
@@ -11,28 +13,32 @@ export class NotificacionesController {
         aunque por el momento lo pueden establecer así. Luego los ayudaremos a modificarlo."
     */
     async obtenerNotificaciones(req, res){
-        const { idUsuario, leidas = 'true' } = req.query;
+        try{
+            const { usuario, leidas = true } = req.query;
 
-        if(!idUsuario){
-            throw new NotUserError("Usuario no encontrado")
+            if(!usuario){
+                throw new NotificacionUsuarioError()
+                //throw new NotUserError("Usuario no encontrado")
+            }
+            const notificaciones = await this.notificacionService.obtenerNotificaciones(usuario, leidas)
+
+            res.status(200).json(notificaciones)
+            return
+        } catch (error) {
+            res.status(error.statusCode).json({ error: error.message });
         }
-        const notificaciones = this.notificacionService.obtenerNotificaciones(idUsuario, leidas)
-
-        res.status(200).json(notificaciones)
-        return
     }
 
     async marcarNotificacionLeida(req, res){
-        const idUsuario = req.query.usuario
-        if(!idUsuario){
-            throw new NotUserError("Usuario no encontrado")
+        try {
+            const notificacion = await this.notificacionService.marcarNotificacionLeida(req.params.id, req.query.usuario)
+
+            res.status(200).json(notificacion)
+
+            return
+        } catch (error){
+            res.status(error.statusCode).json({ error: error.message });
         }
-
-        const notificacion = this.notificacionService.marcarNotificacionLeida(req.params.id, idUsuario)
-
-        res.status()
-
-        return
     }
 
 

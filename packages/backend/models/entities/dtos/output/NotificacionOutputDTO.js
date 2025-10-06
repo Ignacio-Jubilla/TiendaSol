@@ -1,6 +1,6 @@
 export class NotificacionOutputDTO{
     constructor(notificacion){
-        this.id = notificacion.id,
+        this.id = notificacion._id,
         this.usuarioDestino = notificacion.usuarioDestino,
         this.mensaje = notificacion.mensaje,
         this.fechaAlta = notificacion.fechaAlta,

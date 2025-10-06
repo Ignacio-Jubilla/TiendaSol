@@ -6,14 +6,13 @@ export class NotificacionesRepository {
         this.model = NotificacionModel;
     }
 
-    async findById(id){
-        return await this.model.findById(id);
+    async findByIdAndLeida(id, fueLeida){
+        return await this.model.findOne({_id: id, leida: fueLeida});
     }
 
     
-    async findAllByUsuarioAndLeido(usuario, fueLeida){
-        return await this.model.find({ usuarioDestino: usuario.id, leida: fueLeida })
-        //return await this.model.find().populate('usuarioDestino');
+    async findAllByUsuarioAndLeida(usuario, fueLeida){
+        return await this.model.find({ usuarioDestino: usuario, leida: fueLeida })
     }
     
 
@@ -21,9 +20,13 @@ export class NotificacionesRepository {
         return await this.model.save(notificacion);
     }
 
-    async update(notificacion){        
-        return await this.model.updateOne(
-            { _id : notificacion.id }
+    async update(notificacionActualizada){
+        const { _id, ...notificacion } = notificacionActualizada    
+            
+        return await this.model.findByIdAndUpdate(
+            { _id },
+            { $set: notificacion },
+            { new: true }
         )
     }
 

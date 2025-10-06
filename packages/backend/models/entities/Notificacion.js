@@ -2,14 +2,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 export class Notificacion{
-    id
+    fechaLeida 
 
     constructor(usuarioDestino,mensaje){
         this.usuarioDestino = usuarioDestino;
         this.mensaje = mensaje;
         this.fechaAlta = new Date().toLocaleString();
         this.leida = false;
-        this.fechaLeida=null;
     }
 
     marcarComoLeida(){
