@@ -1,19 +1,11 @@
 import { NotificacionOutputDTO } from "../models/entities/dtos/output/NotificacionOutputDTO.js";
 import { Notificacion } from "../models/entities/Notificacion.js";
-import { FactoryNotificacion } from "../models/entities/FactoryNotificacion.js";
 import { NotificacionNotFoundError, NotificacionUsuarioMissmatchError } from "../errors/NotificacionesErrors.js";
 
 export class NotificacionService {
     constructor(notificacionesRepository){
         this.notificacionesRepository = notificacionesRepository
-        //this.factoryNotificacion = factoryNotificacion
     }
-
-    /*
-    async crearNotificacion(pedido){
-        const notificacion = new Notificacion(factoryNotificacion.crearSegunPedido(pedido))
-        await this.notificacionesRepository.save(pedido)
-    }*/
 
     async obtenerNotificaciones(idUsuario, leidas){
         const notificaciones = await this.notificacionesRepository.findAllByUsuarioAndLeida(idUsuario, leidas)

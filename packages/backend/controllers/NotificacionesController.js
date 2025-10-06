@@ -18,7 +18,6 @@ export class NotificacionesController {
 
             if(!usuario){
                 throw new NotificacionUsuarioError()
-                //throw new NotUserError("Usuario no encontrado")
             }
             const notificaciones = await this.notificacionService.obtenerNotificaciones(usuario, leidas)
 
