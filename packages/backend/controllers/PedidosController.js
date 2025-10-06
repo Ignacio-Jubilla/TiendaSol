@@ -1,5 +1,7 @@
 //export const PedidosRouter = require('express').Router()// ojo con importar con distintos metodos
-//                                                      no se puede mezclar import y require
+//                                  no se puede mezclar import y require  
+import { z } from 'zod'
+import mongoose from 'mongoose';
 import { DireccionEntregaBuilder } from '../models/entities/DireccionEntrega.js';
 import { PedidoInputDTO } from '../models/entities/dtos/input/PedidoInputDTO.js';
 import { PedidoOutputDTO } from '../models/entities/dtos/output/PedidoOutputDTO.js';
@@ -21,7 +23,14 @@ export class PedidosController {
 
   crearPedido = async (req, res) => {
     try{
-    const body = req.body;
+    let body = req.body;
+
+    const parsedBody = crearPedidoSchema.safeParse(body);
+    if (parsedBody.error) {
+      return res.status(400).json(parsedBody.error.issues);
+    }
+
+    body = parsedBody.data;
 
     const direccionEntrega = direccionEntregaBuilder
      .withCalle(body.calle)
@@ -33,9 +42,6 @@ export class PedidosController {
      .withPais(body.pais)
      .build();
 
-    if (!body.compradorId || !body.items || !body.moneda) {
-      return res.status(400).json({ error: 'Faltan datos obligatorios' });
-    }
 
     const pedidoInputDTO = new PedidoInputDTO(body.compradorId, body.items, body.moneda, direccionEntrega);
     const nuevoPedido = await this.pedidoService.crearPedido(pedidoInputDTO);
@@ -47,11 +53,20 @@ export class PedidosController {
   
   cancelarPedido = async (req, res) => {
   try {
-    const pedidoId = req.params.id
-    const { motivo } = req.body
-    if (!pedidoId) {
-      return res.status(400).json({ error: 'Falta id de pedido' });
+    let pedidoId = req.params.id
+    const parsePedidoId = idSchema.safeParse(pedidoId);
+    if (parsePedidoId.error) {
+      return res.status(400).json(parsePedidoId.error.issues);
     }
+    pedidoId = parsePedidoId.data;
+
+    const parseBody = cancelarPedidoSchema.safeParse(req.body);
+    if (parseBody.error) {
+      return res.status(400).json(parseBody.error.issues);
+    }
+
+    const {motivo} = parseBody.data
+
     const resultado = await pedidoService.cancelarPedido(pedidoId, motivo);
     if(!resultado) {
       return res.status(500).json({ error: 'error de cancelacion' });
@@ -64,10 +79,12 @@ export class PedidosController {
 
   obtenerHistorialPedidos = async (req, res) => {
     try {
-      const usuarioId = req.params.id;
-      if (!usuarioId) {
-        return res.status(400).json({ error: 'id de usuario no valido' });
+      const parseParams = idSchema.safeParse(req.params.id);
+      if (parseParams.error) {
+        return res.status(400).json(parseParams.error.issues);
       }
+      const usuarioId = parseParams.data;
+
       const historial = await pedidoService.obtenerHistorialPedidos(usuarioId);
       res.status(200).json(historial);
     } catch (error) {
@@ -77,13 +94,44 @@ export class PedidosController {
   
 
   marcarEnviado = async (req, res) => {
-    const pedidoId = req.params.id
-    if (!pedidoId) {
-      return res.status(400).json({ error: 'id de pedido no valido' });
-    }
-    const pedidoEnviado = await pedidoService.marcarEnviado(pedidoId)
+    try {
+      const parseParams = idSchema.safeParse(req.params.id);
+      if (parseParams.error) {
+        return res.status(400).json(parseParams.error.issues);
+      }
+      const pedidoId = parseParams.data;
+
+      const pedidoEnviado = await pedidoService.marcarEnviado(pedidoId);
     res.status(200).json(pedidoEnviado);
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
+    }
   }
 
 }
 
+const crearPedidoSchema = z.object({
+  compradorId: z.string().refine((id) => mongoose.isValidObjectId(id), {
+    message: "Id de comprador no válido",
+  }),
+  items: z.array(itemSchema).nonempty({ message: "Debe haber al menos un item" }),
+  moneda: z.string().nonempty({ message: "Moneda es obligatoria" }),
+  calle: z.string(),
+  altura: z.string(),
+  departamento: z.string().optional(),
+  piso: z.string().optional(),
+  codigoPostal: z.string(),
+  ciudad: z.string(),
+  provincia: z.string(),
+  pais: z.string(),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+});
+
+const idSchema = z.string().refine((id) => mongoose.isValidObjectId(id), {
+  message: "Id no valido",
+});
+
+const cancelarPedidoSchema = z.object({
+  motivo: z.string().nonempty({ message: "Motivo es obligatorio" }),
+});
