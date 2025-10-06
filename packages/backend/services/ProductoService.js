@@ -16,7 +16,17 @@ export class ProductoService {
     this.tiposCambio = tiposCambio || tiposCambioManual
     this.conversorMonedas = new ConversorMonedas(this.tiposCambio)
   }
-
+  toDto(producto) {
+    return {
+      ...producto,
+      _id: producto.id?.toString() || producto._id?.toString(),
+      vendedor : {
+        id: producto.vendedor.id?.toString() || producto.vendedor._id?.toString(),
+        nombre: producto.vendedor.nombre, 
+        email: producto.vendedor.email
+      }
+    }
+  }
   async crearProducto(productoDto) {
     if (!mongoose.isValidObjectId(productoDto.vendedorId)) {
       throw new InputValidationError("vendedorId no es un id valido")
@@ -43,6 +53,7 @@ export class ProductoService {
   }
   async obtenerProductos(filtro) {
     const query = {}
+    const sort = {}
     const vendedor = await this.usuarioRepo.findById(filtro.vendedorId)
     if (!vendedor) {
       throw new EntidadNotFoundError(`usuario con id ${filtro.vendedorId} no encontrado`)
@@ -60,7 +71,25 @@ export class ProductoService {
       ];
     }
 
-    let productos = await this.productoRepo.getProductos(query)
+  
+    if (filtro.ordenarPor === "VENTAS") {
+      sort.totalVentas = -1
+    }
+
+    let productos = await this.productoRepo.getProductos(query, sort)
+
+    if (filtro.ordenarPor === "PRECIO") {
+      //ordeno por precio en diferentes monedas
+      productos.sort((a, b) => {
+        let precioA = a.precio
+        let precioB = b.precio
+        if (a.moneda !== b.moneda) {
+            precioB = this.conversorMonedas.convertir(b.moneda, a.moneda, precioB)
+          }
+        if (filtro.ordenPrecio === "DESC") return precioB - precioA
+        if (filtro.ordenPrecio === "ASC") return precioA - precioB
+      });
+    }
 
     if (filtro.precioMin || filtro.precioMax) {
       if (filtro.precioMin) {
@@ -83,25 +112,6 @@ export class ProductoService {
       }
     }
 
-    if (filtro.ordenarPor === "VENTAS") {
-      productos.sort((a, b) => {
-        const ventasA = a.totalVentas;
-        const ventasB = b.totalVentas;
-        return ventasB - ventasA
-      });
-    } else if (filtro.ordenarPor === "PRECIO") {
-      //ordeno por precio en diferentes monedas
-      productos.sort((a, b) => {
-        let precioA = a.precio
-        let precioB = b.precio
-        if (a.moneda !== b.moneda) {
-            precioB = this.conversorMonedas.convertir(b.moneda, a.moneda, precioB)
-          }
-        if (filtro.ordenPrecio === "DESC") return precioB - precioA
-        if (filtro.ordenPrecio === "ASC") return precioA - precioB
-      });
-    }
-    //armar paginado
     let page = filtro.page ? Number(filtro.page) : 1;
     let perPage = filtro.perPage ? Number(filtro.perPage) : 30;
 

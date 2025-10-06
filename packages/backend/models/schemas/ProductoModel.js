@@ -23,8 +23,15 @@ stock: Number,
 fotos: [String],
 activo: Boolean
 });
-productoSchema.loadClass(Producto);
 
+productoSchema.loadClass(Producto);
+productoSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id?.toString() || returnedObject.id?.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
 
 const ProductoModel = mongoose.model('Producto', productoSchema);
 export default ProductoModel

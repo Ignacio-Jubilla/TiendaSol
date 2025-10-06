@@ -7,7 +7,7 @@ import asyncHandler from 'express-async-handler'
 import middleware from "../utils/middleware.js";
 import { ProductoRepository } from "../models/repositories/ProductosRepository.js";
 import { CategoriaRepository } from "../models/repositories/CategoriaRepository.js";
-import { UsuarioRepository } from "../models/repositories/UsuariosRepotisory.js";
+import { UsuarioRepository } from "../models/repositories/UsuariosRepository.js";
 
 const mockProductoRepo = {
   getProductos: jest.fn(),
@@ -43,15 +43,6 @@ mockProductoRepo.getProductos.mockResolvedValue([
   {nombre: "Limp bizkit red cap", precio: 18, moneda: "DOLAR_USA", totalVentas: 80},
 ])
 
-mockProductoRepo.findAll.mockResolvedValue([
-  {_id: 1, nombre: "lavarropas", precio: 100, moneda: "DOLAR_USA", totalVentas: 10},
-  {_id: 2, nombre: "reproductor cassette", precio: 50, moneda: "DOLAR_USA", totalVentas: 20},
-  {_id: 3, nombre: "A.D.I.D.A.S T-Shirt", precio: 30, moneda: "DOLAR_USA", totalVentas: 50},
-  {_id: 4, nombre: "Remera 'silencio gil 2'", precio: 20000, moneda: "PESO_ARG", totalVentas: 42},
-  {_id: 5, nombre: "Perfume vierge", precio: 120000, moneda: "PESO_ARG", totalVentas: 30},
-  {_id: 6, nombre: "Limp bizkit red cap", precio: 18, moneda: "DOLAR_USA", totalVentas: 80},
-])
-
 describe("busqueda de productos", () => {
   test("Error 400 si no recibe vendedorId", async () => {
     const response = await request(app).get("/api/productos")
@@ -66,16 +57,8 @@ describe("busqueda de productos", () => {
     expect(response.status).toBe(404)
   })
 
-  test("Obtengo productos de vendedor ordenado por mas vendidos", async() => {
-    mockUsuarioRepo.findById.mockResolvedValue({name: "alf"})
-
-    const response = await request(app).get("/api/productos?vendedorId=68d6cab39b8125b409b72c05&ordenarPor=VENTAS");
-    expect(response.status).toBe(200)
-    expect(response.body.productos[0].totalVentas).toBe(80)
-    expect(response.body.productos[5].totalVentas).toBe(10)
-  })
-
   test("Obtengo productos ordenados por precio ascendente", async () => {
+    mockUsuarioRepo.findById.mockResolvedValue({name: "alf"})
     const response = await request(app).get("/api/productos?vendedorId=68d6cab39b8125b409b72c05&ordenarPor=PRECIO&ordenPrecio=ASC");
     expect(response.status).toBe(200)
     expect(response.body.productos[0].precio).toBe(20000)
@@ -108,17 +91,6 @@ describe("busqueda de productos", () => {
     expect(response.body.page).toBe(1)
     expect(response.body.totalPages).toBe(2)
   })
-  
-  /*
-  mockProductoRepo.getProductos.mockResolvedValue([
-  {nombre: "lavarropas", precio: 100, moneda: "DOLAR_USA", totalVentas: 10},
-  {nombre: "reproductor cassette", precio: 50, moneda: "DOLAR_USA", totalVentas: 20},
-  {nombre: "A.D.I.D.A.S T-Shirt", precio: 30, moneda: "DOLAR_USA", totalVentas: 50},
-  {nombre: "Remera 'silencio gil 2'", precio: 20000, moneda: "PESO_ARG", totalVentas: 42},
-  {nombre: "Perfume vierge", precio: 120000, moneda: "PESO_ARG", totalVentas: 30},
-  {nombre: "Limp bizkit red cap", precio: 18, moneda: "DOLAR_USA", totalVentas: 80},
-])
-  */
 })
 
 
