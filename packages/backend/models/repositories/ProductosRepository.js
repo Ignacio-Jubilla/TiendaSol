@@ -1,3 +1,4 @@
+import { Producto } from "../entities/Producto.js";
 import ProductoModel from "../schemas/ProductoModel.js";
 import mongoose from "mongoose";
 export class ProductoRepository {
@@ -8,6 +9,7 @@ export class ProductoRepository {
   }
 
   async findById(id) {
+    //return await ProductoModel.findById(id)
     return await ProductoModel.findById(id)
   }
   async findAll() {
@@ -28,9 +30,9 @@ export class ProductoRepository {
 
     if (filtro.ordenarPor === "VENTAS") {
       if (filtro.orden === "ASC") {
-        sort.totalVentas = 1
+        sort.ventas = 1
       } else {
-        sort.totalVentas = -1
+        sort.ventas = -1
       }
     }
 
@@ -52,25 +54,13 @@ export class ProductoRepository {
     const aggregateFields = [
       { $match: query },
       {
-        $lookup: {
-          from: "itempedidos",
-          localField: "_id",
-          foreignField: "producto",
-          as: "ventas"
-        }
-      },
-      {
-        $addFields: {
-          totalVentas: { $ifNull: [{ $sum: "$ventas.cantidad" }, 0] }
-        }
-      },
-      {
         $project: {
           ventas: 0,
           __v: 0
         }
       }
     ]
+    
     if (Object.keys(sort).length > 0) {
       aggregateFields.push({ $sort: sort })
     }
