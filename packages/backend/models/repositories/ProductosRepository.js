@@ -1,5 +1,5 @@
 import ProductoModel from "../schemas/ProductoModel.js";
-
+import mongoose from "mongoose";
 export class ProductoRepository {
   async saveProducto(producto) {
     const productoNuevo = new ProductoModel(producto)
@@ -14,10 +14,43 @@ export class ProductoRepository {
     return await ProductoModel.find({})
   }
 
-  async getProductos(filtro, orden = {}) {
+  async getProductosWithFilters(filtro, page = 1, per_page = 30) {
+    const query = {vendedor: new mongoose.Types.ObjectId(filtro.vendedorId)}
+    const sort = {}
+    if (filtro.valorBusqueda) {
+      const regex = new RegExp(filtro.valorBusqueda, "i");
+      query.$or = [
+        { "titulo": regex },
+        { "descripcion": regex },
+        { "categorias.nombre": regex }
+      ];      
+    }
+
+    if (filtro.ordenarPor === "VENTAS") {
+      if (filtro.orden === "ASC") {
+        sort.totalVentas = 1
+      } else {
+        sort.totalVentas = -1
+      }
+    }
+
+    if (filtro.ordenarPor === "PRECIO") {
+      if (filtro.orden === "ASC") {
+        sort.precio = 1 
+      } else {
+        sort.precio = -1
+      }
+    }
+
+    if (filtro.precioMin) {
+      query.precio = { ...query.precio, $gte: filtro.precioMin }
+    }
+    if (filtro.precioMax) {
+      query.precio = { ...query.precio, $lte: filtro.precioMax }
+    }
 
     const aggregateFields = [
-      { $match: filtro },
+      { $match: query },
       {
         $lookup: {
           from: "itempedidos",
@@ -37,17 +70,36 @@ export class ProductoRepository {
           __v: 0
         }
       }
-    ]      
-  
+    ]
+    if (Object.keys(sort).length > 0) {
+      aggregateFields.push({ $sort: sort })
+    }
+    //paginacion
+    if (page < 1) page = 1
+    if (per_page > 30) per_page = 30
+    if (per_page < 1) per_page = 1
 
-if (Object.keys(orden).length > 0) {
-  pipeline.push({ $sort: orden });
-}
+    // total and clamp page to last page if necessary
+    const total = await ProductoModel.countDocuments(query)
+    const total_pages = Math.max(1, Math.ceil(total / per_page))
+    if (page > total_pages) page = total_pages
 
-
+    // apply skip & limit for pagination
+    const skip = (page - 1) * per_page
+    aggregateFields.push({ $skip: skip })
+    aggregateFields.push({ $limit: per_page })
     const productos = await ProductoModel.aggregate(aggregateFields)
-    await ProductoModel.populate(productos, { path: "vendedor", select: "_id nombre email"})
-    return productos
+    await ProductoModel.populate(productos, { path: "vendedor", select: "_id nombre email" })
+
+    return {
+      data: productos,
+      pagination: {
+        total,
+        page,
+        per_page,
+        total_pages: Math.ceil(total / per_page)
+      }
+    }
   }
 
 }

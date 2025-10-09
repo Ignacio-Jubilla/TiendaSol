@@ -25,8 +25,8 @@ export class ProductosController {
     if (parsedQuery.error) {
       return res.status(400).json(parsedQuery.error.issues)
     }
-    const productos = await this.productoService.obtenerProductos(parsedQuery.data)
-    return res.status(200).json(productos)
+    const paginacionProductos = await this.productoService.obtenerProductos(parsedQuery.data)
+    return res.status(200).json(paginacionProductos)
   }
 
   async crearProducto(req, res) {
@@ -61,16 +61,8 @@ const buscarProductoSchema = z.object({
   perPage: z.coerce.number().nonnegative().optional().default(30)
     .transform((val) => (val > 30 ? 30 : val)),
   ordenarPor: z.enum(["PRECIO", "VENTAS"]).optional(),
-  tipoMoneda: z.enum(Object.values(TipoMoneda), "Ingrese un tipo de moneda valido").optional().default('DOLAR_USA'),
-  ordenPrecio: z.enum(["ASC", "DESC"]).optional().default("DESC"),
+  orden: z.enum(["ASC", "DESC"]).optional().default("DESC"),
 }).superRefine((data, ctx) => {
-  if ((data.precioMin || data.precioMax) && !data.tipoMoneda) {
-    ctx.addIssue({
-      code: "custom",
-      path: ["tipoMoneda"],
-      message: "tipoMoneda es obligatorio cuando ordenarPor = PRECIO",
-    });
-  }
   if (data.precioMin && data.precioMax && data.precioMin >= data.precioMax) {
     ctx.addIssue({
       code: "custom",
