@@ -21,12 +21,14 @@ export class Producto{
     reducirStock(cantARestar){
         if(this.stock-cantARestar>=0){
             this.stock-=cantARestar;
-            this.ventas += cantARestar;
         }else{
             throw new Error("No hay stock suficiente");
         }
     }
-
+    
+    aumentarVentas(cantidad){ 
+        this.ventas+=cantidad;
+    }
     aumentarStock(cantidad){
         this.stock+=cantidad;
     }
