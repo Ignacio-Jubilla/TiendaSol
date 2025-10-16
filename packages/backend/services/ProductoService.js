@@ -49,7 +49,6 @@ export class ProductoService {
     return producto
   }
   async obtenerProductos(filtro) {
-
     const vendedor = await this.usuarioRepo.findById(filtro.vendedorId)
     if (!vendedor) {
       throw new EntidadNotFoundError(`usuario con id ${filtro.vendedorId} no encontrado`)
@@ -59,7 +58,8 @@ export class ProductoService {
     let perPage = filtro.perPage ? Number(filtro.perPage) : 30;
 
     let paginacionProducto = await this.productoRepo.getProductosWithFilters(filtro, page, perPage)
-    return paginacionProducto
+    paginacionProducto.data = paginacionProducto.data.map(p => this.toDto(p))
 
+    return paginacionProducto
   }
 }

@@ -1,7 +1,7 @@
 import express from 'express'
 export const productosRouter = express.Router();
 import asyncHandler from 'express-async-handler'
-import { ProductosController } from '../controllers/Productoscontroller.js';
+import { ProductosController } from '../controllers/ProductosController.js';
 import { ProductoService } from '../services/ProductoService.js';
 import { ProductoRepository } from '../models/repositories/ProductosRepository.js';
 import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js';

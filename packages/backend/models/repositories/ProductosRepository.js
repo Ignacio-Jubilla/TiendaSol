@@ -84,9 +84,7 @@ export class ProductoRepository {
     return {
       data: productos,
       pagination: {
-        total,
         page,
-        per_page,
         total_pages: Math.ceil(total / per_page)
       }
     }
