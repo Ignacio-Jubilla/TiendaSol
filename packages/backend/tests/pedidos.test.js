@@ -6,7 +6,7 @@ import { jest } from "@jest/globals";
 import { PedidoService } from "../services/PedidoService.js";
 import { PedidosController } from "../controllers/PedidosController.js";
 import { PedidoInputDTO } from "../models/entities/dtos/input/PedidoInputDTO.js";
-import { DireccionEntrega } from "../models/entities/DireccionEntrega.js";
+import  DireccionEntrega  from "../models/entities/DireccionEntrega.js";
 
 // ---- Mocks ----
 const mockPedidoRepo = {
@@ -103,7 +103,7 @@ describe("Pedidos - Integración", () => {
     const pedidoId = "64f8c0a1e1d2a9b12345678a";
 
     const res = await request(app)
-      .post(`/api/pedidos/${pedidoId}/cancelar`)
+      .post(`/api/pedidos/${pedidoId}/cancelado`)
       .send({})
       .set("Content-Type", "application/json");
 

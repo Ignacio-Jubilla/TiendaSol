@@ -47,9 +47,10 @@ export class PedidoService {
         if (!lista.includes(pedido.estado)) {
             throw new CancelationError();
         }
+        // falta notif
         pedido.actualizarEstado(EstadoPedido.CANCELADO, usuarioQueCancela , motivo);
         await this.pedidoRepository.update(pedido);
-        return console.log(`Pedido ${pedidoId} cancelado. Motivo: ${motivo}`);
+        return this.toOutputDTO(pedido);
     }
 
     async obtenerHistorialPedidos(usuarioId) {

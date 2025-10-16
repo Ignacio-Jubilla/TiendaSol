@@ -25,6 +25,7 @@ const pedidosService = new PedidoService(pedidoRepo, usuarioRepo, productoRepo);
 
 const pedidosController = new PedidosController(pedidosService);
 
+// afuera (salvo que lo pagine)
 pedidosRouter.get('/', asyncHandler(async (req, res) => {
   return await pedidosController.obtenerTodosLosPedidos(req, res);
 }))
@@ -32,12 +33,12 @@ pedidosRouter.get('/', asyncHandler(async (req, res) => {
 pedidosRouter.post('/', asyncHandler(async (req, res) => {
   return await pedidosController.crearPedido(req, res);
 }))
-
+//patch 
 pedidosRouter.put('/:id/cancelado', asyncHandler(async (req, res) => {
   return await pedidosController.cancelarPedido(req, res);
 }))
-
-pedidosRouter.get('/usuario/:id/historial', asyncHandler(async (req, res) => {
+// cambio historial x pedidos
+pedidosRouter.get('/usuario/:id/pedidos', asyncHandler(async (req, res) => {
   return await pedidosController.obtenerHistorialPedidos(req, res);
 }))
 
