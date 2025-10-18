@@ -20,6 +20,7 @@ moneda: {
   enum: Object.values(TipoMoneda)
 },
 stock: Number,
+ventas: Number,
 fotos: [String],
 activo: Boolean
 });

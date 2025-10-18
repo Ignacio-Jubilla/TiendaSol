@@ -18,6 +18,13 @@ tipo: {
 fechaAlta: { type: Date}
 });
 usuarioSchema.loadClass(Usuario);
+usuarioSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id?.toString() || returnedObject.id?.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
 
 const UsuarioModel = mongoose.model('Usuario', usuarioSchema);
 export default UsuarioModel

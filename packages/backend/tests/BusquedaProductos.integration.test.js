@@ -1,6 +1,6 @@
 import { expect, jest } from "@jest/globals";
 import request from 'supertest'
-import { ProductosController } from "../controllers/Productoscontroller.js";
+import { ProductosController } from "../controllers/ProductosController.js";
 import { ProductoService } from "../services/ProductoService.js";
 import express from 'express'
 import asyncHandler from 'express-async-handler'
