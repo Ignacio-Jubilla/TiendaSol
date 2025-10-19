@@ -2,6 +2,7 @@ import  CambioEstadoPedido  from "./CambioEstadoPedido.js";
 import  DireccionEntrega  from "./DireccionEntrega.js";
 import { EstadoPedido } from "./enums/EstadoPedido.js";
 import { TipoUsuario } from "./enums/TipoUsuario.js";
+import { ItemPedido } from "./ItemPedido.js";
 import {Usuario} from "./Usuario.js";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -9,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class Pedido {
   constructor(usuario,items,moneda,direccionEntrega) {
     this.comprador = usuario
-    this.items = items
+    this.items = items.map(item => new ItemPedido(item.productoId,item.cantidad,item.precioUnitario));
     this.total = this.calcularTotal();
     this.moneda = moneda;
     this.direccionEntrega = direccionEntrega

@@ -2,19 +2,34 @@ import { PedidoNotFound } from "../errors/PedidosErrors.js";
 import { UsuarioNotExists } from "../errors/UsuariosErrors.js";
 import { EstadoPedido } from "../models/entities/enums/EstadoPedido.js";
 import { Pedido } from "../models/entities/Pedido.js";
-
+import { PedidoOutputDTO } from "../models/entities/dtos/output/PedidoOutputDTO.js";
 export class PedidoService {
     constructor(PedidoRepository,UsuariosRepository,ProductosRepository) {
         this.pedidoRepository = PedidoRepository,
         this.usuariosRepository=UsuariosRepository,
         this.productosRepository=ProductosRepository;
     }
-    async obtenerTodosLosPedidos() {
-        const pedidos = await this.pedidoRepository.findAll();
-        if (!pedidos || pedidos.length === 0) {
+    async obtenerPedidosPaginados(page, limit, filtros) {
+        const numeroPagina = Math.max(Number(page),1);
+        const elemPorPagina = Math.min(Math.max(Number(limit),1),100)// entre 1 y 100
+
+        const pedidosPaginados = await this.pedidoRepository.findByPage(
+            numeroPagina, elemPorPagina, filtros
+        );
+        if (!pedidosPaginados || pedidosPaginados.length === 0) {
             throw new PedidoNotFound('No se encontraron pedidos');
         }
-        return this.toOutputDTOs(pedidos);
+        const total = await this.pedidoRepository.contarTodos();
+        const totalPaginas = Math.ceil(total/elemPorPagina);
+
+        return {
+            pagina: numeroPagina,
+            PorPagina: elemPorPagina,
+            total: total,
+            totalPaginas: totalPaginas,
+            data: pedidosPaginados
+        }
+
     }
     
     async crearPedido(pedidoInputDTO) {
@@ -27,12 +42,16 @@ export class PedidoService {
             if (!producto) {
                 throw new EntidadNotFoundError("producto con id " + item.productoId + " no encontrado");
             }
-            if(producto.stock < item.cantidad) {
-                throw new NotEnoughStockError("No hay suficiente stock para el producto con id " + item.productoId);
-            }
+            producto.estaDisponible(item.cantidad);
         }
+        console.log('Todos los productos están disponibles');
         const nuevoPedido = new Pedido(usuario, pedidoInputDTO.items, 
             pedidoInputDTO.moneda, pedidoInputDTO.direccionEntrega);
+        try{
+            let outputDTO = this.toOutputDTO(nuevoPedido);
+        }catch(e){
+            throw new Error('Error al crear el pedido: ' + e.message);
+        }
         const pedidoGuardado = await this.pedidoRepository.save(nuevoPedido);
         return this.toOutputDTO(pedidoGuardado);
     }

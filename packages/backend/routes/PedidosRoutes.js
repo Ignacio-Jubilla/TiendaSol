@@ -25,7 +25,7 @@ const pedidosService = new PedidoService(pedidoRepo, usuarioRepo, productoRepo);
 
 const pedidosController = new PedidosController(pedidosService);
 
-// afuera (salvo que lo pagine)
+// afuera (salvo que lo pagine). Eso, pendiente, TODO: paginarlo
 pedidosRouter.get('/', asyncHandler(async (req, res) => {
   return await pedidosController.obtenerTodosLosPedidos(req, res);
 }))

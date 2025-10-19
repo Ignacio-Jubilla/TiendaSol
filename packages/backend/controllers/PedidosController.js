@@ -15,8 +15,11 @@ export class PedidosController {
  }
   obtenerTodosLosPedidos = async (req, res) => {
     try {
-      const pedidos = await this.pedidoService.obtenerTodosLosPedidos();
-      res.status(200).json(pedidos);
+      const {page = 1, limit = 10} =req.query;
+      const filtros = req.query;
+      
+      const pedidosPaginados = await this.pedidoService.obtenerPedidosPaginados(page,limit,filtros);
+      res.status(200).json(pedidosPaginados);
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
     }
@@ -25,8 +28,7 @@ export class PedidosController {
   crearPedido = async (req, res) => {
     try{
     let body = req.body;
-
-    const parsedBody = crearPedidoSchema.safeParse(body);
+      const parsedBody = crearPedidoSchema.safeParse(body);    
     if (parsedBody.error) {
       return res.status(400).json(parsedBody.error.issues);
     }
@@ -43,10 +45,9 @@ export class PedidosController {
      .withPais(body.pais)
      .build();
 
-
     const pedidoInputDTO = new PedidoInputDTO(body.compradorId, body.items, body.moneda, direccionEntrega);
     const nuevoPedido = await this.pedidoService.crearPedido(pedidoInputDTO);
-    res.status(200).json(nuevoPedido);
+    res.status(201).json(nuevoPedido);
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
   }
@@ -111,11 +112,19 @@ export class PedidosController {
 
 }
 
+const itemPedidoSchemaZod = z.object({
+  productoId: z.string().refine((id) => mongoose.isValidObjectId(id), {
+    message: "Id de producto no válido",
+  }),
+  cantidad: z.number().min(1, { message: "Cantidad debe ser al menos 1" }),
+  precioUnitario: z.number().min(0, { message: "PrecioUnitario no puede ser negativo" })
+});
+
 const crearPedidoSchema = z.object({
   compradorId: z.string().refine((id) => mongoose.isValidObjectId(id), {
     message: "Id de comprador no válido",
   }),
-  items: z.array(itemPedidoSchema).nonempty({ message: "Debe haber al menos un item" }),
+  items: z.array(itemPedidoSchemaZod).nonempty({ message: "Debe haber al menos un item" }),
   moneda: z.string().nonempty({ message: "Moneda es obligatoria" }),
   calle: z.string(),
   altura: z.string(),
