@@ -2,6 +2,13 @@ import { Producto } from "../entities/Producto.js";
 import ProductoModel from "../schemas/ProductoModel.js";
 import mongoose from "mongoose";
 export class ProductoRepository {
+
+  async updateProducto(id, newProducto) {
+    return await ProductoModel.findByIdAndUpdate(id, newProducto, { new: true });
+  }
+  async findById(id) {
+    return await ProductoModel.findById(id).populate("vendedor").populate("categorias");
+  }
   async saveProducto(producto) {
     const productoNuevo = new ProductoModel(producto)
     console.log(productoNuevo)
