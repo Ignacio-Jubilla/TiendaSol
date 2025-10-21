@@ -7,16 +7,22 @@ import { PedidoInputDTO } from '../models/entities/dtos/input/PedidoInputDTO.js'
 import { PedidoOutputDTO } from '../models/entities/dtos/output/PedidoOutputDTO.js';
 import express from 'express';
 import { itemPedidoSchema } from '../models/schemas/ItemPedidoModel.js';
+import { id } from 'zod/v4/locales';
 const direccionEntregaBuilder = new DireccionEntregaBuilder();
 
 export class PedidosController {
  constructor(pedidoService) {
    this.pedidoService = pedidoService;
  }
-  obtenerTodosLosPedidos = async (req, res) => {
+  obtenerPedidos = async (req, res) => {
     try {
       const {page = 1, limit = 10} =req.query;
-      const filtros = req.query;
+
+      const parseFiltros = filtrosSchema.safeParse(req.query);
+      if (parseFiltros.error) {
+        return res.status(400).json(parseFiltros.error.issues);
+      }
+      const filtros = parseFiltros.data;
       
       const pedidosPaginados = await this.pedidoService.obtenerPedidosPaginados(page,limit,filtros);
       res.status(200).json(pedidosPaginados);
@@ -24,6 +30,7 @@ export class PedidosController {
       res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
     }
   }
+  
 
   crearPedido = async (req, res) => {
     try{
@@ -69,7 +76,7 @@ export class PedidosController {
 
     const {motivo} = parseBody.data
 
-    const resultado = await pedidoService.cancelarPedido(pedidoId, motivo);
+    const resultado = await this.pedidoService.cancelarPedido(pedidoId, motivo);
     if(!resultado) {
       return res.status(500).json({ error: 'error de cancelacion' });
     }
@@ -79,21 +86,6 @@ export class PedidosController {
   }
   }
 
-  obtenerHistorialPedidos = async (req, res) => {
-    try {
-      const parseParams = idSchema.safeParse(req.params.id);
-      if (parseParams.error) {
-        return res.status(400).json(parseParams.error.issues);
-      }
-      const usuarioId = parseParams.data;
-
-      const historial = await pedidoService.obtenerHistorialPedidos(usuarioId);
-      res.status(200).json(historial);
-    } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
-    }
-  }
-  
 
   marcarEnviado = async (req, res) => {
     try {
@@ -102,9 +94,8 @@ export class PedidosController {
         return res.status(400).json(parseParams.error.issues);
       }
       const pedidoId = parseParams.data;
-
-      const pedidoEnviado = await pedidoService.marcarEnviado(pedidoId);
-    res.status(200).json(pedidoEnviado);
+      const pedidoEnviado = await this.pedidoService.marcarEnviado(pedidoId);
+      res.status(200).json(pedidoEnviado);
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
     }
@@ -144,4 +135,10 @@ const idSchema = z.string().refine((id) => mongoose.isValidObjectId(id), {
 
 const cancelarPedidoSchema = z.object({
   motivo: z.string().nonempty({ message: "Motivo es obligatorio" }),
+});
+
+const filtrosSchema = z.object({
+  estado: z.string().optional(),
+  maxPrice: z.preprocess((val) => (val ? Number(val) : undefined), z.number().optional()),
+  usuarioId: idSchema.optional(),
 });
