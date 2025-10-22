@@ -56,6 +56,7 @@ header #nav-icon{
   position: relative;
   color: #444;
   cursor: pointer;
+  text-decoration: none;
   transition: transform 0.15s ease-in-out;
 }
 

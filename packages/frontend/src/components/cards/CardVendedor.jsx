@@ -8,14 +8,16 @@ const CardVendedor = ({ vendedor }) => {
         <Card.Title>{vendedor.nombre}</Card.Title>
         <Card.Subtitle className="mb-2 text-muted">Contactos</Card.Subtitle>
         <Card.Text>
-          <p>Email {vendedor.email}</p>
-          <p>Tel: {vendedor.telefono}</p>
+          Email {vendedor.email}
+        </Card.Text>
+        <Card.Text>
+          Tel: {vendedor.telefono}
         </Card.Text>
         <Button as={Link} to={`/vendedores/${vendedor._id}/productos`} >
           Ver productos
         </Button>
       </Card.Body>
-      <Card.Footer className="text-muted">Registrado desde {vendedor.fechaAlta}</Card.Footer>
+      
     </Card>
   )
 }

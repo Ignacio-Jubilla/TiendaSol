@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types'
 import { Button, Card, Form } from "react-bootstrap"
+import { MdDeleteForever } from "react-icons/md";
 import { Link } from "react-router"
-import { FaCartPlus } from "react-icons/fa";
 import './CardProducto.css'
 
-const CardProducto = ({ producto }) => {
+const CardProductoVendedor = ({ producto }) => {
   const getImageUrl = () => {
     if (producto.fotos && producto.fotos.length > 0) {
       return producto.fotos[0];
@@ -29,28 +29,17 @@ const CardProducto = ({ producto }) => {
       </div>
 
       <div className="d-grid gap-1">
-        <Button as={Link} to={`/vendedores/${producto.vendedor.id}/productos/${producto._id}`} variant="primary">
-          Ver mas
+        <Button as={Link} to={`/productos/${producto._id}/editar`}
+         variant="primary">
+          Editar
         </Button>
-        <Form onSubmit={(e) => {
-          e.preventDefault()
-          //logica para agregar a carrito
-        }}>
-          <Form.Control
-            type="number"
-            min={0}
-            max={producto.stock}
-            placeholder="Cantidad"
-            name="cantidad"
-            required={true}
-          />
-          <button type='submit' className="btn btn-primary">
-            <FaCartPlus aria-hidden="true" style={{"font-size": "2rem"}}/>
-            Agregar</button>
-        </Form>
+        <Button variant='danger'>
+          <MdDeleteForever style={{"font-size": "2rem"}}/>
+          Dar de baja
+        </Button>
       </div>
     </section>
   )
 }
 
-export default CardProducto
+export default CardProductoVendedor;

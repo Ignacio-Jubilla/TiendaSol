@@ -97,6 +97,10 @@
                 {
                     "nombre": "Legendario",
                     "_id": "68d80a4d842bb9825c607844"
+                },
+                {
+                    "nombre": "MESI",
+                    "_id": "111213232"
                 }
             ],
             "precio": 300,
@@ -108,6 +112,6 @@
     ],
     "pagination": {
         "page": 1,
-        "total_pages": 3
+        "total_pages": 11
     }
 }
