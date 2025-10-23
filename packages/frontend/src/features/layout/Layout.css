@@ -6,6 +6,5 @@
 }
 
 .layout-main {
-  flex: 1; /* empuja el footer al fondo si hay poco contenido */
-  padding: 1rem; /* opcional: agrega espacio al contenido */
+  flex: 1; 
 }

@@ -114,7 +114,7 @@ const crearPedidoSchema = z.object({
   compradorId: z.string().refine((id) => mongoose.isValidObjectId(id), {
     message: "Id de comprador no válido",
   }),
-  items: z.array(itemSchema).nonempty({ message: "Debe haber al menos un item" }),
+  //items: z.array(itemSchema).nonempty({ message: "Debe haber al menos un item" }),
   moneda: z.string().nonempty({ message: "Moneda es obligatoria" }),
   calle: z.string(),
   altura: z.string(),

@@ -1,121 +1,124 @@
 import React, { useState, useRef, useSyncExternalStore } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { FaArrowCircleRight } from "react-icons/fa";
+import { FaArrowCircleLeft } from "react-icons/fa";
+import { FaAngleDoubleLeft } from "react-icons/fa";
+import { FaAngleDoubleRight } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+import { Form, Button, Accordion } from 'react-bootstrap';
 
-const FiltrosBusqueda = ({ onSubmit, pagination}) => {
-  const [filtros, setFiltros] = useState({});
-  const [filtroActual, setFiltroActual] = useState(null);
-
+const FiltrosBusqueda = ({ onSubmit, filtrosActuales }) => {
+  const [filtros, setFiltros] = useState(filtrosActuales || {});
+  
   const handleInputChange = (e) => {
-    setFiltros({ ...filtros, [e.target.name]: e.target.value });
+    const{name, value} = e.target
+    setFiltros({ ...filtros, [name]: value});
   };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (filtros.precioMin && filtros.precioMax) {
-      if (Number(filtros.precioMin) >= Number(filtros.precioMax)) {
-        alert("El precio mínimo no puede ser mayor que el precio máximo.");
-        return;
-      }
-    }
-    setFiltros({...filtros, page: 1})
-    setFiltroActual({...filtros, page: 1})
     onSubmit({ ...filtros, page: 1 });
   };
 
-  const handleChangePage = (page) => {
-    // When changing page, use the previously applied filters
-    setFiltroActual({...filtroActual, page: page})
-    onSubmit({ ...filtroActual, page: page });
-  };
-
-  return (
-    <Form onSubmit={handleSubmit}>
-      <Form.Control
-        placeholder="Buscar..."
-        name="valorBusqueda"
-        value={filtros.valorBusqueda || ''}
-        onChange={handleInputChange}
-        className="mb-3"
-      />
-      <label>Rango de precios</label>
-      <div className="d-flex flex-direction-row mb-3">
+  const formFiltro = (
+    <Form onSubmit={handleSubmit} >
+      <Form.Group controlId="filtroBusqueda" className="mb-3">
+        <Form.Label>Buscar por término</Form.Label>
         <Form.Control
-          type="number"
-          min={0}
-          placeholder="Precio min"
-          name="precioMin"
-          value={filtros.precioMin || ''}
+          placeholder="Buscar..."
+          name="valorBusqueda"
+          value={filtros.valorBusqueda || ''}
           onChange={handleInputChange}
+          aria-label='buscar por termino'
         />
-        <Form.Control
-          type="number"
-          placeholder="Precio max"
-          name="precioMax"
-          value={filtros.precioMax || ''}
-          onChange={handleInputChange}
-        />
-      </div>
+      </Form.Group>
+        <label id="rangoPrecioLabel" className="form-label">Rango de precios</label>
+        <section className="d-flex flex-direction-row mb-3" aria-labelledby="rangoPrecioLabel">
+          <Form.Group controlId="filtroPrecioMin" className="me-2 flex-grow-1">
+            <Form.Label className="visually-hidden">Precio mínimo</Form.Label>
+            <Form.Control
+              type="number"
+              min={0}
+              placeholder="Mínimo"
+              name="precioMin"
+              value={filtros.precioMin || ''}
+              onChange={handleInputChange}
+              aria-label="Precio mínimo" 
+            />
+          </Form.Group>
 
-      <label>Ordenar por</label>
-      <Form.Select
-        name="ordenarPor"
-        value={filtros.ordenarPor || ''}
-        onChange={handleInputChange}
-        className="mb-2"
-      >
-        <option value="">Seleccionar</option>
-        <option value="PRECIO">Precio</option>
-        <option value="VENTAS">Ventas</option>
-      </Form.Select>
-      <Form.Select
-        name="orden"
-        value={filtros.orden || ''}
-        onChange={handleInputChange}
-        className="mb-3"
-      >
-        <option value="">Seleccionar</option>
-        <option value="ASC">Ascendente</option>
-        <option value="DESC">Descendente</option>
-      </Form.Select>
-      <label>Productos por pagina</label>
-      <Form.Control
-        type="number"
-        min={1}
-        max={30}
-        placeholder="Productos por pagina"
-        name="perPage"
-        value={filtros.perPage || ''}
-        onChange={handleInputChange}
-        className="mb-3"
-      />
-      <Button type="submit" variant="dark" className="w-100 mb-4">
-        Filtrar
-      </Button>
+          <Form.Group controlId="filtroPrecioMax" className="ms-2 flex-grow-1">
+            <Form.Label className="visually-hidden">Precio máximo</Form.Label>
+            <Form.Control
+              type="number"
+              min={0}
+              placeholder="Máximo"
+              name="precioMax"
+              value={filtros.precioMax || ''}
+              onChange={handleInputChange}
+              aria-label="Precio máximo" 
+            />
+          </Form.Group>
+        </section>
+        <Form.Group controlId="filtroOrdenarPor" className="mb-2">
+          <Form.Label>Ordenar por</Form.Label>
+          <Form.Select
+            name="ordenarPor"
+            value={filtros.ordenarPor || ''}
+            onChange={handleInputChange}
+          >
+            <option value="">Seleccionar</option>
+            <option value="PRECIO">Precio</option>
+            <option value="VENTAS">Ventas</option>
+          </Form.Select>
+        </Form.Group>
 
-      {/* --- Paginación --- */}
-      {pagination && pagination.total_pages > 1 && (
-        <div className="d-flex justify-content-center align-items-center gap-3 mt-4">
-          <Button
-            variant="secondary"
-            disabled={pagination.page === 1}
-            onClick={() => handleChangePage(pagination.page - 1)}
+        <Form.Group controlId="filtroOrden" className="mb-3">
+          <Form.Label>Orden</Form.Label>
+          <Form.Select
+            name="orden"
+            value={filtros.orden || ''}
+            onChange={handleInputChange}
           >
-            Anterior
-          </Button>
-          <span>
-            Página {pagination.page} de {pagination.total_pages}
-          </span>
-          <Button
-            variant="secondary"
-            disabled={pagination.page === pagination.total_pages}
-            onClick={() => handleChangePage(pagination.page + 1)}
-          >
-            Siguiente
-          </Button>
+            <option value="">Seleccionar</option>
+            <option value="ASC">Ascendente</option>
+            <option value="DESC">Descendente</option>
+          </Form.Select>
+        </Form.Group>
+
+        <Form.Group controlId="filtroPerPage" className="mb-3">
+          <Form.Label>Productos por página</Form.Label>
+          <Form.Control
+            type="number"
+            min={1}
+            max={30}
+            placeholder=""
+            name="perPage"
+            value={filtros.perPage || ''}
+            onChange={handleInputChange}
+          />
+        </Form.Group>
+        <Button type='submit'>
+          <FaSearch aria-hidden="true"/> Buscar
+        </Button>
+      </Form>
+      )
+      return (
+      <><div className="d-none d-lg-block d-md-block">
+        {formFiltro}
+      </div><div className="d-lg-none d-md-none">
+          <Accordion>
+            <Accordion.Item eventKey="0">
+              <Accordion.Header>Filtros</Accordion.Header>
+              <Accordion.Body>
+                {formFiltro}
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
         </div>
-      )}
-    </Form>
-  );
+        </>
+      
+      );
 };
 
-export default FiltrosBusqueda;
+      export default FiltrosBusqueda;

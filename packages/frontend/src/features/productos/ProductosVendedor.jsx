@@ -1,65 +1,120 @@
 import React from "react";
-import { useState } from "react";
-import { useParams } from "react-router";
-import { Form, Button, Card, Accordion } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { Link, useParams } from "react-router";
+import { IoArrowBackSharp } from "react-icons/io5";
+import { Form, Button, Card, Accordion, Spinner } from "react-bootstrap";
 import productosMocked from "../../mocks/productos.json";
 import CardProducto from "../../components/cards/CardProducto";
 import FiltrosBusqueda from "../FiltrosBusqueda/FiltrosBusqueda";
+import LoadingSpinner from "../../components/spinner/LoadingSpinner";
+import ControlPaginado from "../../components/controlPaginado/ControlPaginado";
+import ErrorMessage from "../../components/errorMessage/ErrorMessage";
+import { useNavigate } from "react-router";
+import { useSearchParams } from 'react-router';
+import productoService from "../../services/productos";
+
 const ProductosVendedor = () => {
   const { vendedorId } = useParams();
+  const [productos, setProductos] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [searchParams, setSearchParams] = useSearchParams({});
+  const [filtros, setFiltros] = useState({});
+  const [errorMessage, setErrorMessage] = useState("")
 
-  // Estados
+  const navigate = useNavigate();
   const productosData = productosMocked
-  const productos = productosData.data
-  const loading = false
-  const [pagination, setPagination] = useState(productosData.pagination);
+
+  const [pagination, setPagination] = useState(null);
+
+  const showErrorMessage = (msg) => {
+    setErrorMessage(msg);
+    setTimeout(() => {
+      setErrorMessage("");
+    }, 6000);
+  }
 
   const handleFiltrar = (filtros) => {
-    // Aquí harías la llamada a la API con los filtros
-    // y actualizarías el estado de los productos y la paginación.
-    // Por ejemplo:
-    // fetchProducts(filtros).then(data => {
-    //   setProductos(data.data);
-    //   setPagination(data.pagination);
-    // });
-    if( filtros.page) setPagination({...pagination, page: filtros.page})
+    //llamar a api con {...filtros}
+    if (loading) {
+      showErrorMessage("Espere a que carguen los productos")
+      return
+    }
+    
+    setFiltros(filtros)
+
+    if (filtros.precioMin && filtros.precioMax && filtros.precioMin > filtros.precioMax) {
+      setErrorMessage("El precio mínimo no puede ser mayor al precio máximo")
+      return;
+    }
+
+    const newFiltros = {};
+    Object.entries(filtros).forEach(([key, value]) => {
+      newFiltros[key] = value;
+    });
+    setSearchParams({ ...newFiltros, page: 1 });
   };
+
+  const handleChangePage = (page) => {
+    if (loading) {
+      showErrorMessage("Espere a que carguen los vendedores")
+      return
+    }
+    const filtrosActuales = Object.fromEntries(searchParams.entries());
+    setSearchParams({ ...filtrosActuales, page });
+  };
+
+  const fetchData = async () => {
+          setLoading(true)
+          const filtros = Object.fromEntries(searchParams.entries());
+          try {
+              const dataApi = await productoService.getProductos({...filtros, vendedorId});
+              if (dataApi) {
+                  setProductos(dataApi.data)
+                  setPagination(dataApi.pagination)
+              } else {
+                  showErrorMessage("Error obteniendo producto, intente luego")
+              }
+          } catch (err) {
+              showErrorMessage("Servidor no disponible, intente luego")
+          } finally {
+              setLoading(false)
+          }
+      }
+  useEffect(() => { fetchData() }, [searchParams])
+
 
   return (
     <div className="container mt-4">
+      <ErrorMessage msg={errorMessage} />
+      <div className="mb-5">
+        <Button
+          variant="primary"
+          as={Link}
+          to={`/vendedores`}
+          aria-label="Volver a lista vendedores"
+        ><IoArrowBackSharp></IoArrowBackSharp>
+          Volver a lista vendedores</Button>
+      </div>
       <div className="row">
-        {/* --- Filtros --- */}
         <div className="mb-4 col-lg-3 col-md-5 col-12">
-          <div className="d-none d-lg-block d-md-block">
-            {<FiltrosBusqueda onSubmit={handleFiltrar} pagination={pagination} />}
-          </div>
-          <div className="d-lg-none d-md-none">
-            <Accordion>
-              <Accordion.Item eventKey="0">
-                <Accordion.Header>Filtros</Accordion.Header>
-                <Accordion.Body>
-                  <FiltrosBusqueda onSubmit={handleFiltrar} pagination={pagination}/>
-                </Accordion.Body>
-              </Accordion.Item>
-            </Accordion>
-          </div>
+          <FiltrosBusqueda onSubmit={handleFiltrar} filtrosActuales={Object.fromEntries(searchParams.entries())} />
         </div>
 
-        <div className="col-lg-9 col-md-7 col-12">
+        <main className="col-lg-9 col-md-7 col-12 ">
           <h1 className="mb-4">Productos del Vendedor</h1>
-
           {loading ? (
-            <p>Cargando productos...</p>
-          ) : productos.length === 0 ? (
+            <LoadingSpinner message="Cargando productos" />
+          ) : !productos || productos.length === 0 ? (
             <p>No se encontraron productos.</p>
           ) : (
             <>
+              <ControlPaginado onPageChange={handleChangePage} pagination={pagination} />
               {productos.map((p) => (
                 <CardProducto key={p.id || p._id} producto={p} />
               ))}
             </>
           )}
-        </div>
+        </main>
       </div>
     </div>
   )
