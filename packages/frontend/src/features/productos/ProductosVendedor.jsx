@@ -11,6 +11,7 @@ import ControlPaginado from "../../components/controlPaginado/ControlPaginado";
 import ErrorMessage from "../../components/errorMessage/ErrorMessage";
 import { useNavigate } from "react-router";
 import { useSearchParams } from 'react-router';
+import productoService from "../../services/productos";
 
 const ProductosVendedor = () => {
   const { vendedorId } = useParams();
@@ -22,12 +23,8 @@ const ProductosVendedor = () => {
 
   const navigate = useNavigate();
   const productosData = productosMocked
-  setTimeout(() => {
-    setProductos(productosMocked.data)
-    setLoading(false)
-  }, 3000)
 
-  const [pagination, setPagination] = useState(productosData.pagination);
+  const [pagination, setPagination] = useState(null);
 
   const showErrorMessage = (msg) => {
     setErrorMessage(msg);
@@ -39,10 +36,10 @@ const ProductosVendedor = () => {
   const handleFiltrar = (filtros) => {
     //llamar a api con {...filtros}
     if (loading) {
-      showErrorMessage("Espere a que carguen los vendedores")
+      showErrorMessage("Espere a que carguen los productos")
       return
     }
-    alert('llamado a api con filtros')
+    
     setFiltros(filtros)
 
     if (filtros.precioMin && filtros.precioMax && filtros.precioMin > filtros.precioMax) {
@@ -50,29 +47,41 @@ const ProductosVendedor = () => {
       return;
     }
 
-    setSearchParams({ ...filtros, page: 1 });
-
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-    }, 5000)
-    //cambiar pagination por respuesta de api
+    const newFiltros = {};
+    Object.entries(filtros).forEach(([key, value]) => {
+      newFiltros[key] = value;
+    });
+    setSearchParams({ ...newFiltros, page: 1 });
   };
 
-  const handlePageChange = (page) => {
+  const handleChangePage = (page) => {
     if (loading) {
       showErrorMessage("Espere a que carguen los vendedores")
       return
     }
-    setPagination({ ...pagination, page });
-    console.log('nueva page: ' + page)
-    setSearchParams({ ...filtros, page: page });
-    //llamar a api con {...filtrosActuales, page}
-    console.log("llamado a api de pagina " + page)
+    const filtrosActuales = Object.fromEntries(searchParams.entries());
+    setSearchParams({ ...filtrosActuales, page });
   };
-  useEffect(() => {
-    setFiltros(Object.fromEntries(searchParams.entries()));
-  }, [searchParams]);
+
+  const fetchData = async () => {
+          setLoading(true)
+          const filtros = Object.fromEntries(searchParams.entries());
+          try {
+              const dataApi = await productoService.getProductos({...filtros, vendedorId});
+              if (dataApi) {
+                  setProductos(dataApi.data)
+                  setPagination(dataApi.pagination)
+              } else {
+                  showErrorMessage("Error obteniendo producto, intente luego")
+              }
+          } catch (err) {
+              showErrorMessage("Servidor no disponible, intente luego")
+          } finally {
+              setLoading(false)
+          }
+      }
+  useEffect(() => { fetchData() }, [searchParams])
+
 
   return (
     <div className="container mt-4">
@@ -80,9 +89,9 @@ const ProductosVendedor = () => {
       <div className="mb-5">
         <Button
           variant="primary"
-          // 2. Llama a navigate(-1) en el onClick
-          onClick={() => navigate(-1)}
-          aria-label="Volver a la página anterior"
+          as={Link}
+          to={`/vendedores`}
+          aria-label="Volver a lista vendedores"
         ><IoArrowBackSharp></IoArrowBackSharp>
           Volver a lista vendedores</Button>
       </div>
@@ -95,11 +104,11 @@ const ProductosVendedor = () => {
           <h1 className="mb-4">Productos del Vendedor</h1>
           {loading ? (
             <LoadingSpinner message="Cargando productos" />
-          ) : productos.length === 0 ? (
+          ) : !productos || productos.length === 0 ? (
             <p>No se encontraron productos.</p>
           ) : (
             <>
-              <ControlPaginado onPageChange={handlePageChange} pagination={pagination} />
+              <ControlPaginado onPageChange={handleChangePage} pagination={pagination} />
               {productos.map((p) => (
                 <CardProducto key={p.id || p._id} producto={p} />
               ))}

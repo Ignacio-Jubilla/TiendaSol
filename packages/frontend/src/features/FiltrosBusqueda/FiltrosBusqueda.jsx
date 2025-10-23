@@ -21,7 +21,7 @@ const FiltrosBusqueda = ({ onSubmit, filtrosActuales }) => {
   };
 
   const formFiltro = (
-    <Form onSubmit={handleSubmit} role='search'>
+    <Form onSubmit={handleSubmit} >
       <Form.Group controlId="filtroBusqueda" className="mb-3">
         <Form.Label>Buscar por término</Form.Label>
         <Form.Control
@@ -29,6 +29,7 @@ const FiltrosBusqueda = ({ onSubmit, filtrosActuales }) => {
           name="valorBusqueda"
           value={filtros.valorBusqueda || ''}
           onChange={handleInputChange}
+          aria-label='buscar por termino'
         />
       </Form.Group>
         <label id="rangoPrecioLabel" className="form-label">Rango de precios</label>

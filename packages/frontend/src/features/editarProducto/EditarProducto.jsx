@@ -147,6 +147,18 @@ const EditarProducto = () => {
                 <option value="REAL">Real</option>
               </Form.Select>
             </Form.Group>
+            
+<Form.Group controlId="cambiarEstado" className="mb-3">
+              <Form.Label>¿Está disponible?</Form.Label>
+              <Form.Select
+                name="activo"
+                value={producto.activo}
+                onChange={handleInputChange}
+              >
+                <option value="true">Si</option>
+                <option value="false">No</option>
+              </Form.Select>
+            </Form.Group>
 
             <Form.Group className="mb-3" controlId="stockProducto">
               <Form.Label>Stock</Form.Label>

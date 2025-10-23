@@ -15,7 +15,7 @@ const CardProductoVendedor = ({ producto }) => {
   return (
     <section className="card card-shadow-sm p-3 d-flex flex-row bg-dark-hover" key={producto.id}>
       <div className="product-img d-flex">
-        <img src={getImageUrl()} alt={producto.titulo} className="card-img-top" aria-label='Imagen de producto'/>
+        <img src={getImageUrl()}  className="card-img-top" aria-label='Imagen de producto'/>
       </div>
       <div className="card-body">
         <Card.Title>{producto.titulo}</Card.Title>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Col, Container, Row } from 'react-bootstrap';
+import { Button, Col, Container, Row } from 'react-bootstrap';
 import FiltrosBusquedaProductosVendedor from '../filtrosBusquedaProductosVendedor/FiltrosBusquedaProductosVendedor';
 import productosMocked from '../../mocks/productos.json'
 import CardProducto from '../../components/cards/CardProducto';
@@ -7,7 +7,8 @@ import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 import ControlPaginado from '../../components/controlPaginado/ControlPaginado';
 import CardProductoVendedor from '../../components/cards/CardProductoVendedor';
 import ErrorMessage from '../../components/errorMessage/ErrorMessage';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
+import { IoIosAddCircle } from "react-icons/io";
 
 const MisProductos = () => {
   const [productos, setProductos] = useState(null)
@@ -69,6 +70,9 @@ useEffect(() => {
         </Col>
         <Col lg={9} md={7} xs={12}>
           <ControlPaginado onPageChange={handleChangePage} pagination={pagination}></ControlPaginado>
+          <Button as={Link} to={"/mis-productos/crear"} aria-label='Boton para agregar un nuevo producto' className='mb-3'>
+          <IoIosAddCircle aria-hidden="true" style={{fontSize: "2rem"}}/>
+          Crear producto</Button>
           {loading ? <LoadingSpinner message="Cargando prductos" /> : productos.length === 0 ? <p>No se encontraron producto.</p> :
             productos.map(producto => <CardProductoVendedor producto={producto} key={producto._id} />)
           }

@@ -9,35 +9,30 @@ import { Col, Container, Row } from 'react-bootstrap';
 import FiltrosVendedor from '../filtrosVendedor/FiltrosVendedor';
 import ControlPaginado from '../../components/controlPaginado/ControlPaginado';
 import ErrorMessage from '../../components/errorMessage/ErrorMessage';
-import { useSearchParams } from 'react-router';
+import { data, useSearchParams } from 'react-router';
+import getVendedores from '../../services/vendedores'
+
 
 const Vendedores = () => {
     //consultar vendedores en bd
     const [searchParams, setSearchParams] = useSearchParams({});
-    const [filtros, setFiltros] = useState({});
     const [vendedores, setVendedores] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [pagination, setPagination] = useState(vendedoresMocked.pagination);
+    const [pagination, setPagination] = useState(null);
     const [errorMessage, setErrorMessage] = useState("")
 
-    setTimeout(() => {
-        setVendedores(vendedoresMocked.data);
-        setLoading(false);
-    }, 3000);
-
-    const handleFiltrar = (filtros) => {        
-        //llamar a api con {...filtros}
-        alert('llamado a api con filtros')
+    const handleFiltrar = (filtros) => {
+        //trae filtros actualizados
         if (loading) {
             showErrorMessage("Espere a que carguen los vendedores")
             return;
         }
-        setFiltros(filtros)
-        console.log('llamar a api con filtros')
-        
-        setSearchParams({ ...filtros, page: 1 });
-        //cambiar pagination por respuesta de api
-        console.log(filtros)
+
+        const newFiltros = {};
+        Object.entries(filtros).forEach(([key, value]) => {
+            newFiltros[key] = value;
+        });
+        setSearchParams({ ...newFiltros, page: 1 });
     };
 
     const handleChangePage = (page) => {
@@ -45,9 +40,8 @@ const Vendedores = () => {
             showErrorMessage("Espere a que carguen los vendedores")
             return
         }
-        setPagination({ ...pagination, page});
-        console.log("llamado a api de pagina " + page)
-        setSearchParams({ ...filtros, page: page });
+        const filtrosActuales = Object.fromEntries(searchParams.entries());
+        setSearchParams({ ...filtrosActuales, page });
     };
 
     const showErrorMessage = (msg) => {
@@ -56,25 +50,43 @@ const Vendedores = () => {
             setErrorMessage("");
         }, 6000);
     }
-    
-    useEffect(() => {        
-        setFiltros(Object.fromEntries(searchParams.entries()));
-    }, [searchParams]);
+
+    const fetchData = async () => {
+        setLoading(true)
+        const filtros = Object.fromEntries(searchParams.entries());
+        try {
+            const dataApi = await getVendedores(filtros);
+            if (dataApi) {
+                setVendedores(dataApi.data)
+                setPagination(dataApi.pagination)
+            } else {
+                showErrorMessage("Error obteniendo vendedores, intente luego")
+            }
+        } catch (err) {
+            showErrorMessage("Servidor no disponible, intente luego")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => { fetchData() }, [searchParams])
 
     return (
         <Container className='mt-4'>
             <ErrorMessage msg={errorMessage} />
             <Row>
                 <Col lg={3} md={5} xs={12} className="mb-4">
-                    <FiltrosVendedor handleSubmit={handleFiltrar} filtrosActuales={Object.fromEntries(searchParams.entries())}/>
+                    <FiltrosVendedor handleSubmit={handleFiltrar} filtrosActuales={Object.fromEntries(searchParams.entries())} />
                 </Col>
                 <Col lg={9} md={7} xs={12}>
-                <h1>Lista de vendedores</h1>
-                <ControlPaginado onPageChange={handleChangePage} pagination={pagination}></ControlPaginado>
-                    {loading ? <LoadingSpinner message="Cargando vendedores" /> : vendedores.length === 0 ? <p>No se encontraron vendedores.</p> :
-                        <div className='grid-content'>
-                            {vendedores.map(vendedor => <CardVendedor key={vendedor._id} vendedor={vendedor} />)}
-                        </div>}
+                    <h1>Lista de vendedores</h1>
+                    {loading ? <LoadingSpinner message="Cargando vendedores" /> : !vendedores || vendedores.length === 0 ? <p>No se encontraron vendedores.</p> :
+                        <>
+                            <ControlPaginado onPageChange={handleChangePage} pagination={pagination}></ControlPaginado>
+                            <div className='grid-content'>
+                                {vendedores.map(vendedor => <CardVendedor key={vendedor._id} vendedor={vendedor} />)}
+                            </div>
+                        </>}
                 </Col>
             </Row>
         </Container>

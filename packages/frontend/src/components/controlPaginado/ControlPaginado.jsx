@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { FaArrowCircleRight, FaArrowCircleLeft, FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
+import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 
 const ControlPaginado = ({ pagination, onPageChange }) => {  
   if (!pagination || pagination.total_pages <= 1) {

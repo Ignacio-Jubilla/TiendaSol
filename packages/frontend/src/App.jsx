@@ -9,6 +9,7 @@ import ProductosVendedor from "./features/productos/ProductosVendedor.jsx";
 import DetalleProducto from "./features/detalleProducto/DetalleProducto.jsx";
 import MisProductos from "./features/misProductos/MisProductos.jsx";
 import EditarProducto from "./features/editarProducto/EditarProducto.jsx";
+import CrearProducto from "./features/crearProducto/CrearProducto.jsx";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/" element={<Layout  />} >
           <Route index element={<Home />} />
           <Route path="/mis-productos" element={<MisProductos />} />
+          <Route path="/mis-productos/crear" element={<CrearProducto />} />
           <Route path="/vendedores" element={<Vendedores/>} />
           <Route path="/productos/:productoId/editar" element={<EditarProducto/>} />
           <Route path="/vendedores/:vendedorId/productos" element={<ProductosVendedor />} />

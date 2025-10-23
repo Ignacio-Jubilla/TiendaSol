@@ -20,13 +20,14 @@ const FiltrosBusquedaProductosVendedor = ({ onSubmit, filtrosActuales }) => {
       <Form.Group controlId="filtroBusqueda" className="mb-3">
         <Form.Label>Buscar por término</Form.Label>
         <Form.Control
+          type="text"
           placeholder="Buscar..."
           name="valorBusqueda"
           value={filtros.valorBusqueda || ''}
           onChange={handleInputChange}
         />
       </Form.Group>
-      <Form.Group controlId="filtrarActivo" className="mb-3">
+      <Form.Group controlId="filtroPerPage" className="mb-3">
         <Form.Label>Productos por página</Form.Label>
         <Form.Control
           type="number"
