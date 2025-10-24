@@ -101,7 +101,7 @@ const ProductosVendedor = () => {
         </div>
 
         <main className="col-lg-9 col-md-7 col-12 ">
-          <h1 className="mb-4">Productos del Vendedor</h1>
+          <h1 className="mb-4">Productos disponibles</h1>
           {loading ? (
             <LoadingSpinner message="Cargando productos" />
           ) : !productos || productos.length === 0 ? (
