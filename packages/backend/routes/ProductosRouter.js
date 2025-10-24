@@ -24,4 +24,8 @@ productosRouter.get('/:id', asyncHandler(async(req, res) => {
 productosRouter.post("/", asyncHandler(async(req, res) => {
   return await productosController.crearProducto(req, res)
 }))
+
+productosRouter.put("/:id", asyncHandler(async(req, res) => {
+  return await productosController.modificarProducto(req, res)
+}))
 export default productosRouter

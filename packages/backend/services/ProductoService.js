@@ -43,6 +43,34 @@ export class ProductoService {
     const producto = new Producto(vendedor, productoDto.titulo, productoDto.descripcion, categorias, productoDto.precio, productoDto.moneda, productoDto.stock, productoDto.fotos || [])
     return await this.productoRepo.saveProducto(producto)
   }
+
+  async modificarProducto(idProducto, productoDto) {
+    const productoExistente = await this.productoRepo.findById(idProducto)
+    if (!productoExistente) {
+      throw new EntidadNotFoundError(`producto con id ${idProducto} no encontrado`)
+    } 
+    productoExistente.titulo = productoDto.titulo;
+    productoExistente.descripcion = productoDto.descripcion;
+    productoExistente.precio = productoDto.precio;
+    productoExistente.moneda = productoDto.moneda;
+    productoExistente.stock = productoDto.stock;
+    productoExistente.ventas = productoDto.ventas;
+    productoExistente.fotos = productoDto.fotos || [];
+    //repetido
+    const categorias = [];
+    for (const nombreCategoria of productoDto.categorias) {
+      let categoria = await this.categoriaRepo.findByNombre(nombreCategoria);
+      if (!categoria) {
+        throw new EntidadNotFoundError(`categoria ${nombreCategoria} no encontrada`)
+      }
+      categorias.push(categoria);
+    }
+    productoExistente.categorias = categorias;
+    //repetido
+
+    return await this.productoRepo.updateProducto(productoExistente)
+  }
+  
   async obtenerProducto(idProducto) {
     const producto = await this.productoRepo.findById(idProducto)
     if (!producto) throw new EntidadNotFoundError("producto con id " + idProducto + " no encontrado")
