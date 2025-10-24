@@ -50,4 +50,7 @@ if (Object.keys(orden).length > 0) {
     return productos
   }
 
+  update(id, updateData) {
+    return ProductoModel.findByIdAndUpdate(id, updateData, { new: true })
+  }
 }
