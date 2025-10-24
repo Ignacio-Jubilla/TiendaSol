@@ -97,4 +97,7 @@ export class ProductoRepository {
     }
   }
 
+  update(id, updateData) {
+    return ProductoModel.findByIdAndUpdate(id, updateData, { new: true })
+  }
 }

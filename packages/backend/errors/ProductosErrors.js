@@ -11,3 +11,9 @@ export class InputValidationError extends CustomError {
     super(message, 400)
   }  
 }
+
+export class NotEnoughStockError extends CustomError {
+  constructor(message) {
+    super(message || "No hay suficiente stock", 400);
+  }
+}

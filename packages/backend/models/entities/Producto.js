@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { NotEnoughStockError } from '../../errors/ProductosErrors.js';
 
 export class Producto{
     constructor(vendedor,titulo,descripcion,categorias,precio,moneda,stock,fotos){
@@ -15,7 +16,9 @@ export class Producto{
     }
 
     estaDisponible(cantidad){
-        return cantidad<this.stock;
+        if(this.stock < cantidad){
+            throw new NotEnoughStockError("No hay suficiente stock para el producto con id " + this.id);
+        }
     }
 
     reducirStock(cantARestar){
