@@ -3,6 +3,7 @@ import cors from 'cors'
 import express from 'express'
 import pedidosRouter from './routes/PedidosRoutes.js'
 import productosRouter from './routes/ProductosRouter.js'
+import usuariosRouter from './routes/UsuariosRoutes.js'
 import middleware from './utils/middleware.js'
 import config from './utils/config.js'
 
@@ -45,7 +46,7 @@ app.use('/api/pedidos', pedidosRouter)
 app.use('/api/productos', productosRouter)
 
 app.use('/api/notificaciones', notificacionesRouter)
-
+app.use('/api/usuarios', usuariosRouter)
 app.use(middleware.errorHandler)
 app.use(middleware.unknownEndpoint)
 

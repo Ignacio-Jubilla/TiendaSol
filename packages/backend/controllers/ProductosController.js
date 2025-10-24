@@ -19,16 +19,29 @@ export class ProductosController {
     return res.status(200).json(producto)
   }
 
+  
   async obtenerProductos(req, res) {
     const query = req.query
     const parsedQuery = buscarProductoSchema.safeParse(query)
     if (parsedQuery.error) {
       return res.status(400).json(parsedQuery.error.issues)
     }
-    const productos = await this.productoService.obtenerProductos(parsedQuery.data)
-    return res.status(200).json(productos)
+    const paginacionProductos = await this.productoService.obtenerProductos(parsedQuery.data)
+    return res.status(200).json(paginacionProductos)
   }
 
+  async modificarProducto(req, res) {
+    const body = req.body;
+    const idProducto = req.params.id;
+    if (!mongoose.isValidObjectId(idProducto)) throw new InputValidationError("Id de producto no valido")
+    const parsedBody = modificarProductoSchema.safeParse(body);
+    if (parsedBody.error) {
+      return res.status(400).json(parsedBody.error.issues);
+    }
+    const productoNuevo = await this.productoService.modificarProducto(idProducto, parsedBody.data)
+    return res.status(201).json(productoNuevo)
+  }
+  
   async crearProducto(req, res) {
     const body = req.body;
     const parsedBody = productoSchema.safeParse(body);
@@ -40,6 +53,18 @@ export class ProductosController {
     return res.status(201).json(productoNuevo)
   }
 }
+
+
+const modificarProductoSchema = z.object({
+  titulo: z.string().min(3),
+  descripcion: z.string().min(10),
+  categorias: z.array(z.string().min(3)).nonempty("Debe haber al menos una categoría"),
+  precio: z.number().positive("El precio debe ser mayor a 0"),
+  moneda: z.enum(Object.values(TipoMoneda)),
+  stock: z.number().int().nonnegative("El stock no puede ser negativo"),
+  ventas: z.number().int().nonnegative("Las ventas no pueden ser negativas"),
+  fotos: z.array(z.string()).optional(),
+});
 
 const productoSchema = z.object({
   vendedorId: z.string().nonempty(),
@@ -61,16 +86,8 @@ const buscarProductoSchema = z.object({
   perPage: z.coerce.number().nonnegative().optional().default(30)
     .transform((val) => (val > 30 ? 30 : val)),
   ordenarPor: z.enum(["PRECIO", "VENTAS"]).optional(),
-  tipoMoneda: z.enum(Object.values(TipoMoneda), "Ingrese un tipo de moneda valido").optional().default('DOLAR_USA'),
-  ordenPrecio: z.enum(["ASC", "DESC"]).optional().default("DESC"),
+  orden: z.enum(["ASC", "DESC"]).optional().default("DESC"),
 }).superRefine((data, ctx) => {
-  if ((data.precioMin || data.precioMax) && !data.tipoMoneda) {
-    ctx.addIssue({
-      code: "custom",
-      path: ["tipoMoneda"],
-      message: "tipoMoneda es obligatorio cuando ordenarPor = PRECIO",
-    });
-  }
   if (data.precioMin && data.precioMax && data.precioMin >= data.precioMax) {
     ctx.addIssue({
       code: "custom",

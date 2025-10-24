@@ -9,6 +9,7 @@ export class Producto{
         this.precio = precio;
         this.moneda = moneda;
         this.stock = stock;
+        this.ventas = 0;
         this.fotos = fotos;
         this.activo = true;
     }
@@ -24,7 +25,10 @@ export class Producto{
             throw new Error("No hay stock suficiente");
         }
     }
-
+    
+    aumentarVentas(cantidad){ 
+        this.ventas+=cantidad;
+    }
     aumentarStock(cantidad){
         this.stock+=cantidad;
     }
