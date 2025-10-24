@@ -6,6 +6,12 @@ export class PedidoNotFound extends CustomError {
   }
 }
 
+export class NoPedidosYet extends CustomError {
+  constructor(message) {
+    super(message || "No hay pedidos aún", 404);
+  }
+}
+
 export class NotEnoughStockError extends CustomError {
   constructor(message) {
     super(message || "No hay suficiente stock", 400);

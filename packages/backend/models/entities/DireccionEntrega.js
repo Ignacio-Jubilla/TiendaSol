@@ -19,11 +19,14 @@ export class DireccionEntregaBuilder {
   constructor() {
     this.calle = "";
     this.altura = "";
+    this.piso = "";
     this.departamento = "";
     this.codigoPostal = "";
     this.ciudad = "";
     this.provincia = "";
     this.pais = "";
+    this.lat = null;
+    this.lon = null;
   }
 
   withCalle(calle) {
@@ -33,6 +36,11 @@ export class DireccionEntregaBuilder {
 
   withAltura(altura) {
     this.altura = altura;
+    return this;
+  }
+
+  withPiso(piso) {
+    this.piso = piso;
     return this;
   }
 
@@ -58,6 +66,16 @@ export class DireccionEntregaBuilder {
 
   withPais(pais) {
     this.pais = pais;
+    return this;
+  }
+
+  withLat(lat) {
+    this.lat = lat;
+    return this;
+  }
+
+  withLon(lon) {
+    this.lon = lon;
     return this;
   }
 
