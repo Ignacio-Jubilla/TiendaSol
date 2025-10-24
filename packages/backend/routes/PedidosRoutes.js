@@ -15,7 +15,9 @@ const pedidoService = new PedidosServices(new ProductoService(), new UsuarioServ
 import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js';
 import { PedidoRepository } from '../models/repositories/PedidoRepository.js';
 import { ProductoRepository } from '../models/repositories/ProductosRepository.js';
-import asyncHandler from 'express-async-handler';
+import asyncHandler from 'express-async-handler'
+
+
 const usuarioRepo = new UsuarioRepository();
 const pedidoRepo = new PedidoRepository();
 const productoRepo = new ProductoRepository();
@@ -23,23 +25,20 @@ const pedidosService = new PedidoService(pedidoRepo, usuarioRepo, productoRepo);
 
 const pedidosController = new PedidosController(pedidosService);
 
+
 pedidosRouter.get('/', asyncHandler(async (req, res) => {
-  return await pedidosController.obtenerTodosLosPedidos(req, res);
+  return await pedidosController.obtenerPedidos(req, res);
 }))
 
 pedidosRouter.post('/', asyncHandler(async (req, res) => {
   return await pedidosController.crearPedido(req, res);
 }))
-
-pedidosRouter.put('/:id/cancelado', asyncHandler(async (req, res) => {
+//patch 
+pedidosRouter.patch('/:id/cancelado', asyncHandler(async (req, res) => {
   return await pedidosController.cancelarPedido(req, res);
 }))
 
-pedidosRouter.get('/usuario/:id/historial', asyncHandler(async (req, res) => {
-  return await pedidosController.obtenerHistorialPedidos(req, res);
-}))
-
-pedidosRouter.put('/:id/enviado', asyncHandler( async (req, res) => {
+pedidosRouter.patch('/:id/enviado', asyncHandler( async (req, res) => { //chequear
   return await pedidosController.marcarEnviado(req, res);
 }))
 
