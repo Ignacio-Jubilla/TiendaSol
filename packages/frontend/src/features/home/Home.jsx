@@ -2,6 +2,7 @@ import React from 'react';
 import Logo from "../../media/tiendaSolLogo.png"
 import "./Home.css"
 import { Button, Col, Row, Stack } from 'react-bootstrap';
+import { Link } from 'react-router';
 const Home = () => {
   return (
     <>
@@ -30,8 +31,8 @@ const Home = () => {
           <Col className="d-flex flex-column align-items-center p-3 rounded-bottom-4 register-login">
             <h4>¡Ingresa ahora y descubre lo que TiendaSol puede ofrecerte!</h4>
             <Stack gap={5} direction='horizontal' className='mx-auto'>
-              <Button variant="light">Iniciar sesión</Button>
-              <Button variant="dark">Registrarse</Button>
+              <Button variant="light" aria-label='Iniciar sesion' as={Link} to={`/login`}>Iniciar sesión</Button>
+              <Button variant="dark" aria-label='Registrate' as={Link} to={`/login`}>Registrarse</Button>
             </Stack>
           </Col>
         </Row>
