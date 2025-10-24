@@ -10,6 +10,8 @@ import DetalleProducto from "./features/detalleProducto/DetalleProducto.jsx";
 import MisProductos from "./features/misProductos/MisProductos.jsx";
 import EditarProducto from "./features/editarProducto/EditarProducto.jsx";
 import CrearProducto from "./features/crearProducto/CrearProducto.jsx";
+import Login from "./features/login/Login.jsx";
+import Register from "./features/register/Register.jsx";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path="/mis-productos" element={<MisProductos />} />
           <Route path="/mis-productos/crear" element={<CrearProducto />} />
           <Route path="/vendedores" element={<Vendedores/>} />
+          <Route path="/login" element={<Login/>} />
+          <Route path="/register" element={<Register/>} />
           <Route path="/productos/:productoId/editar" element={<EditarProducto/>} />
           <Route path="/vendedores/:vendedorId/productos" element={<ProductosVendedor />} />
           <Route path="/vendedores/:vendedorId/productos/:productoId" element={<DetalleProducto/>} />
