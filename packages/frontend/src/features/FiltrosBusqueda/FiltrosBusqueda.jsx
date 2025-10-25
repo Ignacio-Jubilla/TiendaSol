@@ -22,16 +22,6 @@ const FiltrosBusqueda = ({ onSubmit, filtrosActuales }) => {
 
   const formFiltro = (
     <Form onSubmit={handleSubmit} >
-      <Form.Group controlId="filtroBusqueda" className="mb-3">
-        <Form.Label>Buscar por término</Form.Label>
-        <Form.Control
-          placeholder="Buscar..."
-          name="valorBusqueda"
-          value={filtros.valorBusqueda || ''}
-          onChange={handleInputChange}
-          aria-label='buscar por termino'
-        />
-      </Form.Group>
         <label id="rangoPrecioLabel" className="form-label">Rango de precios</label>
         <section className="d-flex flex-direction-row mb-3" aria-labelledby="rangoPrecioLabel">
           <Form.Group controlId="filtroPrecioMin" className="me-2 flex-grow-1">
@@ -51,9 +41,9 @@ const FiltrosBusqueda = ({ onSubmit, filtrosActuales }) => {
             <Form.Label className="visually-hidden">Precio máximo</Form.Label>
             <Form.Control
               type="number"
-              min={0}
               placeholder="Máximo"
               name="precioMax"
+              min={0}
               value={filtros.precioMax || ''}
               onChange={handleInputChange}
               aria-label="Precio máximo" 

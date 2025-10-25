@@ -34,7 +34,7 @@ const ProductosVendedor = () => {
   }
 
   const handleFiltrar = (filtros) => {
-    //llamar a api con {...filtros}
+
     if (loading) {
       showErrorMessage("Espere a que carguen los productos")
       return
@@ -42,7 +42,7 @@ const ProductosVendedor = () => {
     
     setFiltros(filtros)
 
-    if (filtros.precioMin && filtros.precioMax && filtros.precioMin > filtros.precioMax) {
+    if (filtros.precioMin && filtros.precioMax && filtros.precioMin >= filtros.precioMax) {
       setErrorMessage("El precio mínimo no puede ser mayor al precio máximo")
       return;
     }
@@ -67,7 +67,7 @@ const ProductosVendedor = () => {
           setLoading(true)
           const filtros = Object.fromEntries(searchParams.entries());
           try {
-              const dataApi = await productoService.getProductos({...filtros, vendedorId});
+              const dataApi = await productoService.getProductos({...filtros, vendedorId})
               if (dataApi) {
                   setProductos(dataApi.data)
                   setPagination(dataApi.pagination)
@@ -80,21 +80,12 @@ const ProductosVendedor = () => {
               setLoading(false)
           }
       }
-  useEffect(() => { fetchData() }, [searchParams])
+  useEffect(() => { fetchData()}, [searchParams])
 
 
   return (
     <div className="container mt-4">
       <ErrorMessage msg={errorMessage} />
-      <div className="mb-5">
-        <Button
-          variant="primary"
-          as={Link}
-          to={`/vendedores`}
-          aria-label="Volver a lista vendedores"
-        ><IoArrowBackSharp></IoArrowBackSharp>
-          Volver a lista vendedores</Button>
-      </div>
       <div className="row">
         <div className="mb-4 col-lg-3 col-md-5 col-12">
           <FiltrosBusqueda onSubmit={handleFiltrar} filtrosActuales={Object.fromEntries(searchParams.entries())} />
