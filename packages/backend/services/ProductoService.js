@@ -17,9 +17,9 @@ export class ProductoService {
     return {
       ...producto,
       _id: producto.id?.toString() || producto._id?.toString(),
-      vendedor : {
+      vendedor: {
         id: producto.vendedor.id?.toString() || producto.vendedor._id?.toString(),
-        nombre: producto.vendedor.nombre, 
+        nombre: producto.vendedor.nombre,
         email: producto.vendedor.email
       }
     }
@@ -48,7 +48,7 @@ export class ProductoService {
     const productoExistente = await this.productoRepo.findById(idProducto)
     if (!productoExistente) {
       throw new EntidadNotFoundError(`producto con id ${idProducto} no encontrado`)
-    } 
+    }
     productoExistente.titulo = productoDto.titulo;
     productoExistente.descripcion = productoDto.descripcion;
     productoExistente.precio = productoDto.precio;
@@ -70,16 +70,19 @@ export class ProductoService {
 
     return await this.productoRepo.updateProducto(productoExistente)
   }
-  
+
   async obtenerProducto(idProducto) {
     const producto = await this.productoRepo.findById(idProducto)
     if (!producto) throw new EntidadNotFoundError("producto con id " + idProducto + " no encontrado")
     return producto
   }
   async obtenerProductos(filtro) {
-    const vendedor = await this.usuarioRepo.findById(filtro.vendedorId)
-    if (!vendedor) {
-      throw new EntidadNotFoundError(`usuario con id ${filtro.vendedorId} no encontrado`)
+    console.log(filtro.activo)
+    if (filtro.vendedorId) {
+      const vendedor = await this.usuarioRepo.findById(filtro.vendedorId)
+      if (!vendedor) {
+        throw new EntidadNotFoundError(`usuario con id ${filtro.vendedorId} no encontrado`)
+      }
     }
 
     let page = filtro.page ? Number(filtro.page) : 1;

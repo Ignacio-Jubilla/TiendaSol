@@ -78,7 +78,7 @@ const productoSchema = z.object({
 });
 
 const buscarProductoSchema = z.object({
-  vendedorId: z.string("No se recibio un id de usuario").nonempty(),
+  vendedorId: z.string().optional(),
   valorBusqueda: z.string().optional(),
   precioMin: z.coerce.number().nonnegative().optional(),
   precioMax: z.coerce.number().nonnegative().optional(),
@@ -87,6 +87,7 @@ const buscarProductoSchema = z.object({
     .transform((val) => (val > 30 ? 30 : val)),
   ordenarPor: z.enum(["PRECIO", "VENTAS"]).optional(),
   orden: z.enum(["ASC", "DESC"]).optional().default("DESC"),
+  activo: z.enum(["true", "false"]).optional().default("true").transform(val => val === "true")
 }).superRefine((data, ctx) => {
   if (data.precioMin && data.precioMax && data.precioMin >= data.precioMax) {
     ctx.addIssue({
