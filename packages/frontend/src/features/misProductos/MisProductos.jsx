@@ -30,8 +30,6 @@ const MisProductos = () => {
       showErrorMessage("Espere a que carguen los productos")
       return
     }
-    alert('llamado a api con filtros' + filtros)
-
     setSearchParams({ ...filtros, page: 1 });
     setFiltros(filtros)
     

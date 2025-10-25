@@ -1,9 +1,9 @@
 import React from 'react';
 import Logo from "../../media/tiendaSolLogo.png"
-import "./Home.css"
+import "./LandingPage.css"
 import { Button, Col, Row, Stack } from 'react-bootstrap';
 import { Link } from 'react-router';
-const Home = () => {
+const LandingPage = () => {
   return (
     <>
       <div className='container-fluid'>
@@ -41,4 +41,4 @@ const Home = () => {
   )
 };
 
-export default Home;
+export default LandingPage;

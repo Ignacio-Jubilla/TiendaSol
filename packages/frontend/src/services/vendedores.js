@@ -9,4 +9,11 @@ const getVendedores = async (filtros = {}) => {
   return response.data
 }
 
-export default getVendedores 
+const getMejoresVendedores = async() => {
+  const response = await axios.get(baseUrl + '/usuarios/vendedores', {
+    params: {perPage: 10, ordenarPor: "VENTAS", orden: "DESC"}
+  })
+  return response.data
+}
+
+export default {getVendedores, getMejoresVendedores }
