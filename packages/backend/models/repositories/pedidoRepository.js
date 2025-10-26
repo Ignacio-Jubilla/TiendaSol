@@ -28,8 +28,9 @@ export class PedidoRepository {
     }
 
     async findById(id) {
-        const pedido = await PedidoModel.findById(id);
-        return pedido;
+        return await PedidoModel.findById(id)
+        .populate('comprador')
+        .populate('items.producto');
     }
 
     async findByUserId(usuarioId){

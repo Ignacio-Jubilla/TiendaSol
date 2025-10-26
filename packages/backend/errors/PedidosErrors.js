@@ -29,3 +29,9 @@ export class CancelationError extends CustomError {
     super(message || "Error en la cancelación del pedido", 400);
   }
 }
+
+export class NoPuedeEnviarseError extends CustomError {
+  constructor(message) {
+    super(message || "El pedido no puede ser enviado", 400);
+  }
+}

@@ -42,7 +42,11 @@ export class Pedido {
 
   
   static fromDB(doc) {
-    const pedido = new Pedido(doc.comprador, doc.items, doc.moneda, doc.direccionEntrega);
+    const pedido = new Pedido(
+      doc.comprador, 
+      doc.items, 
+      doc.moneda, 
+      doc.direccionEntrega);
     pedido._id = doc._id;
     pedido.estado = doc.estado;
     pedido.historialEstados = doc.historialEstados || [];
