@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import './CarouselItems.css'
 
 const CarouselItems = ({items, CardItem}) => {
   const [index, setIndex] = useState(0);
-  const visible = 3;
+  const [visible, setVisible] = useState(3)
 
   const siguiente = () => {
     if (index < items.length - visible) setIndex(index + 1);
@@ -16,7 +16,13 @@ const CarouselItems = ({items, CardItem}) => {
   if (!Array.isArray(items) || items.length === 0) {
     return <p className="carousel-empty">No hay items disponibles</p>;
   }
-
+  useEffect(() => {
+    const screenWidth = window.innerWidth
+    if (screenWidth >= 1200) {setVisible(4)}
+    else if(screenWidth >= 992) {setVisible(3)}
+    else if(screenWidth >= 768) {setVisible(2)}
+    else {setVisible(1)}
+  }, [])
   return (
     <div className="carousel-container">
       <div className="carousel-wrapper">
