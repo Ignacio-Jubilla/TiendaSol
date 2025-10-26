@@ -10,6 +10,8 @@ import CardProductoResumen from '../../components/cards/CardProductoResumen';
 import Vendedores from '../../services/vendedores';
 import CarouselItems from '../../components/productosCarousel/CarouselItems';
 import CardVendedor from '../../components/cards/CardVendedor';
+import LoadingProduct from '../../components/loadingProduct/LoadingProduct';
+import LoadingVendedor from '../../components/loadingVendedor/LoadingVendedor';
 
 const MainPage = () => {
   const [productos, setProductos] = useState([])
@@ -50,12 +52,17 @@ const MainPage = () => {
       {errorMessage ? <ErrorMessage msg={errorMessage}></ErrorMessage> : null}
       <section className='border border-2 border-dark mt-4 rounded-3 text-center'>
       <h3 className='my-2 section-title'>Los mas vendidos</h3>
-      {loading ? <p>Cargando</p> : 
+      {loading ? 
+      <div className="d-flex justify-content-between">
+        {[1,2,3].map( (numero) => <LoadingProduct key={numero}/>)}
+      </div> : 
         productos && productos.length > 0 ? <CarouselItems items={productos} CardItem={CardProductoResumen}></CarouselItems>
        : <p>No se encontraron productos</p>}
       </section><section className='border border-2 border-dark mt-4 rounded-3 text-center'>
         <h3>Mejores vendedores</h3>
-        {vendedores && vendedores.length > 0 ? <CarouselItems items={vendedores} CardItem={CardVendedor}></CarouselItems>: <p>No se encontraron vendedores</p>}
+        {loading ? <div className='d-flex justify-content-between'>
+          {[1,2,3].map( (numero) => <LoadingVendedor key={numero}/>)}  }
+        </div>: vendedores && vendedores.length > 0 ? <CarouselItems items={vendedores} CardItem={CardVendedor}></CarouselItems>: <p>No se encontraron vendedores</p>}
       </section><section className='border border-2 border-dark mt-4 rounded-3 text-center mb-4'>
         <h3 className='my-2 section-title'>Categorias</h3>
         {categorias && categorias.length > 0 ? <p>Categorias</p> : <p>No se encontraron categorias</p>}

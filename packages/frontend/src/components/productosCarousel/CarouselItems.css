@@ -20,10 +20,28 @@
 }
 
 .carousel-card{
-  width: 33.3333%;
+  width: 100%;
   padding: 0.5rem;
   box-sizing: border-box;
   flex-shrink: 0;
+}
+
+@media (min-width: 680px) {
+  .carousel-card {
+    width: 50%;
+  }
+}
+
+@media (min-width: 992px) {
+  .carousel-card{
+    width: 33.33%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .carousel-card{
+    width: 25%;
+  }
 }
 
 .producto-card:hover {
