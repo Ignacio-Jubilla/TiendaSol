@@ -1,10 +1,9 @@
 export class NotificacionOutputDTO{
-    constructor(notificacion){
-        this.id = notificacion._id,
-        this.usuarioDestino = notificacion.usuarioDestino,
-        this.mensaje = notificacion.mensaje,
-        this.fechaAlta = notificacion.fechaAlta,
-        this.leida = notificacion.leida,
-        this.fechaLeida = notificacion.fechaLeida
+    constructor(numeroPagina, elementosPagina, total, totalPaginas, notificaciones){
+        this.pagina = numeroPagina,
+        this.perPage = elementosPagina,
+        this.total = total,
+        this.totalPaginas = totalPaginas,
+        this.data = notificaciones
     }
 }
