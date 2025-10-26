@@ -16,7 +16,6 @@ export class ProductoRepository {
   }
 
   async findById(id) {
-    //return await ProductoModel.findById(id)
     return await ProductoModel.findById(id)
   }
   async findAll() {
@@ -24,8 +23,18 @@ export class ProductoRepository {
   }
 
   async getProductosWithFilters(filtro, page = 1, per_page = 30) {
-    const query = {vendedor: new mongoose.Types.ObjectId(filtro.vendedorId)}
+    let query = {}
+    if (filtro.vendedorId) {
+      query.vendedor = new mongoose.Types.ObjectId(filtro.vendedorId)
+    }
     const sort = {}
+
+    if (typeof filtro.activo === 'boolean') {
+      query.activo = filtro.activo
+    } else {
+      query.activo = true
+    }
+
     if (filtro.valorBusqueda) {
       const regex = new RegExp(filtro.valorBusqueda, "i");
       query.$or = [
@@ -62,11 +71,25 @@ export class ProductoRepository {
       { $match: query },
       {
         $project: {
-          ventas: 0,
-          __v: 0
+          __v: 0,
+        categorias: {
+          _id: 0
         }
-      }
+        }
+      }, 
+      {
+        $addFields: {
+          categorias: {
+            $map: {
+              input: "$categorias", 
+              as: "c",
+              in: "$$c.nombre"
+            }
+          }
+        }
+      },
     ]
+    
     
     if (Object.keys(sort).length > 0) {
       aggregateFields.push({ $sort: sort })
@@ -85,14 +108,15 @@ export class ProductoRepository {
     const skip = (page - 1) * per_page
     aggregateFields.push({ $skip: skip })
     aggregateFields.push({ $limit: per_page })
-    const productos = await ProductoModel.aggregate(aggregateFields)
+    const productos = await ProductoModel.aggregate(aggregateFields).unwind("vendedor")
+
     await ProductoModel.populate(productos, { path: "vendedor", select: "_id nombre email" })
 
     return {
       data: productos,
       pagination: {
         page,
-        total_pages: Math.ceil(total / per_page)
+        total_pages
       }
     }
   }

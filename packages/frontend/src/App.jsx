@@ -1,7 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { BrowserRouter, Route, Routes } from "react-router";
 import Layout from "./features/layout/Layout.jsx";
-import Home from "./features/home/Home";
 import './index.css'
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import Vendedores from "./features/vendedores/Vendedores.jsx";
@@ -12,19 +11,24 @@ import EditarProducto from "./features/editarProducto/EditarProducto.jsx";
 import CrearProducto from "./features/crearProducto/CrearProducto.jsx";
 import Login from "./features/login/Login.jsx";
 import Register from "./features/register/Register.jsx";
+import LandingPage from "./features/home/LandingPage.jsx";
+import MainPage from "./features/mainPage/MainPage.jsx";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout  />} >
-          <Route index element={<Home />} />
+          <Route index element={<MainPage/>} />
+          <Route path="/landing" element={<LandingPage/>}/>
           <Route path="/mis-productos" element={<MisProductos />} />
           <Route path="/mis-productos/crear" element={<CrearProducto />} />
           <Route path="/vendedores" element={<Vendedores/>} />
           <Route path="/login" element={<Login/>} />
           <Route path="/register" element={<Register/>} />
           <Route path="/productos/:productoId/editar" element={<EditarProducto/>} />
+          <Route path="/productos/:productoId" element={<DetalleProducto/>} />
+          <Route path="/productos" element={<ProductosVendedor />} />
           <Route path="/vendedores/:vendedorId/productos" element={<ProductosVendedor />} />
           <Route path="/vendedores/:vendedorId/productos/:productoId" element={<DetalleProducto/>} />
         </Route>

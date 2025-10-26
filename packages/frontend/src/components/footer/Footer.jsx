@@ -1,4 +1,6 @@
+import { Button } from 'react-bootstrap';
 import './Footer.css'
+import { Link } from 'react-router';
 
 const Footer = () => {
   return (
@@ -9,6 +11,7 @@ const Footer = () => {
       <ul className="list-unstyled d-flex flex-md-row flex-column gap-3 text-center text-md-end m-0">
         <li>Contacto</li>
         <li>Términos y condiciones</li>
+        <li><Button as={Link} to={"/landing"} variant='none'>Sobre nosotros</Button></li>
       </ul>
     </footer>
   );

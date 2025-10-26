@@ -9,10 +9,17 @@ const getProductos = async (filtros = {}) => {
   return response.data
 }
 
+const getProductosMasVendidos = async() => {
+  const response = await axios.get(baseUrl + '/productos', {
+    params: {perPage: 10, activo: true, ordenarPor: "VENTAS", orden: "DESC"},
+  })
+  return response.data
+}
+
 const getProducto = async(id) => {
   const response = await axios.get(baseUrl + `/productos/${id}`)
   return response.data
 }
 
 
-export default { getProductos, getProducto }
+export default { getProductos, getProductosMasVendidos, getProducto }
