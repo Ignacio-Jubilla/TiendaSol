@@ -14,12 +14,12 @@ export class NotificacionesController {
     */
     async obtenerNotificaciones(req, res){
         try{
-            const { usuario, leidas = true } = req.query;
+            const { usuario, leidas = true, page = 1, limit = 10 } = req.query;
 
             if(!usuario){
                 throw new NotificacionUsuarioError()
             }
-            const notificaciones = await this.notificacionService.obtenerNotificaciones(usuario, leidas)
+            const notificaciones = await this.notificacionService.obtenerNotificaciones(usuario, leidas, page, limit)
 
             res.status(200).json(notificaciones)
             return
