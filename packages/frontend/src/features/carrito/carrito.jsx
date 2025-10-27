@@ -60,7 +60,14 @@ const Carrito = () => {
               <Button variant="danger" className="me-2" onClick={()=> cleanCart()}>
                 Vaciar carrito
               </Button>
-              <Button variant="success" onClick={() => alert("Aquí se generaría el pedido")}>
+              <Button variant="success" onClick={() => {
+                if(!cartItems || cartItems.length === 0){
+                  alert("Carrito vacío")
+                }else{
+                  alert("Aquí se generaría el pedido")}
+                }}
+              >
+
                 Proceder a comprar
               </Button>
             </div>
