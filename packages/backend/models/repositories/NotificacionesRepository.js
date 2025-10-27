@@ -23,7 +23,8 @@ export class NotificacionesRepository {
     
 
     async save(notificacion){
-        return await this.model.save(notificacion);
+        const nuevaNotificacion = new NotificacionModel(notificacion)
+        return await nuevaNotificacion.save(notificacion);
     }
 
     //revisar el actualizado

@@ -4,6 +4,10 @@ import express from 'express';
 const pedidosRouter = express.Router();
 import { PedidosController} from '../controllers/PedidosController.js'
 import { PedidoService } from '../services/PedidoService.js';
+import { NotificacionService } from '../services/NotificacionService.js';
+import { FactoryNotificacion } from '../models/entities/FactoryNotificacion.js'
+import { TraductorManual } from '../models/entities/TraductorManual.js'
+import { NotificacionesRepository } from '../models/repositories/NotificacionesRepository.js'
 
 /*
 import { PedidoDTO } from '../models/entities/dtos/input/PedidoDTO';
@@ -21,7 +25,11 @@ import asyncHandler from 'express-async-handler'
 const usuarioRepo = new UsuarioRepository();
 const pedidoRepo = new PedidoRepository();
 const productoRepo = new ProductoRepository();
-const pedidosService = new PedidoService(pedidoRepo, usuarioRepo, productoRepo);
+const notificacionesRepository = new NotificacionesRepository()
+const traductor = new TraductorManual()
+const factoryNotificacion = new FactoryNotificacion(traductor)
+const notificacionService = new NotificacionService(notificacionesRepository, usuarioRepo, factoryNotificacion, productoRepo)
+const pedidosService = new PedidoService(pedidoRepo, usuarioRepo, productoRepo, notificacionService);
 
 const pedidosController = new PedidosController(pedidosService);
 

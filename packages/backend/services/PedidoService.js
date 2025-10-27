@@ -7,10 +7,11 @@ import { CancelationError, EntidadNotFoundError, NoPuedeEnviarseError } from "..
 import mongoose from "mongoose";
 import { es } from "zod/v4/locales";
 export class PedidoService {
-    constructor(PedidoRepository,UsuariosRepository,ProductosRepository) {
+    constructor(PedidoRepository,UsuariosRepository,ProductosRepository,NotificacionService) {
         this.pedidoRepository = PedidoRepository,
         this.usuariosRepository=UsuariosRepository,
         this.productosRepository=ProductosRepository;
+        this.notificacionService=NotificacionService;
     }
     async obtenerPedidosPaginados(page, limit, filtros) {
         const numeroPagina = Math.max(Number(page),1);
@@ -65,10 +66,11 @@ export class PedidoService {
             );
         }
 
-
-        await this.pedidoRepository.save(pedidoData);
-
-        return this.toOutputDTO(nuevoPedido);
+        const pedidoGuardado = await this.pedidoRepository.save(pedidoData);
+        
+        await this.notificacionService.crearNotificacion(pedidoGuardado);
+        
+        return this.toOutputDTO(pedidoGuardado);
     
     }
 
@@ -218,7 +220,8 @@ export class PedidoService {
             })),
             moneda: nuevoPedido.moneda,
             direccionEntrega: { ...nuevoPedido.direccionEntrega },
-            estado: nuevoPedido.estado,
+            estado: nuevoPedido.
+            estado,
             fechaCreacion: nuevoPedido.fechaCreacion,
             historialEstados: nuevoPedido.historialEstados.map(ce => ({
                 estado: ce.estado,

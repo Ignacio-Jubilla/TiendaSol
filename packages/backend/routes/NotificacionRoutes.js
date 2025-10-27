@@ -6,10 +6,16 @@ import { NotificacionesController } from '../controllers/NotificacionesControlle
 import { NotificacionService } from '../services/NotificacionService.js'
 import { NotificacionesRepository } from '../models/repositories/NotificacionesRepository.js'
 import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js'
+import { FactoryNotificacion } from '../models/entities/FactoryNotificacion.js'
+import { TraductorManual } from '../models/entities/TraductorManual.js'
+import { ProductoRepository } from '../models/repositories/ProductosRepository.js'
 
 const usuarioRepository = new UsuarioRepository()
 const notificacionesRepository = new NotificacionesRepository()
-const notificacionService = new NotificacionService(notificacionesRepository, usuarioRepository)
+const productoRepository = new ProductoRepository()
+const traductor = new TraductorManual()
+const factoryNotificacion = new FactoryNotificacion(traductor)
+const notificacionService = new NotificacionService(notificacionesRepository, usuarioRepository, factoryNotificacion, productoRepository)
 const notificacionesController = new NotificacionesController(notificacionService)
 
 notificacionesRouter.get('/', asyncHandler(async (req, res) => {
