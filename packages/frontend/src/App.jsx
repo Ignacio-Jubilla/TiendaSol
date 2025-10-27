@@ -13,6 +13,9 @@ import Login from "./features/login/Login.jsx";
 import Register from "./features/register/Register.jsx";
 import LandingPage from "./features/home/LandingPage.jsx";
 import MainPage from "./features/mainPage/MainPage.jsx";
+import MisPedidos from "./features/pedidos/MisPedidos.jsx";
+import DetallePedido from "./features/detallePedido/detallePedido.jsx"
+import Carrito from "./features/carrito/carrito.jsx";
 
 function App() {
   return (
@@ -31,6 +34,9 @@ function App() {
           <Route path="/productos" element={<ProductosVendedor />} />
           <Route path="/vendedores/:vendedorId/productos" element={<ProductosVendedor />} />
           <Route path="/vendedores/:vendedorId/productos/:productoId" element={<DetalleProducto/>} />
+          <Route path="/pedidos" element={<MisPedidos/>}/>
+          <Route path="/pedidos/:pedidoId" element={<DetallePedido/>}/>
+          <Route path="/carrito" element={<Carrito/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

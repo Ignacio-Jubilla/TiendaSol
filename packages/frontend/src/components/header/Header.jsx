@@ -1,7 +1,7 @@
 import React, { use } from 'react';
 import './Header.css';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
@@ -12,14 +12,20 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import { FaSearch, FaShoppingCart, FaUser } from 'react-icons/fa'
 import { HiBellAlert } from 'react-icons/hi2';
 import { Link, useNavigate } from 'react-router';
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, OverlayTrigger } from 'react-bootstrap';
+import { Popover } from 'react-bootstrap';
+import carritoMock from '../../mocks/carrito.json'
 
 
 const Header = () => {
   const [currentItems, setCurrentItems] = useState(0);
   const [currentNotifications, setCurrentNotificacion] = useState(0);
   const [valorBusqueda, setValorBusqueda] = useState("");
+  const [showPopover, setShowPopover] = useState(false);
   const navigate = useNavigate()
+  useEffect(() => {
+  setCurrentItems(carritoMock.length);
+}, [carritoMock]);
   const handleSearchChange = (event) => {
     setValorBusqueda(event.target.value);
   }
@@ -32,6 +38,25 @@ const Header = () => {
     handleClose()
     navigate(`/productos?valorBusqueda=${valorBusqueda}`);
   };
+
+  const carritoPreview = (
+    <Popover id="popover-carrito">
+      <Popover.Header as="h3">Tu carrito</Popover.Header>
+      <Popover.Body>
+        {carritoMock.length === 0 ? (
+          <p>El carrito está vacío</p>
+        ) : (
+          <ul className="list-unstyled mb-0">
+            {carritoMock.map(item => (
+              <li key={item.productoId}>
+                {item.nombre} x {item.cantidad} (${item.precioUnitario * item.cantidad})
+              </li>
+            ))}
+          </ul>
+        )}
+      </Popover.Body>
+    </Popover>
+  );
 
   return (
     <header className="" aria-label="Header" aria-description='Header principal de Tiendasol'>
@@ -83,14 +108,24 @@ const Header = () => {
           </Offcanvas.Body>
         </Navbar.Offcanvas>
         <div className="icon-group d-flex align-items-center gap-4">
-          <Link
-            to="/cart"
-            className="icon-item position-relative"
-            aria-label={`Ir a  carrito de compras, actualmente tienes ${currentItems} items`}
+          <OverlayTrigger 
+          placement="bottom" 
+          overlay={carritoPreview}
+          show={showPopover}
           >
-            <FaShoppingCart size={30} />
-            {currentItems}
-          </Link>
+            <div
+              className="icon-item position-relative"
+              onMouseEnter={() => setShowPopover(true)}
+              onMouseLeave={() => setShowPopover(false)}
+              onClick={() => setShowPopover(false)}
+              aria-label={`Ir a carrito de compras, actualmente tienes ${currentItems} items`}
+            >
+              <Link to="/carrito">
+                <FaShoppingCart size={30} />
+                {currentItems}
+              </Link>
+            </div>
+          </OverlayTrigger>
           <Link
             to="/notificaciones"
             className="icon-item position-relative"
