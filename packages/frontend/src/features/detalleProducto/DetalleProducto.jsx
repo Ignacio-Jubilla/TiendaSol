@@ -18,12 +18,22 @@ const DetalleProducto = () => {
 
   const handleAddItem = (producto, cantidad) => {
     const item = cartItems.find(item => item.productoId === producto._id)
-    if(item && item.cantidad + cantidad > producto.stock) {
-      setErrorMessage("No hay suficiente stock para agregar al carrito")
+    if(item) console.log(producto.stock - (cantidad + item.cantidad))
+    if(item && ( Number(item.cantidad)+ Number(cantidad)) > Number(producto.stock) )  {
+      showErrorMessage("No hay suficiente stock para agregar al carrito")
       return;
     }
+
+    if (!item && Number(cantidad) > Number(producto.stock)) return;
     addItemToCart(producto, cantidad);
   };
+
+  const showErrorMessage = (msg) => {
+    setErrorMessage(msg);
+    setTimeout(() => {
+      setErrorMessage("");
+    }, 6000);
+  } 
   const [cantidad, setCantidad] = useState(0);
   const navigate = useNavigate();
 

@@ -31,8 +31,8 @@ const ProductosVendedor = () => {
   const handleAddItem = (producto, cantidad) => {
     //search item and determinate if current quantity is greater than stock
     const item = cartItems.find(item => item.productoId === producto._id)
-    if(item && item.cantidad + cantidad > producto.stock) {
-      setErrorMessage("No hay suficiente stock para agregar al carrito")
+    if(item && Number(item.cantidad) + Number(cantidad) > Number(producto.stock)) {
+      showErrorMessage("No hay suficiente stock para agregar al carrito")
       return;
     }
     addItemToCart(producto, cantidad);
@@ -55,7 +55,7 @@ const ProductosVendedor = () => {
     setFiltros(filtros)
 
     if (filtros.precioMin && filtros.precioMax && filtros.precioMin >= filtros.precioMax) {
-      setErrorMessage("El precio mínimo no puede ser mayor al precio máximo")
+      showErrorMessage("El precio mínimo no puede ser mayor al precio máximo")
       return;
     }
 

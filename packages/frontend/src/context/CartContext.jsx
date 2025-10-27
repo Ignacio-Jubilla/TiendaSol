@@ -13,20 +13,24 @@ export const CartProvider = ({ children }) => {
   const cleanCart = () => setCartItems([]);
 
   const addItemToCart = (producto, cantidad) => {
+    if(!cantidad || cantidad === 0) return;
+
     const itemInCart = cartItems.find(
-      (item) => item.nombre === producto.nombre && item.productoId == producto._id
+      (item) => item.productoId == producto._id
     );
 
     if (itemInCart) {
+      if (Number(producto.stock) < Number(itemInCart.cantidad) + Number(cantidad)) return 0;
       setCartItems(
         cartItems.map((itemPedido) =>
-          (itemPedido.nombre === producto.nombre && itemPedido.productoId === producto._id)
-            ? { ...itemPedido, cantidad: itemPedido.cantidad + cantidad }
+          (itemPedido.productoId === producto._id)
+            ? { ...itemPedido, cantidad: Number(itemPedido.cantidad) + Number(cantidad) }
             : itemPedido
         )
       );
     } else {
-      const newItemPedido = { productoId: producto._id, nombre: producto.titulo, cantidad, precioUnitario: producto.precio };
+      if (Number(producto.stock) < Number(cantidad)) return 0;
+      const newItemPedido = { productoId: producto._id, nombre: producto.titulo, cantidad, precioUnitario: producto.precio, moneda: producto.moneda };
       setCartItems([...cartItems, newItemPedido]);
     }
   };

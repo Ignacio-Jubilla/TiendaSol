@@ -35,6 +35,7 @@ const Carrito = () => {
                   <th>Producto</th>
                   <th>Cantidad</th>
                   <th>Precio Unitario</th>
+                  <th>Moneda</th>
                   <th>Subtotal</th>
                   <th></th>
                 </tr>
@@ -45,6 +46,7 @@ const Carrito = () => {
                     <td>{item.nombre}</td>
                     <td>{item.cantidad}</td>
                     <td>${item.precioUnitario}</td>
+                    <td>${item.moneda}</td>
                     <td>${item.precioUnitario * item.cantidad}</td>
                     <td><button className="btn btn-danger" onClick={() => handleRemoveItem(item.productoId)}>Eliminar</button></td>
                   </tr>
