@@ -24,6 +24,7 @@ export class NotificacionService {
 
     async getDestinatario(pedido){
         var usuarioDestino
+        //console.log(pedido)
         if(pedido.estado === EstadoPedido.ENVIADO){
             usuarioDestino = pedido.comprador
         } else {
