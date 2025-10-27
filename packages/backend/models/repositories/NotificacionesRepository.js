@@ -18,7 +18,7 @@ export class NotificacionesRepository {
 
     
     async findAllByUsuarioAndLeida(usuario, fueLeida){
-        return await this.model.find({ usuarioDestino: usuario, leida: fueLeida })
+        return await this.model.find({ usuarioDestino: usuario, leida: fueLeida }).sort({ fechaAlta: -1 })
     }
     
 
