@@ -17,6 +17,8 @@ import MisPedidos from "./features/pedidos/MisPedidos.jsx";
 import DetallePedido from "./features/detallePedido/detallePedido.jsx"
 import Carrito from "./features/carrito/carrito.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
+import Notificaciones from "./features/notificaciones/Notificaciones.jsx";
+import NotFound from "./features/notFound/NotFound.jsx";
 
 function App() {
   return (
@@ -39,6 +41,8 @@ function App() {
           <Route path="/pedidos" element={<MisPedidos/>}/>
           <Route path="/pedidos/:pedidoId" element={<DetallePedido/>}/>
           <Route path="/carrito" element={<Carrito/>}/>
+          <Route path="/notificaciones" element={<Notificaciones />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
       </CartProvider>

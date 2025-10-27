@@ -66,9 +66,9 @@ export class PedidoService {
         }
 
 
-        await this.pedidoRepository.save(pedidoData);
+        const pedidoGuardado = await this.pedidoRepository.save(pedidoData);
 
-        return this.toOutputDTO(nuevoPedido);
+        return this.toOutputDTO(pedidoGuardado);
     
     }
 
