@@ -7,10 +7,24 @@ import { IoArrowBackSharp } from "react-icons/io5";
 import { useNavigate } from 'react-router';
 import productosService from '../../services/productos';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
+import { useCart } from '../../context/CartContext';
+import ErrorMessage from '../../components/errorMessage/ErrorMessage';
 const DetalleProducto = () => {
   const { vendedorId, productoId } = useParams();
   const [loading, setLoading] = useState(true)
   const [producto, setProducto] = useState(null)
+  const {addItemToCart, cartItems} = useCart()
+  const [errorMessage, setErrorMessage] = useState("")
+
+  const handleAddItem = (producto, cantidad) => {
+    const item = cartItems.find(item => item.productoId === producto._id)
+    if(item && item.cantidad + cantidad > producto.stock) {
+      setErrorMessage("No hay suficiente stock para agregar al carrito")
+      return;
+    }
+    addItemToCart(producto, cantidad);
+  };
+  const [cantidad, setCantidad] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,8 +42,9 @@ const DetalleProducto = () => {
 
   return (
     <Container className='mt-4'>
+      <ErrorMessage msg={errorMessage} />
       <Button onClick={() => navigate(-1)} variant="primary" className="mb-4" aria-label='Boton para volver atras'>
-      <IoArrowBackSharp aria-hidden='true'/>Volver a lista productos
+      <IoArrowBackSharp aria-hidden='true'/>Volver atras
     </Button>
     {loading ? <LoadingSpinner message="Cargando producto" /> :
       !producto ? <h1>Producto no encontrado</h1> : 
@@ -37,15 +52,24 @@ const DetalleProducto = () => {
         <h1 className='card-title'>{producto.titulo}</h1>
         <div className='card-body'>
           <h4>Precio: {producto.precio} {producto.moneda === 'PESO_ARG' ? '$' : producto.moneda === 'DOLAR_USA' ? 'U$D' : 'BRL'}</h4>
+          <h4>Stock: {producto.stock}</h4>
           <h4 className='text-muted'>Descripción: <br></br>{producto.descripcion}</h4>
           <h4>Categorias</h4>
           {producto.categorias.map(cat => <span key={cat._id} className="badge bg-secondary">{cat.nombre}</span>)}
-          <Form>
+          <Form onSubmit={(e) => {
+            e.preventDefault()
+            //logica para agregar a carrito
+            if (cantidad >= 0 && cantidad <= producto.stock) {
+              handleAddItem(producto, cantidad)
+            }
+          }}>
             <Form.Label>Ingrese cantidad a comprar</Form.Label>
             <Form.Control
               type="number"
               min={0}
               max={producto.stock}
+              value={cantidad}
+              onChange={(e) => setCantidad(e.target.value)}
               placeholder="Cantidad"
               name="cantidad" />
             <button className="btn btn-primary">Agregar al carrito</button>

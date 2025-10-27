@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types'
 import { Button, Card, Form } from "react-bootstrap"
 import { Link } from "react-router"
 import { FaCartPlus } from "react-icons/fa";
 import './CardProducto.css'
 
-const CardProducto = ({ producto }) => {
+const CardProducto = ({ producto, handleAddCart }) => {
+  const [cantidad, setCantidad] = useState(0);
   const getImageUrl = () => {
     if (producto.fotos && producto.fotos.length > 0) {
       return producto.fotos[0];
@@ -35,6 +36,9 @@ const CardProducto = ({ producto }) => {
         <Form onSubmit={(e) => {
           e.preventDefault()
           //logica para agregar a carrito
+          if ( cantidad >= 0 && cantidad <= producto.stock) {
+            handleAddCart(producto, cantidad)
+          }
         }}>
           <Form.Control
             type="number"
@@ -43,6 +47,8 @@ const CardProducto = ({ producto }) => {
             placeholder="Cantidad"
             name="cantidad"
             required={true}
+            value={cantidad} 
+            onChange={(e) => setCantidad(e.target.value)}
           />
           <button type='submit' className="btn btn-primary">
             <FaCartPlus aria-hidden="true" style={{"font-size": "2rem"}}/>
