@@ -16,10 +16,12 @@ import MainPage from "./features/mainPage/MainPage.jsx";
 import MisPedidos from "./features/pedidos/MisPedidos.jsx";
 import DetallePedido from "./features/detallePedido/detallePedido.jsx"
 import Carrito from "./features/carrito/carrito.jsx";
+import { CartProvider } from "./context/CartContext.jsx";
 
 function App() {
   return (
     <BrowserRouter>
+    <CartProvider>
       <Routes>
         <Route path="/" element={<Layout  />} >
           <Route index element={<MainPage/>} />
@@ -39,6 +41,7 @@ function App() {
           <Route path="/carrito" element={<Carrito/>}/>
         </Route>
       </Routes>
+      </CartProvider>
     </BrowserRouter>
   );
 }

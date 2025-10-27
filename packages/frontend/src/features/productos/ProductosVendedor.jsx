@@ -12,6 +12,7 @@ import ErrorMessage from "../../components/errorMessage/ErrorMessage";
 import { useNavigate } from "react-router";
 import { useSearchParams } from 'react-router';
 import productoService from "../../services/productos";
+import { useCart } from "../../context/CartContext";
 
 const ProductosVendedor = () => {
   const { vendedorId } = useParams();
@@ -25,13 +26,18 @@ const ProductosVendedor = () => {
   const productosData = productosMocked
 
   const [pagination, setPagination] = useState(null);
+  const {addItemToCart} = useCart()
+
+  const handleAddItem = (producto, cantidad) => {
+    addItemToCart(producto, cantidad);
+  };
 
   const showErrorMessage = (msg) => {
     setErrorMessage(msg);
     setTimeout(() => {
       setErrorMessage("");
     }, 6000);
-  }
+  } 
 
   const handleFiltrar = (filtros) => {
 
@@ -101,7 +107,7 @@ const ProductosVendedor = () => {
             <>
               <ControlPaginado onPageChange={handleChangePage} pagination={pagination} />
               {productos.map((p) => (
-                <CardProducto key={p.id || p._id} producto={p} />
+                <CardProducto key={p.id || p._id} producto={p} handleAddCart={handleAddItem} />
               ))}
             </>
           )}
