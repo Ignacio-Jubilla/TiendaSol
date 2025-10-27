@@ -12,13 +12,16 @@ export class FactoryNotificacion{
       return this.traductor.traducir(estadoPedido, this.lenguaje)
     }
 
-    crearSegunPedido(pedido){
-      const vendedor = pedido.items[0].producto.vendedor; // cada pedido tendria un mismo vendedor
+    crearSegunPedido(pedido, usuarioDestino){
+      //const vendedor = pedido.items[0].producto.vendedor; // cada pedido tendria un mismo vendedor
+      /*
       const productosEnString = pedido.items.map(item => {
         item.producto.titulo
-      }).join(", ")
-      const mensaje = `\nNuevo pedido de ${pedido.comprador.nombre}.\nProductos: ${productosEnString}\nTotal: ${pedido.total}\nDireccion de entrega: ${pedido.direccionEntrega}`
-      const notificacion = new Notificacion(vendedor,mensaje);
+      }).join(", ")*/
+      //const mensaje = `\nNuevo pedido de ${pedido.comprador.nombre}.\nProductos: ${productosEnString}\nTotal: ${pedido.total}\nDireccion de entrega: ${pedido.direccionEntrega}`
+      const mensaje = this.crearSegunEstadoPedido(pedido.estado)
+
+      const notificacion = new Notificacion(usuarioDestino,mensaje);
       return notificacion
     }
 

@@ -1,4 +1,4 @@
-import { EstadoPedido } from "./enums/EstadoPedido"
+import { EstadoPedido } from "./enums/EstadoPedido.js"
 
 export class TraductorManual {
   constructor() {
@@ -45,6 +45,7 @@ export class TraductorManual {
     if (!mensaje) {
       throw new Error(`Idioma no soportado: ${idioma}`)
     }
+    return mensaje
   };
 
   agregarTraduccion = (idioma, traducciones) => {

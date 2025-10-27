@@ -7,7 +7,8 @@ export class Notificacion{
     constructor(usuarioDestino,mensaje){
         this.usuarioDestino = usuarioDestino;
         this.mensaje = mensaje;
-        this.fechaAlta = new Date().toLocaleString();
+        //this.fechaAlta = new Date().toLocaleString();
+        this.fechaAlta = new Date();
         this.leida = false;
     }
 

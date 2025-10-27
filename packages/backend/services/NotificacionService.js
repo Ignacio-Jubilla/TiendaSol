@@ -2,15 +2,35 @@ import { NotificacionOutputDTO } from "../models/entities/dtos/output/Notificaci
 import { Notificacion } from "../models/entities/Notificacion.js";
 import { NotificacionNotFoundError, NotificacionUsuarioMissmatchError } from "../errors/NotificacionesErrors.js";
 import { UsuarioNotExists } from "../errors/UsuariosErrors.js";
+import { EstadoPedido } from "../models/entities/enums/EstadoPedido.js";
 
 export class NotificacionService {
-    constructor(notificacionesRepository, usuariosRepository){
+    constructor(notificacionesRepository, usuariosRepository, factoryNotificacion, productosRepository){
         this.notificacionesRepository = notificacionesRepository
         this.usuariosRepository = usuariosRepository
+        this.factoryNotificacion = factoryNotificacion
+        this.productosRepository = productosRepository
     }
 
-    //Buscar usuario para responder si no es valido/no existe
-    //Paginar las notificaciones
+    async crearNotificacion(pedido){
+        const usuarioDestino = await this.getDestinatario(pedido)
+
+        const notificacion = this.factoryNotificacion.crearSegunPedido(pedido, usuarioDestino)
+        await this.notificacionesRepository.save(notificacion)
+    }
+
+    async getDestinatario(pedido){
+        var usuarioDestino
+        if(pedido.estado === EstadoPedido.ENVIADO){
+            usuarioDestino = pedido.comprador
+        } else {
+            const producto = await this.productosRepository.findById(pedido.items[0].producto)
+            usuarioDestino = producto.vendedor
+        }
+
+        return usuarioDestino
+    }
+
     async obtenerNotificaciones(idUsuario, leidas, pagina, limite){
         const usuario = await this.usuariosRepository.findById(idUsuario)
         
