@@ -66,10 +66,16 @@ export class PedidoService {
             );
         }
 
+<<<<<<< HEAD
         const pedidoGuardado = await this.pedidoRepository.save(pedidoData);
         
         await this.notificacionService.crearNotificacion(pedidoGuardado);
         
+=======
+
+        const pedidoGuardado = await this.pedidoRepository.save(pedidoData);
+
+>>>>>>> 56cba39f54da60df8151aca4c2751099be2b21eb
         return this.toOutputDTO(pedidoGuardado);
     
     }

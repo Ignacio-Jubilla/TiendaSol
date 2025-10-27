@@ -134,7 +134,7 @@ const idSchema = z.string().refine((id) => mongoose.isValidObjectId(id), {
 });
 
 const cancelarPedidoSchema = z.object({
-  motivo: z.string().nonempty({ message: "Motivo es obligatorio" }),
+  motivo: z.string({required_error: "Motivo es obligatorio"}).nonempty({ message: "Motivo es obligatorio" }),
 });
 
 const filtrosSchema = z.object({

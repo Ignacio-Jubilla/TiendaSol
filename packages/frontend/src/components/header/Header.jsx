@@ -1,6 +1,5 @@
 import React, { use } from 'react';
 import './Header.css';
-
 import { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
@@ -15,17 +14,15 @@ import { Link, useNavigate } from 'react-router';
 import { Dropdown, OverlayTrigger } from 'react-bootstrap';
 import { Popover } from 'react-bootstrap';
 import carritoMock from '../../mocks/carrito.json'
-
+import { useCart } from '../../context/CartContext';
 
 const Header = () => {
-  const [currentItems, setCurrentItems] = useState(0);
+  const {totalCart, cartItems} = useCart()
   const [currentNotifications, setCurrentNotificacion] = useState(0);
   const [valorBusqueda, setValorBusqueda] = useState("");
   const [showPopover, setShowPopover] = useState(false);
   const navigate = useNavigate()
-  useEffect(() => {
-  setCurrentItems(carritoMock.length);
-}, [carritoMock]);
+
   const handleSearchChange = (event) => {
     setValorBusqueda(event.target.value);
   }
@@ -43,11 +40,11 @@ const Header = () => {
     <Popover id="popover-carrito">
       <Popover.Header as="h3">Tu carrito</Popover.Header>
       <Popover.Body>
-        {carritoMock.length === 0 ? (
+        {!totalCart ? (
           <p>El carrito está vacío</p>
         ) : (
           <ul className="list-unstyled mb-0">
-            {carritoMock.map(item => (
+            {cartItems.map(item => (
               <li key={item.productoId}>
                 {item.nombre} x {item.cantidad} (${item.precioUnitario * item.cantidad})
               </li>
@@ -118,11 +115,11 @@ const Header = () => {
               onMouseEnter={() => setShowPopover(true)}
               onMouseLeave={() => setShowPopover(false)}
               onClick={() => setShowPopover(false)}
-              aria-label={`Ir a carrito de compras, actualmente tienes ${currentItems} items`}
+              aria-label={`Ir a carrito de compras, actualmente tienes ${totalCart} items`}
             >
               <Link to="/carrito">
                 <FaShoppingCart size={30} />
-                {currentItems}
+                {totalCart}
               </Link>
             </div>
           </OverlayTrigger>
