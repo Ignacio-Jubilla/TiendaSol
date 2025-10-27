@@ -13,9 +13,6 @@ export class NotificacionService {
     }
 
     async crearNotificacion(pedido){
-        //const otroPedido = await this.pedidosRepository.findById(pedido._id)
-        //console.log(otroPedido.items[0].producto.vendedor)
-        //console.log(producto.vendedor)
         const usuarioDestino = await this.getDestinatario(pedido)
 
         const notificacion = this.factoryNotificacion.crearSegunPedido(pedido, usuarioDestino)
@@ -24,7 +21,6 @@ export class NotificacionService {
 
     async getDestinatario(pedido){
         var usuarioDestino
-        //console.log(pedido)
         if(pedido.estado === EstadoPedido.ENVIADO){
             usuarioDestino = pedido.comprador
         } else {
