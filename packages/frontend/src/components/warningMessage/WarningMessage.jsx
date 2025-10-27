@@ -6,7 +6,7 @@ const WarningMessage = ({title, msg}) => {
     msg ? 
     <Card
           border="warning" 
-          style={{ backgroundColor: "#e8e9afff"}}
+          style={{ backgroundColor: "#E6E698"}}
           className="mb-2 outline-warning border-3"
         >
           <Card.Body>
