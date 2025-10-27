@@ -13,6 +13,7 @@ import Login from "./features/login/Login.jsx";
 import Register from "./features/register/Register.jsx";
 import LandingPage from "./features/home/LandingPage.jsx";
 import MainPage from "./features/mainPage/MainPage.jsx";
+import Notificaciones from "./features/notificaciones/Notificaciones.jsx";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/productos" element={<ProductosVendedor />} />
           <Route path="/vendedores/:vendedorId/productos" element={<ProductosVendedor />} />
           <Route path="/vendedores/:vendedorId/productos/:productoId" element={<DetalleProducto/>} />
+          <Route path="/notificaciones" element={<Notificaciones />} />
         </Route>
       </Routes>
     </BrowserRouter>
