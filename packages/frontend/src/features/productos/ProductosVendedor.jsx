@@ -26,9 +26,15 @@ const ProductosVendedor = () => {
   const productosData = productosMocked
 
   const [pagination, setPagination] = useState(null);
-  const {addItemToCart} = useCart()
+  const {addItemToCart, cartItems} = useCart()
 
   const handleAddItem = (producto, cantidad) => {
+    //search item and determinate if current quantity is greater than stock
+    const item = cartItems.find(item => item.productoId === producto._id)
+    if(item && item.cantidad + cantidad > producto.stock) {
+      setErrorMessage("No hay suficiente stock para agregar al carrito")
+      return;
+    }
     addItemToCart(producto, cantidad);
   };
 
