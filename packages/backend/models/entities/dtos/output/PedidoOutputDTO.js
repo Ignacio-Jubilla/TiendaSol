@@ -2,7 +2,7 @@ export class PedidoOutputDTO{
   constructor(pedido) {
     this.id = pedido._id || pedido.id,
     this.compradorId = pedido.comprador?.toString() || null,
-    this.items = pedido.items.map(item => ({
+    this.items = (pedido.items || []).map(item => ({
       productoId: item.producto?.toString() || null,
       cantidad: item.cantidad,
       precioUnitario: item.precioUnitario
