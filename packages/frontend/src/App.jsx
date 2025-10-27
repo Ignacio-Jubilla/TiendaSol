@@ -13,13 +13,10 @@ import Login from "./features/login/Login.jsx";
 import Register from "./features/register/Register.jsx";
 import LandingPage from "./features/home/LandingPage.jsx";
 import MainPage from "./features/mainPage/MainPage.jsx";
-<<<<<<< HEAD
 import MisPedidos from "./features/pedidos/MisPedidos.jsx";
 import DetallePedido from "./features/detallePedido/detallePedido.jsx"
 import Carrito from "./features/carrito/carrito.jsx";
-=======
 import Notificaciones from "./features/notificaciones/Notificaciones.jsx";
->>>>>>> ENTREGA_3_Notificaciones
 
 function App() {
   return (
@@ -38,13 +35,10 @@ function App() {
           <Route path="/productos" element={<ProductosVendedor />} />
           <Route path="/vendedores/:vendedorId/productos" element={<ProductosVendedor />} />
           <Route path="/vendedores/:vendedorId/productos/:productoId" element={<DetalleProducto/>} />
-<<<<<<< HEAD
           <Route path="/pedidos" element={<MisPedidos/>}/>
           <Route path="/pedidos/:pedidoId" element={<DetallePedido/>}/>
           <Route path="/carrito" element={<Carrito/>}/>
-=======
           <Route path="/notificaciones" element={<Notificaciones />} />
->>>>>>> ENTREGA_3_Notificaciones
         </Route>
       </Routes>
     </BrowserRouter>
