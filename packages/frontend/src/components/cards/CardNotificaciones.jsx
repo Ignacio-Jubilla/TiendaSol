@@ -13,6 +13,7 @@ const CardNotificaciones = ({notificacion, marcarLeida}) => {
             <Card.Text>
               {notificacion.mensaje}
             </Card.Text>
+          { notificacion.leida ? 
             <Card.Text>
               Leida: {new Date(notificacion.fechaLeida).toLocaleDateString('es-ES', {
                   day: '2-digit',
@@ -21,7 +22,9 @@ const CardNotificaciones = ({notificacion, marcarLeida}) => {
                   hour: '2-digit',
                   minute: '2-digit'
                 })}
-            </Card.Text>
+            </Card.Text> :
+              null
+            }
           </Col>
           { !notificacion.leida ? 
             <Col className="botonLeido">
