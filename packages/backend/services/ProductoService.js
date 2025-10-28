@@ -77,7 +77,6 @@ export class ProductoService {
     return producto
   }
   async obtenerProductos(filtro) {
-    console.log(filtro.activo)
     if (filtro.vendedorId) {
       const vendedor = await this.usuarioRepo.findById(filtro.vendedorId)
       if (!vendedor) {

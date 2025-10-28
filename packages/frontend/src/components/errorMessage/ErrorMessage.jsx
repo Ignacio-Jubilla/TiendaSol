@@ -7,7 +7,7 @@ const ErrorMessage = ({msg}) => {
     <Card
           border="danger" 
           style={{ backgroundColor: "#e9afafff"}}
-          className="mb-2 outline-danger border-3"
+          className="mb-2 outline-danger border-3 sticky-top"
         >
           <Card.Body>
             <Card.Title>Error</Card.Title>

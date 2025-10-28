@@ -97,7 +97,7 @@ const ProductosVendedor = () => {
 
   return (
     <div className="container mt-4">
-      <ErrorMessage msg={errorMessage} />
+      <ErrorMessage msg={errorMessage}/>
       <div className="row">
         <div className="mb-4 col-lg-3 col-md-5 col-12">
           <FiltrosBusqueda onSubmit={handleFiltrar} filtrosActuales={Object.fromEntries(searchParams.entries())} />

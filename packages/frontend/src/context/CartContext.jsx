@@ -1,63 +1,72 @@
-// src/context/CartContext.js
-import React, { createContext, useState, useContext } from 'react';
-import productos from '../services/productos';
+// 1. Importa 'useEffect'
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const CartContext = createContext();
 
 export const useCart = () => {
-  return useContext(CartContext);
+ return useContext(CartContext);
 };
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
-  const cleanCart = () => setCartItems([]);
 
-  const addItemToCart = (producto, cantidad) => {
-    if(!cantidad || cantidad === 0) return;
+  // 2. Modifica el useState para leer de localStorage
+ const [cartItems, setCartItems] = useState(() => {
+    // Esta función se ejecuta solo una vez, al cargar el componente
+      const storedCart = localStorage.getItem('cart');
+      return storedCart ? JSON.parse(storedCart) : [];
+  });
 
-    const itemInCart = cartItems.find(
-      (item) => item.productoId == producto._id
-    );
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  }, [cartItems]); 
 
-    if (itemInCart) {
-      if (Number(producto.stock) < Number(itemInCart.cantidad) + Number(cantidad)) return 0;
-      setCartItems(
-        cartItems.map((itemPedido) =>
-          (itemPedido.productoId === producto._id)
-            ? { ...itemPedido, cantidad: Number(itemPedido.cantidad) + Number(cantidad) }
-            : itemPedido
-        )
-      );
-    } else {
-      if (Number(producto.stock) < Number(cantidad)) return 0;
-      const newItemPedido = { productoId: producto._id, nombre: producto.titulo, cantidad, precioUnitario: producto.precio, moneda: producto.moneda };
-      setCartItems([...cartItems, newItemPedido]);
-    }
-  };
+ const cleanCart = () => setCartItems([]);
 
-  const totalCart = cartItems.reduce(
-    (total, itemPedido) => Number(total) + Number(itemPedido.cantidad),
-    0
+ const addItemToCart = (producto, cantidad) => {
+  if(!cantidad || cantidad === 0) return;
+
+  const itemInCart = cartItems.find(
+   (item) => item.productoId == producto._id
   );
 
-  const totalValueCart = cartItems.reduce(
-    (total, itemPedido) => Number(total) + Number(itemPedido.precioUnitario * itemPedido.cantidad),
-    0
-  ) 
+  if (itemInCart) {
+   if (Number(producto.stock) < Number(itemInCart.cantidad) + Number(cantidad)) return 0;
+   setCartItems(
+    cartItems.map((itemPedido) =>
+     (itemPedido.productoId === producto._id)
+      ? { ...itemPedido, cantidad: Number(itemPedido.cantidad) + Number(cantidad) }
+      : itemPedido
+    )
+   );
+  } else {
+   if (Number(producto.stock) < Number(cantidad)) return 0;
+   const newItemPedido = { productoId: producto._id, nombre: producto.titulo, cantidad, precioUnitario: producto.precio, moneda: producto.moneda };
+   setCartItems([...cartItems, newItemPedido]);
+  }
+ };
 
-  const removeItem = (productoId) => {
-    setCartItems(cartItems.filter((item) => item.productoId !== productoId));
-  };
+ const totalCart = cartItems.reduce(
+  (total, itemPedido) => Number(total) + Number(itemPedido.cantidad),
+  0
+ );
 
-  // 5. El valor que proveeremos a los componentes hijos
-  const value = {
-    cartItems,
-    addItemToCart,
-    totalCart,
-    totalValueCart,
-    cleanCart,
-    removeItem
-  };
+ const totalValueCart = cartItems.reduce(
+  (total, itemPedido) => Number(total) + Number(itemPedido.precioUnitario * itemPedido.cantidad),
+  0
+ ) 
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+ const removeItem = (productoId) => {
+  setCartItems(cartItems.filter((item) => item.productoId !== productoId));
+ };
+
+ const value = {
+  cartItems,
+  addItemToCart,
+  totalCart,
+  totalValueCart,
+  cleanCart,
+  removeItem
+ };
+
+ return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

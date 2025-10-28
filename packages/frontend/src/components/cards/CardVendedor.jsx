@@ -15,7 +15,7 @@ const CardVendedor = ({ item }) => {
         <Card.Text>
           Tel: {item.telefono}
         </Card.Text>
-        <Button as={Link} to={`/vendedores/${item._id}/productos`} >
+        <Button as={Link} to={`/productos?vendedorId=${item._id}`} >
           Ver productos
         </Button>
       </Card.Body>

@@ -104,7 +104,7 @@ const Header = () => {
             </Nav>
           </Offcanvas.Body>
         </Navbar.Offcanvas>
-        <div className="icon-group d-flex align-items-center gap-4">
+        <div className="icon-group d-flex align-items-center gap-4 me-5">
           <OverlayTrigger 
           placement="bottom" 
           overlay={carritoPreview}

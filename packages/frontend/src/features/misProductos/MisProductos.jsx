@@ -58,6 +58,7 @@ const MisProductos = () => {
 useEffect(() => {        
         setFiltros(Object.fromEntries(searchParams.entries()));
     }, [searchParams]);
+const handleClose = () => setModalShow(false);
 
   return (
     <Container className='mt-4'>
