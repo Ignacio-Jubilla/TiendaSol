@@ -115,10 +115,9 @@ export class PedidoService {
 
         const updateData = this.modifToDB(pedido);
 
-        const updatePedido = await this.pedidoRepository.update(pedidoBase._id, updateData);
-        await this.notificacionService.crearNotificacion(updatePedido);
+        await this.pedidoRepository.update(pedidoBase._id, updateData);
 
-        return this.toOutputDTO(pedido);
+        return this.toOutputDTO(updateData);
     }
 
 
@@ -179,7 +178,7 @@ export class PedidoService {
 
         await this.notificacionService.crearNotificacion(updatePedido);
 
-        return this.toOutputDTO(pedido);
+        return this.toOutputDTO(updatePedido);
     }
 
     toOutputDTOs(pedidos){
