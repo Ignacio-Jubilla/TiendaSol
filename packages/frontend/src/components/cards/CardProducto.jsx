@@ -29,32 +29,29 @@ const CardProducto = ({ producto, handleAddCart }) => {
         {producto.categorias.map(cat => <span key={cat._id} className="badge bg-secondary">{cat.nombre}</span>)}
       </div>
 
-      <div className="d-grid gap-1">
-        <Button as={Link} to={`/vendedores/${producto.vendedor.id}/productos/${producto._id}`} variant="primary">
+        {Number(producto.stock) > 0 ?  <div className="d-grid gap-1"><Button as={Link} to={`/vendedores/${producto.vendedor.id}/productos/${producto._id}`} variant="primary">
           Ver mas
-        </Button>
-        <Form onSubmit={(e) => {
-          e.preventDefault()
+        </Button><Form onSubmit={(e) => {
+          e.preventDefault();
           //logica para agregar a carrito
-          if ( cantidad >= 0 && cantidad <= producto.stock) {
-            handleAddCart(producto, cantidad)
+          if (cantidad >= 0 && cantidad <= producto.stock) {
+            handleAddCart(producto, cantidad);
           }
-        }}>
-          <Form.Control
-            type="number"
-            min={0}
-            max={producto.stock}
-            placeholder="Cantidad"
-            name="cantidad"
-            required={true}
-            value={cantidad} 
-            onChange={(e) => setCantidad(e.target.value)}
-          />
-          <button type='submit' className="btn btn-primary">
-            <FaCartPlus aria-hidden="true" style={{"font-size": "2rem"}}/>
-            Agregar</button>
-        </Form>
-      </div>
+        } }>
+            <Form.Control
+              type="number"
+              min={0}
+              max={producto.stock}
+              placeholder="Cantidad"
+              name="cantidad"
+              required={true}
+              value={cantidad}
+              onChange={(e) => setCantidad(e.target.value)} />
+            <button type='submit' className="btn btn-primary">
+              <FaCartPlus aria-hidden="true" style={{ "font-size": "2rem" }} />
+              Agregar</button>
+          </Form></div>: 
+        <Button disabled>Sin stock</Button>}
     </section>
   )
 }

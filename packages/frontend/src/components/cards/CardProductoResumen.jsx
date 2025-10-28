@@ -22,7 +22,7 @@ const CarditemResumen = ({item}) => {
         <Card.Text>
           moneda: {item.moneda}
         </Card.Text>
-        <Button as={Link} to={`/productos/${item._id}`}>Ver más</Button>
+        {Number(item.stock) > 0 ? <Button as={Link} to={`/productos/${item._id}`}>Ver más</Button> : <Button disabled>Sin stock</Button>}
       </Card.Body>
     </Card>
     </div>
