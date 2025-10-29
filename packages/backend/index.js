@@ -4,9 +4,10 @@ import express from 'express'
 import pedidosRouter from './routes/PedidosRoutes.js'
 import productosRouter from './routes/ProductosRouter.js'
 import usuariosRouter from './routes/UsuariosRoutes.js'
+import authRouter from './routes/authRoutes.js'
 import middleware from './utils/middleware.js'
 import config from './utils/config.js'
-
+import cookieParser from 'cookie-parser'
 import { DBConnector } from './utils/dbConnector.js'
 import notificacionesRouter from './routes/NotificacionRoutes.js'
 
@@ -16,6 +17,7 @@ const connector = new DBConnector()
 connector.connect()
 
 app.use(express.json())
+app.use(cookieParser())
 app.use(
   cors({
     origin: process.env.ALLOWED_ORIGINS
@@ -47,6 +49,8 @@ app.use('/api/productos', productosRouter)
 
 app.use('/api/notificaciones', notificacionesRouter)
 app.use('/api/usuarios', usuariosRouter)
+app.use('/api/auth', authRouter)
+
 app.use(middleware.errorHandler)
 app.use(middleware.unknownEndpoint)
 
