@@ -7,16 +7,16 @@ import { MdDeleteForever } from "react-icons/md";
 
 const CrearProducto = () => {
   const categoriasMock = [
-    { _id: "68d6cb9a842bb9825c606c63", nombre: "Electrodomestico" },
+    { nombre: "Electrodomestico" },
     { _id: "68d6cb9a842bb9825c606c64", nombre: "Ropa" },
     { _id: "68d6cb9a842bb9825c606c65", nombre: "Juguetes" },
     { _id: "68d6cb9a842bb9825c606c66", nombre: "Hogar" },
   ];
 
-  const [selectedCategory, setSelectedCategory] = useState("");
+  //const [selectedCategory, setSelectedCategory] = useState("Bizarreadas");
   const [categories, setCategories] = useState(categoriasMock);
-
-  const [producto, setProducto] = useState({})
+  const [selectedCategory, setSelectedCategory] = useState("")
+  const [producto, setProducto] = useState({categoria: "Bizarreadas"})
   const [loading, setLoading] = useState(true)
 
   const handleInputChange = (e) => {
@@ -57,6 +57,7 @@ const CrearProducto = () => {
   const changeSelectedCategory = (e) => {
     setSelectedCategory(e.target.value)
   }
+
   const handleDeleteCategory = (id) => {
     setProducto({
       ...producto,
@@ -79,53 +80,6 @@ const CrearProducto = () => {
             <Form.Control as="textarea" placeholder="Descripcion" name="descripcion" value={producto.descripcion} onChange={handleInputChange} />
           </Form.Group>
 
-          <Form.Group className="mb-3" controlId="categoriasProducto">
-            <Form.Label>Categorías</Form.Label>
-
-            <ListGroup>
-              {producto.categorias ? (
-                producto.categorias.map(c => (
-                  <ListGroup.Item
-                    key={c._id}
-                    className="d-flex justify-content-between"
-                  >
-                    {c.nombre}
-                    <Button
-                      variant="danger"
-                      onClick={() => handleDeleteCategory(c._id)}
-                      aria-label={`Quitar categoría ${c.nombre} del producto`}
-                      aria-hidden='true'
-                    >
-                      <MdDeleteForever />
-                    </Button>
-                  </ListGroup.Item>
-                ))
-              ) : (
-                <ListGroup.Item>Sin categorias.</ListGroup.Item>
-              )}
-            </ListGroup>
-
-            <InputGroup>
-              <Form.Select
-                value={selectedCategory}
-                onChange={changeSelectedCategory}
-                aria-label="Agregar categoria a producto"
-              >
-                <option value="">Seleccionar</option>
-                {categories.map(c => (
-                  <option key={c._id} value={c._id}>
-                    {c.nombre}
-                  </option>
-                ))}
-              </Form.Select>
-              <Button
-                variant="outline-success"
-                onClick={handleAddCategory}
-              >
-                Agregar
-              </Button>
-            </InputGroup>
-          </Form.Group>
 
           <Form.Group className="mb-3" controlId="precioProducto">
             <Form.Label>Precio</Form.Label>
