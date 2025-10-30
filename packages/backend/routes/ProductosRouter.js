@@ -12,7 +12,7 @@ import fs from "fs"
 import path from 'path';
 import { InputValidationError } from '../errors/ProductosErrors.js';
 import { v4 as uuidv4 } from "uuid";
-
+import middleware from '../utils/middleware.js';
 //configuracion multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -42,6 +42,10 @@ const tiposCambio = await obtenerTipoCambio()
 const productoService = new ProductoService(productoRepo, categoriaRepo, usuarioRepo, tiposCambio)
 const productosController = new ProductosController(productoService)
 
+productosRouter.get('/categorias', asyncHandler(async (req, res) => {
+  return await productosController.obtenerCategorias(req, res)
+}))
+
 productosRouter.get('/', asyncHandler(async (req, res) => {
   return await productosController.obtenerProductos(req, res)
 }))
@@ -49,7 +53,8 @@ productosRouter.get('/', asyncHandler(async (req, res) => {
 productosRouter.get('/:id', asyncHandler(async(req, res) => {
   return await productosController.obtenerProductoId(req, res)
 }))
-productosRouter.post("/", upload.array("imagenes", 5), asyncHandler(async(req, res) => {
+
+productosRouter.post("/", middleware.extractUser,upload.array("imagenes", 5), asyncHandler(async(req, res) => {
   return await productosController.crearProducto(req, res)
 }))
 

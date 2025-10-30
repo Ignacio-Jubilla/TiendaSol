@@ -8,12 +8,19 @@ import { CategoriaRepository } from '../models/repositories/CategoriaRepository.
 import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js';
 import mongoose from 'mongoose';
 import config from '../utils/config.js';
+import { NotAuthorizedError } from '../errors/AuthErrors.js';
 const { PORT } = config
 
 export class ProductosController {
   constructor(productoService) {
     this.productoService = productoService
   }
+
+  async obtenerCategorias(req, res) {
+    const categorias = await this.productoService.getCategorias()
+    return res.status(200).json(categorias)
+  }
+
   async obtenerProductoId(req, res) {
     const idProducto = req.params.id
     if (!mongoose.isValidObjectId(idProducto)) throw new InputValidationError("Id de producto no valido")
@@ -45,7 +52,12 @@ export class ProductosController {
   }
   
   async crearProducto(req, res) {
+    //validate that user i vendedor
+    if (req.user.tipo !== "VENDEDOR") {
+      throw new NotAuthorizedError("Necesita tener rol vendedor para ejecutar la operacion")
+    }
     const body = req.body;
+    body.vendedorId = req.user.id;
     const parsedBody = productoSchema.safeParse(body);
     if (parsedBody.error) {
       return res.status(400).json(parsedBody.error.issues);

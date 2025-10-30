@@ -24,6 +24,13 @@ export class ProductoService {
       }
     }
   }
+
+
+  async getCategorias() {
+    const categorias = await this.categoriaRepo.findAll()
+    return categorias.map(c => c.nombre)
+  }
+
   async crearProducto(productoDto, fotos) {
     if (!mongoose.isValidObjectId(productoDto.vendedorId)) {
       throw new InputValidationError("vendedorId no es un id valido")

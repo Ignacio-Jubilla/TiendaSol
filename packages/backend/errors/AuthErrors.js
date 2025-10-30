@@ -11,3 +11,9 @@ export class InvalidLoginCredentials extends CustomError {
     super(message || "Credenciales inválidas", 401);
   }
 }
+
+export class NotAuthorizedError extends CustomError {
+  constructor(message) {
+    super(message || "No autorizado", 403);
+  }
+}

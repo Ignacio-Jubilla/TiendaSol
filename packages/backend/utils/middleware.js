@@ -13,7 +13,7 @@ const JWT_SECRET = config.JWT_SECRET
 const extractUser = async(req, res, next) => {
  const authorization = req.headers.authorization;
  if (!authorization || !authorization.startsWith('Bearer ')) {
-  throw new NoTokenError()
+  throw new NoTokenError("Falta token de autenticación")
  }
 
  const token = authorization.split(' ')[1];
