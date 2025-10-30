@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken'
 import config from '../utils/config.js'
 import { UsuarioNotExists } from "../errors/UsuariosErrors.js";
 import { NoTokenError } from "../errors/AuthErrors.js";
+import multer from "multer";
 
 const JWT_SECRET = config.JWT_SECRET
 const extractUser = async(req, res, next) => {
@@ -109,6 +110,17 @@ const errorHandler = (err, req, res, next) => {
       type: "TokenExpired",
       message: "Token expirado",
     });
+  }
+
+  //errores de multer
+  if (err instanceof multer.MulterError ) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({ error: "Una o más imágenes superan los 10MB permitidos." });
+    }
+    if(err.code === "LIMIT_UNEXPECTED_FILE"){
+     return res.status(400).json({ error: "Solo se permiten subir hasta 5 imagenes." }); 
+    }
+    return res.status(400).json({ error: "Error procesando archivos: " + err.message });
   }
   // Error genérico
   res.status(500).json({

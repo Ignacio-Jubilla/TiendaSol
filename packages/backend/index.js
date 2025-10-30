@@ -50,7 +50,8 @@ app.use('/api/productos', productosRouter)
 app.use('/api/notificaciones', notificacionesRouter)
 app.use('/api/usuarios', usuariosRouter)
 app.use('/api/auth', authRouter)
-
+//expone imagenes de productos
+app.use('/uploads', express.static('uploads'))
 app.use(middleware.errorHandler)
 app.use(middleware.unknownEndpoint)
 
