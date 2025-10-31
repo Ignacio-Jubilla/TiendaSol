@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { Button, Container, Form, InputGroup, ListGroup } from "react-bootstrap";
+import { Button, CloseButton, Container, Form, Image, InputGroup, ListGroup } from "react-bootstrap";
 import { useParams } from "react-router";
 import productosMocked from '../../mocks/productos.json';
 import LoadingSpinner from "../../components/spinner/LoadingSpinner";
 import { MdDeleteForever } from "react-icons/md";
+import productosService from "../../services/productos";
+import ErrorMessage from "../../components/errorMessage/ErrorMessage";
 
 const CrearProducto = () => {
-  const categoriasMock = [
-    { nombre: "Electrodomestico" },
-    { _id: "68d6cb9a842bb9825c606c64", nombre: "Ropa" },
-    { _id: "68d6cb9a842bb9825c606c65", nombre: "Juguetes" },
-    { _id: "68d6cb9a842bb9825c606c66", nombre: "Hogar" },
+  const ALLOWED_IMAGE_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/webp'
   ];
 
-  //const [selectedCategory, setSelectedCategory] = useState("Bizarreadas");
-  const [categories, setCategories] = useState(categoriasMock);
+  const MAX_IMAGES = 6
+  const MAX_SIZE_BYTES = 10 * 1024 * 1024;
+  const MAX_SIZE_MB = 10;
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("")
-  const [producto, setProducto] = useState({categoria: "Bizarreadas"})
+  const [producto, setProducto] = useState({})
   const [loading, setLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [imagenes, setImagenes] = useState([]);
+  const [previews, setPreviews] = useState([]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -28,25 +34,94 @@ const CrearProducto = () => {
     });
   };
 
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    if (imagenes.length === 0) {
+      setErrorMessage("Debes subir al menos una imagen.");
+      return;
+    }
+
+    if (!producto.categorias || producto.categorias.length === 0) {
+      setErrorMessage("Debes elegir al menos una categoria.");
+      return;
+    }
+
+    await productosService.postProducto(producto, imagenes)
+    alert("Producto creado")
+  }
+  const handleFilesAdd = (e) => {
+    setErrorMessage(""); // Limpiar error anterior
+    const files = Array.from(e.target.files);
+
+    if (files.length === 0) return;
+
+    // 1. Validar cantidad total (usando la constante MAX_IMAGES)
+    if (imagenes.length + files.length > MAX_IMAGES) {
+      setErrorMessage(`No puedes subir más de ${MAX_IMAGES} imágenes en total.`);
+      // Cortamos el array de 'files' para que solo se agreguen las que caben
+      files.splice(MAX_IMAGES - imagenes.length);
+    }
+
+    const validFiles = [];
+    const largeFiles = [];
+    const invalidTypeFiles = []; // <-- NUEVO: Para archivos de tipo incorrecto
+
+    // 2. Validar tamaño Y tipo de cada archivo
+    files.forEach(file => {
+      if (file.size > MAX_SIZE_BYTES) {
+        largeFiles.push(file.name);
+      } else if (!ALLOWED_IMAGE_TYPES.includes(file.type)) { // <-- NUEVO: Validación de tipo
+        invalidTypeFiles.push(file.name);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    // 3. Mostrar errores (lógica mejorada)
+    let errorMessages = [];
+    if (largeFiles.length > 0) {
+      errorMessages.push(`Los siguientes archivos son demasiado grandes (> ${MAX_SIZE_MB}MB): ${largeFiles.join(', ')}`);
+    }
+    if (invalidTypeFiles.length > 0) {
+      errorMessages.push(`Archivos no permitidos (solo .jpeg, .png, .webp): ${invalidTypeFiles.join(', ')}`);
+    }
+
+    if (errorMessages.length > 0) {
+      setErrorMessage(errorMessages.join(' ')); // Une todos los mensajes de error
+    }
+
+    // 4. Agregar los archivos válidos al estado
+    if (validFiles.length > 0) {
+      const newPreviews = validFiles.map(file => URL.createObjectURL(file));
+      setImagenes(prev => [...prev, ...validFiles]);
+      setPreviews(prev => [...prev, ...newPreviews]);
+    }
+
+    // Resetear el input para poder seleccionar el mismo archivo si se borra
+    e.target.value = null;
+  };
+
+
   const handleAddCategory = () => {
     if (selectedCategory) {
-      const newCategory = categories.find(c => c._id === selectedCategory);
+      const newCategory = categories.find(c => c === selectedCategory);
 
       if (newCategory) {
-          if (producto.categorias && producto.categorias.find(c => c._id === newCategory._id)) {
-            alert("La categoría ya está agregada.");
-            return;
-          }
-        if(producto.categorias) {
-        setProducto({
-          ...producto,
-          categorias: [...producto.categorias, newCategory]
-        }) }
+        if (producto.categorias && producto.categorias.find(c => c === newCategory)) {
+          setErrorMessage("La categoría ya está agregada.");
+          return;
+        }
+        if (producto.categorias) {
+          setProducto({
+            ...producto,
+            categorias: [...producto.categorias, newCategory]
+          })
+        }
         else {
           setProducto({
-          ...producto,
-          categorias: [newCategory]
-        })
+            ...producto,
+            categorias: [newCategory]
+          })
         }
 
         setSelectedCategory("");
@@ -58,55 +133,209 @@ const CrearProducto = () => {
     setSelectedCategory(e.target.value)
   }
 
-  const handleDeleteCategory = (id) => {
+  const handleDeleteCategory = (categoria) => {
     setProducto({
       ...producto,
-      categorias: producto.categorias.filter(c => c._id !== id)
+      categorias: producto.categorias.filter(c => c !== categoria)
     });
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categorias = await productosService.getCategorias()
+        if (categorias) {
+          setCategories(categorias)
+        }
+      } catch (err) {
+        setErrorMessage("Error obteniendo categorias, intente luego")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCategories()
+  }, [])
+
+  const handleFileChange = (e) => {
+    // 1. Limpiamos previews anteriores para evitar memory leaks
+    previews.forEach(url => URL.revokeObjectURL(url));
+
+    const files = Array.from(e.target.files);
+
+    // 2. Guardamos los nuevos File objects
+    setImagenes(files);
+
+    // 3. Creamos y guardamos los nuevos URLs de previsualización
+    const newPreviews = files.map(file => URL.createObjectURL(file));
+    setPreviews(newPreviews);
+  };
+
+  // --- Manejador para eliminar una imagen de la preview ---
+  const handleDeletePreview = (indexToRemove) => {
+    // Revocamos el Object URL específico
+    URL.revokeObjectURL(previews[indexToRemove]);
+
+    // Filtramos ambos estados
+    setImagenes(prev => prev.filter((_, index) => index !== indexToRemove));
+    setPreviews(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  useEffect(() => {
+    return () => {
+      previews.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [previews]);
 
   return (
     <>
       <Container className="my-4 p-2">
+        <ErrorMessage msg={errorMessage} />
         <h1>Crear producto</h1>
-        <Form role="">
-          <Form.Group className="mb-3" controlId="tituloProducto">
-            <Form.Label>Nombre</Form.Label>
-            <Form.Control type="text" placeholder="Ingrese titulo" name="titulo" value={producto.titulo} onChange={handleInputChange} />
-          </Form.Group>
+        {loading ? (
+          <LoadingSpinner message="Cargando categorias" />
+        ) : categories ?
+          <Form role="" onSubmit={handleFormSubmit}>
+            <Form.Group className="mb-3" controlId="tituloProducto">
+              <Form.Label>Nombre</Form.Label>
+              <Form.Control type="text" minLength={3} placeholder="Ingrese titulo" name="titulo" value={producto.titulo} onChange={handleInputChange} required />
+            </Form.Group>
 
-          <Form.Group className="mb-3" controlId="descripcionProducto">
-            <Form.Label>Descripcion</Form.Label>
-            <Form.Control as="textarea" placeholder="Descripcion" name="descripcion" value={producto.descripcion} onChange={handleInputChange} />
-          </Form.Group>
+            <Form.Group className="mb-3" controlId="descripcionProducto">
+              <Form.Label>Descripcion</Form.Label>
+              <Form.Control as="textarea" minLength={10} placeholder="Descripcion" name="descripcion" value={producto.descripcion} onChange={handleInputChange} required />
+            </Form.Group>
 
 
-          <Form.Group className="mb-3" controlId="precioProducto">
-            <Form.Label>Precio</Form.Label>
-            <Form.Control type="number" placeholder="Precio de producto" name="precio" value={producto.precio} onChange={handleInputChange} />
-          </Form.Group>
-          <Form.Group controlId="tipoMoneda" className="mb-3">
-            <Form.Label>Tipo de moneda</Form.Label>
-            <Form.Select
-              name="moneda"
-              value={producto.moneda}
-              onChange={handleInputChange}
-            >
-              <option value="">Seleccionar</option>
-              <option value="DOLAR_USA">Dolar estadounidense</option>
-              <option value="PESO_ARG">Peso arg.</option>
-              <option value="REAL">Real</option>
-            </Form.Select>
-          </Form.Group>
+            <Form.Group className="mb-3" controlId="precioProducto">
+              <Form.Label>Precio</Form.Label>
+              <Form.Control type="number" placeholder="Precio de producto" name="precio" value={producto.precio} onChange={handleInputChange} required />
+            </Form.Group>
+            <Form.Group controlId="tipoMoneda" className="mb-3">
+              <Form.Label>Tipo de moneda</Form.Label>
+              <Form.Select
+                name="moneda"
+                value={producto.moneda}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Seleccionar</option>
+                <option value="DOLAR_USA">Dolar estadounidense</option>
+                <option value="PESO_ARG">Peso arg.</option>
+                <option value="REAL">Real</option>
+              </Form.Select>
+            </Form.Group>
 
-          <Form.Group className="mb-3" controlId="stockProducto">
-            <Form.Label>Stock</Form.Label>
-            <Form.Control type="number" placeholder="stock de producto" name="stock" value={producto.stock} onChange={handleInputChange} />
-          </Form.Group>
-          <Button variant="success" type="submit">
-            Finalizar
-          </Button>
-        </Form>
+            <Form.Group className="mb-3" controlId="stockProducto">
+              <Form.Label>Stock</Form.Label>
+              <Form.Control type="number" placeholder="stock de producto" name="stock" value={producto.stock} onChange={handleInputChange} required />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="categoriasProducto">
+              <Form.Label>Categorías</Form.Label>
+
+              <ListGroup>
+                {producto.categorias ? (
+                  producto.categorias.map(c => (
+                    <ListGroup.Item
+                      key={c}
+                      className="d-flex justify-content-between"
+                    >
+                      {c}
+                      <Button
+                        variant="danger"
+                        onClick={() => handleDeleteCategory(c)}
+                        aria-label={`Quitar categoría ${c} del producto`}
+                        aria-hidden='true'
+                      >
+                        <MdDeleteForever />
+                      </Button>
+                    </ListGroup.Item>
+                  ))
+                ) : (
+                  <ListGroup.Item>Sin categorias.</ListGroup.Item>
+                )}
+              </ListGroup>
+
+              <InputGroup>
+                <Form.Select
+                  value={selectedCategory}
+                  onChange={changeSelectedCategory}
+                  aria-label="Agregar categoria a producto"
+                >
+                  <option value="">Seleccionar</option>
+                  {categories.map(c => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Button
+                  variant="success"
+                  onClick={handleAddCategory}
+                >
+                  Agregar
+                </Button>
+              </InputGroup>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Imágenes (Máx. 6, Límite 10MB c/u)</Form.Label>
+              <div
+                className="p-2 border rounded"
+                style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', minHeight: '100px' }}
+              >
+                {/* Previews existentes */}
+                {previews.map((previewUrl, index) => (
+                  <div key={index} style={{ position: 'relative' }}>
+                    <Image
+                      src={previewUrl}
+                      thumbnail
+                      style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                    />
+                    <CloseButton
+                      style={{
+                        position: 'absolute', top: '2px', right: '2px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                        borderRadius: '50%', width: '1rem', height: '1rem',
+                      }}
+                      onClick={() => handleDeletePreview(index)}
+                    />
+                  </div>
+                ))}
+
+                {/* Botón para agregar más imágenes (si no se ha llegado al límite) */}
+                {imagenes.length < 6 && (
+                  <Form.Label
+                    htmlFor="file-upload-button"
+                    className="border rounded d-flex align-items-center justify-content-center"
+                    style={{
+                      width: '100px', height: '100px', cursor: 'pointer',
+                      fontSize: '2.5rem', color: 'gray',
+                      backgroundColor: '#f8f9fa'
+                    }}
+                  >
+                    +
+                  </Form.Label>
+                )}
+              </div>
+              {/* Input de archivo real, oculto */}
+              <Form.Control
+                id="file-upload-button"
+                type="file"
+                multiple
+                accept="image/png, image/jpeg, image/webp"
+                onChange={handleFilesAdd}
+                style={{ display: 'none' }}
+              />
+            </Form.Group>
+
+            <Button variant="success" type="submit">
+              Finalizar
+            </Button>
+          </Form>
+          :
+          <h1>Error obteniendo categorias, intente luego</h1>
+        }
       </Container>
     </>
   )
