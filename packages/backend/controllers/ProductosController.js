@@ -52,12 +52,22 @@ export class ProductosController {
   }
   
   async crearProducto(req, res) {
-    //validate that user i vendedor
-    if (req.user.tipo !== "VENDEDOR") {
-      throw new NotAuthorizedError("Necesita tener rol vendedor para ejecutar la operacion")
+    //validate user.tipo is vendedor
+    //extract id from token received
+    let body = req.body.producto;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (err) {
+        return res.status(400).json([{ message: 'Producto JSON inválido' }]);
+      }
     }
-    const body = req.body;
-    body.vendedorId = req.user.id;
+    body.precio = Number(body.precio)
+    body.stock = Number(body.stock)
+    
+    const fotos = req.files.map((f) => `http://localhost:${PORT}/uploads/${f.filename}`);
+    body.fotos = fotos
+    
     const parsedBody = productoSchema.safeParse(body);
     if (parsedBody.error) {
       return res.status(400).json(parsedBody.error.issues);

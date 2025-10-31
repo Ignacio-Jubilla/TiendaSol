@@ -1,7 +1,7 @@
 import express from 'express'
 const authRouter = express.Router()
 import asyncHandler from 'express-async-handler'
-import  AuthController  from '../controllers/authController.js' 
+import  AuthController  from '../controllers/AuthController.js' 
 import AuthService  from '../services/AuthService.js'
 import  { UsuarioRepository } from '../models/repositories/UsuariosRepository.js'
 import middleware from '../utils/middleware.js'
