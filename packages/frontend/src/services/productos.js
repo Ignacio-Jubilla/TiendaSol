@@ -21,5 +21,29 @@ const getProducto = async(id) => {
   return response.data
 }
 
+const getCategorias = async () => {
+  const response = await axios.get(baseUrl + '/productos/categorias')
+  return response.data
+}
 
-export default { getProductos, getProductosMasVendidos, getProducto }
+const postProducto = async (producto, imagenes) => {
+  const formData = new FormData();
+  producto.vendedorId = "690240d43a81a8c5c15ab2c4"
+
+    formData.append("producto", JSON.stringify(producto));
+
+    imagenes.forEach(imagenFile => {
+      formData.append("imagenes", imagenFile);
+    });
+    try {
+    const response = await axios.post(baseUrl + '/productos', formData, {
+    });
+    
+    // 3. Devuelve los datos de la respuesta (el producto creado)
+    return response.data
+  } catch(err) {
+  console.log(err)
+  }
+}
+
+export default { getProductos, getProductosMasVendidos, getProducto, getCategorias, postProducto }
