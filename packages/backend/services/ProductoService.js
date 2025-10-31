@@ -24,7 +24,14 @@ export class ProductoService {
       }
     }
   }
-  async crearProducto(productoDto) {
+
+
+  async getCategorias() {
+    const categorias = await this.categoriaRepo.findAll()
+    return categorias.map(c => c.nombre)
+  }
+
+  async crearProducto(productoDto, fotos) {
     if (!mongoose.isValidObjectId(productoDto.vendedorId)) {
       throw new InputValidationError("vendedorId no es un id valido")
     }
@@ -40,7 +47,7 @@ export class ProductoService {
       categorias.push(categoria);
     }
 
-    const producto = new Producto(vendedor, productoDto.titulo, productoDto.descripcion, categorias, productoDto.precio, productoDto.moneda, productoDto.stock, productoDto.fotos || [])
+    const producto = new Producto(vendedor, productoDto.titulo, productoDto.descripcion, categorias, productoDto.precio, productoDto.moneda, productoDto.stock, fotos || [])
     return await this.productoRepo.saveProducto(producto)
   }
 

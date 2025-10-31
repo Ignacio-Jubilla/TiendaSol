@@ -7,11 +7,20 @@ import { ProductoRepository } from '../models/repositories/ProductosRepository.j
 import { CategoriaRepository } from '../models/repositories/CategoriaRepository.js';
 import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js';
 import mongoose from 'mongoose';
+import config from '../utils/config.js';
+import { NotAuthorizedError } from '../errors/AuthErrors.js';
+const { PORT } = config
 
 export class ProductosController {
   constructor(productoService) {
     this.productoService = productoService
   }
+
+  async obtenerCategorias(req, res) {
+    const categorias = await this.productoService.getCategorias()
+    return res.status(200).json(categorias)
+  }
+
   async obtenerProductoId(req, res) {
     const idProducto = req.params.id
     if (!mongoose.isValidObjectId(idProducto)) throw new InputValidationError("Id de producto no valido")
@@ -43,13 +52,28 @@ export class ProductosController {
   }
   
   async crearProducto(req, res) {
-    const body = req.body;
+    //validate user.tipo is vendedor
+    //extract id from token received
+    let body = req.body.producto;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (err) {
+        return res.status(400).json([{ message: 'Producto JSON inválido' }]);
+      }
+    }
+    body.precio = Number(body.precio)
+    body.stock = Number(body.stock)
+    
+    const fotos = req.files.map((f) => `http://localhost:${PORT}/uploads/${f.filename}`);
+    body.fotos = fotos
+    
     const parsedBody = productoSchema.safeParse(body);
     if (parsedBody.error) {
       return res.status(400).json(parsedBody.error.issues);
     }
-
-    const productoNuevo = await this.productoService.crearProducto(parsedBody.data)
+    const imagenes = req.files.map((f) => `http://localhost:${PORT}/uploads/${f.filename}`);
+    const productoNuevo = await this.productoService.crearProducto(parsedBody.data, imagenes)
     return res.status(201).json(productoNuevo)
   }
 }
@@ -63,7 +87,6 @@ const modificarProductoSchema = z.object({
   moneda: z.enum(Object.values(TipoMoneda)),
   stock: z.number().int().nonnegative("El stock no puede ser negativo"),
   ventas: z.number().int().nonnegative("Las ventas no pueden ser negativas"),
-  fotos: z.array(z.string()).optional(),
 });
 
 const productoSchema = z.object({

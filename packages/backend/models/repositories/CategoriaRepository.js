@@ -12,5 +12,8 @@ export class CategoriaRepository{
   async findById(id){
     return await CategoriaModel.findById(id)
   }
+  async findAll() {
+    return await CategoriaModel.find({})
+  }
   //findById
 }
