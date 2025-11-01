@@ -29,21 +29,18 @@ const getCategorias = async () => {
 const postProducto = async (producto, imagenes) => {
   const formData = new FormData();
   producto.vendedorId = "690240d43a81a8c5c15ab2c4"
+  const token = localStorage.getItem("accessToken")
+  formData.append("producto", JSON.stringify(producto));
 
-    formData.append("producto", JSON.stringify(producto));
-
-    imagenes.forEach(imagenFile => {
-      formData.append("imagenes", imagenFile);
-    });
-    try {
+  imagenes.forEach(imagenFile => {
+    formData.append("imagenes", imagenFile);
+  });
     const response = await axios.post(baseUrl + '/productos', formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
     });
-    
-    // 3. Devuelve los datos de la respuesta (el producto creado)
     return response.data
-  } catch(err) {
-  console.log(err)
-  }
 }
 
 export default { getProductos, getProductosMasVendidos, getProducto, getCategorias, postProducto }
