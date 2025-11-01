@@ -17,3 +17,9 @@ export class NotEnoughStockError extends CustomError {
     super(message || "No hay suficiente stock", 400);
   }
 }
+
+export class ImageUploadError extends CustomError {
+  constructor(message) {
+    super(message || "Error al subir la imagen", 502);
+  }
+}

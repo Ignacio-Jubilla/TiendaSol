@@ -6,7 +6,7 @@ import { Producto } from '../models/entities/Producto.js'
 import mongoose, { mongo, Mongoose } from 'mongoose'
 import { Categoria } from '../models/entities/Categoria.js'
 import expressAsyncHandler from 'express-async-handler'
-
+import { uploadToS3 } from './s3Service.js'
 export class ProductoService {
   constructor(productoRepo, categoriaRepo, usuarioRepo) {
     this.productoRepo = productoRepo
@@ -31,7 +31,7 @@ export class ProductoService {
     return categorias.map(c => c.nombre)
   }
 
-  async crearProducto(productoDto, fotos) {
+  async crearProducto(productoDto, imagenes) {
     if (!mongoose.isValidObjectId(productoDto.vendedorId)) {
       throw new InputValidationError("vendedorId no es un id valido")
     }
@@ -46,8 +46,13 @@ export class ProductoService {
       }
       categorias.push(categoria);
     }
-
-    const producto = new Producto(vendedor, productoDto.titulo, productoDto.descripcion, categorias, productoDto.precio, productoDto.moneda, productoDto.stock, fotos || [])
+    //subo imagenes a s3
+    const uploadPromises = imagenes.map(file => uploadToS3(file));
+    
+    // 2. Espera a que todas las subidas terminen
+    const fotosUrls = await Promise.all(uploadPromises);
+    
+    const producto = new Producto(vendedor, productoDto.titulo, productoDto.descripcion, categorias, productoDto.precio, productoDto.moneda, productoDto.stock, fotosUrls || [])
     return await this.productoRepo.saveProducto(producto)
   }
 

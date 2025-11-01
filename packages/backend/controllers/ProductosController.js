@@ -65,15 +65,12 @@ export class ProductosController {
     body.precio = Number(body.precio)
     body.stock = Number(body.stock)
     
-    const fotos = req.files.map((f) => `http://localhost:${PORT}/uploads/${f.filename}`);
-    body.fotos = fotos
-    
     const parsedBody = productoSchema.safeParse(body);
     if (parsedBody.error) {
       return res.status(400).json(parsedBody.error.issues);
     }
     const imagenes = req.files.map((f) => `http://localhost:${PORT}/uploads/${f.filename}`);
-    const productoNuevo = await this.productoService.crearProducto(parsedBody.data, imagenes)
+    const productoNuevo = await this.productoService.crearProducto(parsedBody.data, req.files)
     return res.status(201).json(productoNuevo)
   }
 }
