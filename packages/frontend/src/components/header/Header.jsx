@@ -15,9 +15,12 @@ import { Dropdown, OverlayTrigger } from 'react-bootstrap';
 import { Popover } from 'react-bootstrap';
 import carritoMock from '../../mocks/carrito.json'
 import { useCart } from '../../context/CartContext';
-
+import { useAuth } from '../../context/authContext';
+import authServices from '../../services/auth';
 const Header = () => {
   const {totalCart, cartItems} = useCart()
+  const {user, logoutContext} = useAuth()
+
   const [currentNotifications, setCurrentNotificacion] = useState(0);
   const [valorBusqueda, setValorBusqueda] = useState("");
   const [showPopover, setShowPopover] = useState(false);
@@ -29,7 +32,15 @@ const Header = () => {
   const [expanded, setExpanded] = useState(false);
 
   const handleClose = () => setExpanded(false);
-
+  const handleLogout = async () => {
+    try {
+      authServices.logout()
+    } catch (error) {
+      console.log('nothing')
+    }
+    logoutContext()
+    navigate('/')
+  }
   const handleSearch = (e) => {
     e.preventDefault();
     handleClose()
@@ -90,13 +101,15 @@ const Header = () => {
               <Dropdown>
                 <Dropdown.Toggle variant="outline-dark" id="dropdown-basic">
                   <FaUser></FaUser>
-                  Usuario
+                  {!user ? "Ingresa" : user.nombre}
                 </Dropdown.Toggle>
-
+ 
                 <Dropdown.Menu>
-                  <Dropdown.Item href="#/action-1">Iniciar sesión</Dropdown.Item>
-                  <Dropdown.Item href="#/action-2">Cerrar sesión</Dropdown.Item>
-                  <Dropdown.Item href="#/action-3">Registrarse</Dropdown.Item>
+                  {user ? <Dropdown.Item onClick={handleLogout}>Cerrar sesión</Dropdown.Item> : 
+                  <>
+                 <Dropdown.Item as={Link} to={`/login`}>Iniciar sesión</Dropdown.Item><Dropdown.Item as={Link} to={`/register`}>Registrarse</Dropdown.Item>
+                 </>
+                  }
                 </Dropdown.Menu>
               </Dropdown>
               <Link to="/pedidos" className="nav-link" aria-label='Ver mis pedidos' onClick={handleClose}>Mis pedidos</Link>

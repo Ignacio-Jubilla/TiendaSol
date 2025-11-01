@@ -32,7 +32,7 @@ const LandingPage = () => {
             <h4>¡Ingresa ahora y descubre lo que TiendaSol puede ofrecerte!</h4>
             <Stack gap={5} direction='horizontal' className='mx-auto'>
               <Button variant="light" aria-label='Iniciar sesion' as={Link} to={`/login`}>Iniciar sesión</Button>
-              <Button variant="dark" aria-label='Registrate' as={Link} to={`/login`}>Registrarse</Button>
+              <Button variant="dark" aria-label='Registrate' as={Link} to={`/register`}>Registrarse</Button>
             </Stack>
           </Col>
         </Row>

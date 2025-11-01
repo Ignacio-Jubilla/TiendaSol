@@ -19,11 +19,13 @@ import Carrito from "./features/carrito/carrito.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import Notificaciones from "./features/notificaciones/Notificaciones.jsx";
 import NotFound from "./features/notFound/NotFound.jsx";
+import { AuthProvider } from "./context/authContext.jsx";
 
 function App() {
   return (
     <BrowserRouter>
     <CartProvider>
+      <AuthProvider>
       <Routes>
         <Route path="/" element={<Layout  />} >
           <Route index element={<MainPage/>} />
@@ -43,6 +45,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      </AuthProvider>
       </CartProvider>
     </BrowserRouter>
   );
