@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Button, CloseButton, Container, Form, Image, InputGroup, ListGroup } from "react-bootstrap";
-import { useParams } from "react-router";
-import productosMocked from '../../mocks/productos.json';
+import { Button, CloseButton, Container, Form, Image, InputGroup, ListGroup, Toast, ToastContainer } from "react-bootstrap";
 import LoadingSpinner from "../../components/spinner/LoadingSpinner";
 import { MdDeleteForever } from "react-icons/md";
 import productosService from "../../services/productos";
 import ErrorMessage from "../../components/errorMessage/ErrorMessage";
+import { useAuth } from "../../context/authContext";
 
 const CrearProducto = () => {
+  const { user } = useAuth();
   const ALLOWED_IMAGE_TYPES = [
     'image/jpeg',
     'image/png',
@@ -24,7 +24,7 @@ const CrearProducto = () => {
   const [errorMessage, setErrorMessage] = useState("")
   const [imagenes, setImagenes] = useState([]);
   const [previews, setPreviews] = useState([]);
-
+  const [showNotification, setShowNotification] = useState(false)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -46,7 +46,7 @@ const CrearProducto = () => {
       return;
     }
 
-    await productosService.postProducto(producto, imagenes)
+    await productosService.postProducto({vendedorId: user.id, ...producto}, imagenes)
     alert("Producto creado")
   }
   const handleFilesAdd = (e) => {
@@ -188,6 +188,18 @@ const CrearProducto = () => {
 
   return (
     <>
+     <ToastContainer
+          className="p-3"
+          position="bottom-start"
+          style={{ zIndex: 1 }, {position: "fixed"}}
+        >
+          <Toast show={showNotification}>
+            <Toast.Header closeButton={true}>
+              <strong className="me-auto">Producto creado</strong>
+            </Toast.Header>
+            <Toast.Body>Tu producto ha sido creado exitosamente</Toast.Body>
+          </Toast>
+        </ToastContainer>
       <Container className="my-4 p-2">
         <ErrorMessage msg={errorMessage} />
         <h1>Crear producto</h1>
