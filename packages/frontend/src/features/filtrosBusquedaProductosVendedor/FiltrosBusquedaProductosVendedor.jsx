@@ -42,13 +42,13 @@ const FiltrosBusquedaProductosVendedor = ({ onSubmit, filtrosActuales }) => {
       <Form.Group controlId="filtroActivos" className="mb-2">
                 <Form.Label>¿Mostrar activos?</Form.Label>
                 <Form.Select
-                  name="filtroActivos"
-                  value={filtros.filtroActivos || ''}
+                  name="activo"
+                  value={filtros.activo || ''}
                   onChange={handleInputChange}
                 >
                   <option value="">Seleccionar</option>
-                  <option value="Y">Si</option>
-                  <option value="N">No</option>
+                  <option value="true">Si</option>
+                  <option value="false">No</option>
                 </Form.Select>
               </Form.Group>
       <Button type='submit'>
