@@ -7,6 +7,7 @@ export class Usuario {
     this.telefono = telefono;    
     this.tipo = tipo;            
     this.fechaAlta = new Date();
+    this.passwordHash = null;
   }
 }
 

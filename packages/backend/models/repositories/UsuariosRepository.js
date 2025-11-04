@@ -1,6 +1,12 @@
 import UsuarioModel from "../schemas/UsuarioModel.js";
 
 export class UsuarioRepository {
+
+  async save(usuario) {
+    const usuarioNuevo = new UsuarioModel(usuario)
+    return await usuarioNuevo.save()
+  }
+
   async findById(id) {
     return await UsuarioModel.findById(id)
   }
@@ -8,7 +14,9 @@ export class UsuarioRepository {
   async findByEmail(email) {
     return await UsuarioModel.findOne({ email })
   }
-
+  async findByNombreAndEmail(nombre, email){
+    return await UsuarioModel.findOne({nombre, email})
+  }
   async findByTipo(tipoUsuario, terminoBusqueda = "", page = 1, per_page = 30) {
    const query = {tipo : tipoUsuario}
     if (terminoBusqueda || terminoBusqueda.trim().length > 0) {

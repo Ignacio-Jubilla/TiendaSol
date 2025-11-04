@@ -15,7 +15,8 @@ tipo: {
   enum: Object.values(TipoUsuario),
   required: true
 },
-fechaAlta: { type: Date}
+fechaAlta: { type: Date},
+passwordHash: {type: String, required: true},
 });
 usuarioSchema.loadClass(Usuario);
 usuarioSchema.set('toJSON', {
