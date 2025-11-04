@@ -3,8 +3,7 @@
 }
 
 .product-img{
-  align-items: center;
-  
+  align-items: center;  
   height: 10rem;
   width:10rem;
   object-fit: contain;

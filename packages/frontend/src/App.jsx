@@ -2,7 +2,7 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import Layout from "./features/layout/Layout.jsx";
 import './index.css'
-import 'bootstrap/dist/css/bootstrap.min.css'; 
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Vendedores from "./features/vendedores/Vendedores.jsx";
 import ProductosVendedor from "./features/productos/ProductosVendedor.jsx";
 import DetalleProducto from "./features/detalleProducto/DetalleProducto.jsx";
@@ -20,28 +20,45 @@ import { CartProvider } from "./context/CartContext.jsx";
 import Notificaciones from "./features/notificaciones/Notificaciones.jsx";
 import NotFound from "./features/notFound/NotFound.jsx";
 import { AuthProvider } from "./context/authContext.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import MainRouteRedirect from "./components/PublicRoute.jsx";
 
 function App() {
+  const ROLES = {
+  COMPRADOR: 'COMPRADOR',
+  VENDEDOR: 'VENDEDOR',
+  };
+
   return (
     <BrowserRouter>
     <CartProvider>
       <AuthProvider>
       <Routes>
         <Route path="/" element={<Layout  />} >
-          <Route index element={<MainPage/>} />
-          <Route path="/landing" element={<LandingPage/>}/>
-          <Route path="/mis-productos" element={<MisProductos />} />
-          <Route path="/mis-productos/crear" element={<CrearProducto />} />
-          <Route path="/vendedores" element={<Vendedores/>} />
+        <Route path="/" element={<MainRouteRedirect/>}>
+        </Route>
           <Route path="/login" element={<Login/>} />
           <Route path="/register" element={<Register/>} />
-          <Route path="/productos/:productoId/editar" element={<EditarProducto/>} />
+
+          <Route path="/landing" element={<LandingPage/>}/>
+
+          <Route element={<ProtectedRoute allowedRoles={[ROLES.VENDEDOR]} />}>
+          <Route path="/mis-productos" element={<MisProductos />} />
+          <Route path="/mis-productos/crear" element={<CrearProducto />} />
+          <Route path="/mis-productos/:productoId/editar" element={<EditarProducto/>} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={[ROLES.COMPRADOR]} />}>         
           <Route path="/productos/:productoId" element={<DetalleProducto/>} />
           <Route path="/productos" element={<ProductosVendedor />} />
+          <Route path="/carrito" element={<Carrito/>}/>
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={[ROLES.VENDEDOR, ROLES.COMPRADOR]} />}>
           <Route path="/pedidos" element={<MisPedidos/>}/>
           <Route path="/pedidos/:pedidoId" element={<DetallePedido/>}/>
-          <Route path="/carrito" element={<Carrito/>}/>
           <Route path="/notificaciones" element={<Notificaciones />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

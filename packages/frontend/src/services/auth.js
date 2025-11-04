@@ -16,5 +16,9 @@ const logout = async() => {
   await axios.post(baseUrl + '/logout')
 }
 
+const refresh = async () => {
+  const response = await axios.post(baseUrl + '/refresh')
+  return response.data
+}
 
-export default {register, login, logout}
+export default {register, login, logout, refresh}

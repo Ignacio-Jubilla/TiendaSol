@@ -15,7 +15,6 @@ import productoService from "../../services/productos";
 import { useCart } from "../../context/CartContext";
 
 const ProductosVendedor = () => {
-  const { vendedorId } = useParams();
   const [productos, setProductos] = useState(null)
   const [loading, setLoading] = useState(true)
   const [searchParams, setSearchParams] = useSearchParams({});
@@ -79,7 +78,7 @@ const ProductosVendedor = () => {
           setLoading(true)
           const filtros = Object.fromEntries(searchParams.entries());
           try {
-              const dataApi = await productoService.getProductos({...filtros, vendedorId})
+              const dataApi = await productoService.getProductos({...filtros})
               if (dataApi) {
                   setProductos(dataApi.data)
                   setPagination(dataApi.pagination)

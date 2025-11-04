@@ -10,7 +10,6 @@ import { Link } from 'react-router';
 import { IoIosAddCircle } from "react-icons/io";
 import { useAuth } from '../../context/authContext';
 import productosService from '../../services/productos';
-import e from 'express';
 
 const MisProductos = () => {
   const { user } = useAuth();

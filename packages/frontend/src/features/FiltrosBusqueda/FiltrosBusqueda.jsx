@@ -70,9 +70,8 @@ const FiltrosBusqueda = ({ onSubmit, filtrosActuales }) => {
             value={filtros.orden || ''}
             onChange={handleInputChange}
           >
-            <option value="">Seleccionar</option>
+            <option value="DESC" selected>Descendente</option>
             <option value="ASC">Ascendente</option>
-            <option value="DESC">Descendente</option>
           </Form.Select>
         </Form.Group>
 

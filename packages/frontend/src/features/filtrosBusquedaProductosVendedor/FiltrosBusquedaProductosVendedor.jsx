@@ -46,8 +46,7 @@ const FiltrosBusquedaProductosVendedor = ({ onSubmit, filtrosActuales }) => {
                   value={filtros.activo || ''}
                   onChange={handleInputChange}
                 >
-                  <option value="">Seleccionar</option>
-                  <option value="true">Si</option>
+                  <option value="true" selected>Si</option>
                   <option value="false">No</option>
                 </Form.Select>
               </Form.Group>
