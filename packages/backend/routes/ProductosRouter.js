@@ -13,26 +13,15 @@ import path from 'path';
 import { InputValidationError } from '../errors/ProductosErrors.js';
 import { v4 as uuidv4 } from "uuid";
 import middleware from '../utils/middleware.js';
-//configuracion multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = "uploads";
-    fs.mkdirSync(uploadPath, { recursive: true });
-    cb(null, uploadPath);
-  },
-   filename: (req, file, cb) => {
-    const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  },
-});
 
+//configuracion multer
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(), // <-- CAMBIO CLAVE
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true);
     else cb(new InputValidationError('Solo se permite subir imagenes'), false);
   },
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB por archivo
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
 });
 
 const productoRepo = new ProductoRepository()
@@ -54,11 +43,16 @@ productosRouter.get('/:id', asyncHandler(async(req, res) => {
   return await productosController.obtenerProductoId(req, res)
 }))
 
-productosRouter.post("/", middleware.extractUser,upload.array("imagenes", 5), asyncHandler(async(req, res) => {
+productosRouter.post("/", middleware.extractUser,upload.array("imagenes", 6), asyncHandler(async(req, res) => {
   return await productosController.crearProducto(req, res)
 }))
 
-productosRouter.put("/:id", asyncHandler(async(req, res) => {
+productosRouter.put("/:id", middleware.extractUser, upload.array("imagenes", 6), asyncHandler(async(req, res) => {
   return await productosController.modificarProducto(req, res)
 }))
+
+productosRouter.patch("/:id/desactivar", middleware.extractUser, asyncHandler(async(req, res) => {
+  return await productosController.desactivarProducto(req, res)
+}))
+
 export default productosRouter

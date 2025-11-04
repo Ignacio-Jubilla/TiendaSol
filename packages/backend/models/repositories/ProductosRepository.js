@@ -16,7 +16,8 @@ export class ProductoRepository {
   }
 
   async findById(id) {
-    return await ProductoModel.findById(id)
+    const producto = await ProductoModel.findById(id).populate("vendedor", "telefono nombre email")
+    return producto
   }
   async findAll() {
     return await ProductoModel.find({})
@@ -59,7 +60,9 @@ export class ProductoRepository {
         sort.precio = -1
       }
     }
-
+    if(filtro.categoria) {
+      query['categorias.nombre'] = filtro.categoria;
+    }
     if (filtro.precioMin) {
       query.precio = { ...query.precio, $gte: filtro.precioMin }
     }

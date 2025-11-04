@@ -39,15 +39,34 @@ export class ProductosController {
     return res.status(200).json(paginacionProductos)
   }
 
+  async desactivarProducto(req, res) {
+    const idProducto = req.params.id
+    const idVendedor = req.user.id
+    await this.productoService.desactivarProducto(idProducto, idVendedor)
+    return res.status(204).end()
+  }
+
   async modificarProducto(req, res) {
-    const body = req.body;
+    let body = req.body.producto;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (err) {
+        return res.status(400).json([{ message: 'Producto JSON inválido' }]);
+      }
+    }
     const idProducto = req.params.id;
+    const idVendedor = req.user.id;
     if (!mongoose.isValidObjectId(idProducto)) throw new InputValidationError("Id de producto no valido")
+    body.precio = Number(body.precio)
+    body.stock = Number(body.stock)
+    body.ventas = Number(body.ventas)
+
     const parsedBody = modificarProductoSchema.safeParse(body);
     if (parsedBody.error) {
       return res.status(400).json(parsedBody.error.issues);
     }
-    const productoNuevo = await this.productoService.modificarProducto(idProducto, parsedBody.data)
+    const productoNuevo = await this.productoService.modificarProducto(idProducto, idVendedor, parsedBody.data, req.files)
     return res.status(201).json(productoNuevo)
   }
   
@@ -65,15 +84,12 @@ export class ProductosController {
     body.precio = Number(body.precio)
     body.stock = Number(body.stock)
     
-    const fotos = req.files.map((f) => `http://localhost:${PORT}/uploads/${f.filename}`);
-    body.fotos = fotos
-    
     const parsedBody = productoSchema.safeParse(body);
     if (parsedBody.error) {
       return res.status(400).json(parsedBody.error.issues);
     }
-    const imagenes = req.files.map((f) => `http://localhost:${PORT}/uploads/${f.filename}`);
-    const productoNuevo = await this.productoService.crearProducto(parsedBody.data, imagenes)
+
+    const productoNuevo = await this.productoService.crearProducto(parsedBody.data, req.files)
     return res.status(201).json(productoNuevo)
   }
 }
@@ -86,6 +102,8 @@ const modificarProductoSchema = z.object({
   precio: z.number().positive("El precio debe ser mayor a 0"),
   moneda: z.enum(Object.values(TipoMoneda)),
   stock: z.number().int().nonnegative("El stock no puede ser negativo"),
+  fotos: z.array(z.string()).optional(),
+  activo: z.enum(["true", "false"]).transform(val => val === "true"),
   ventas: z.number().int().nonnegative("Las ventas no pueden ser negativas"),
 });
 
@@ -110,7 +128,8 @@ const buscarProductoSchema = z.object({
     .transform((val) => (val > 30 ? 30 : val)),
   ordenarPor: z.enum(["PRECIO", "VENTAS"]).optional(),
   orden: z.enum(["ASC", "DESC"]).optional().default("DESC"),
-  activo: z.enum(["true", "false"]).optional().default("true").transform(val => val === "true")
+  activo: z.enum(["true", "false"]).optional().default("true").transform(val => val === "true"),
+  categoria: z.string().optional()
 }).superRefine((data, ctx) => {
   if (data.precioMin && data.precioMax && data.precioMin >= data.precioMax) {
     ctx.addIssue({
