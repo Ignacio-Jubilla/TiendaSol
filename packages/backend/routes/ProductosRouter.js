@@ -42,12 +42,17 @@ productosRouter.get('/', asyncHandler(async (req, res) => {
 productosRouter.get('/:id', asyncHandler(async(req, res) => {
   return await productosController.obtenerProductoId(req, res)
 }))
-//productosRouter.post("/", middleware.extractUser,upload.array("imagenes", 6), asyncHandler(async(req, res) => {
+
 productosRouter.post("/", middleware.extractUser,upload.array("imagenes", 6), asyncHandler(async(req, res) => {
   return await productosController.crearProducto(req, res)
 }))
 
-productosRouter.put("/:id", asyncHandler(async(req, res) => {
+productosRouter.put("/:id", middleware.extractUser, upload.array("imagenes", 6), asyncHandler(async(req, res) => {
   return await productosController.modificarProducto(req, res)
 }))
+
+productosRouter.patch("/:id/desactivar", middleware.extractUser, asyncHandler(async(req, res) => {
+  return await productosController.desactivarProducto(req, res)
+}))
+
 export default productosRouter

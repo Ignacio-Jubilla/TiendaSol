@@ -7,6 +7,7 @@ import mongoose, { mongo, Mongoose } from 'mongoose'
 import { Categoria } from '../models/entities/Categoria.js'
 import expressAsyncHandler from 'express-async-handler'
 import { uploadToS3 } from './s3Service.js'
+import { NotAuthorizedError } from '../errors/AuthErrors.js'
 export class ProductoService {
   constructor(productoRepo, categoriaRepo, usuarioRepo) {
     this.productoRepo = productoRepo
@@ -49,17 +50,19 @@ export class ProductoService {
     //subo imagenes a s3
     const uploadPromises = imagenes.map(file => uploadToS3(file));
     
-    // 2. Espera a que todas las subidas terminen
     const fotosUrls = await Promise.all(uploadPromises);
     
     const producto = new Producto(vendedor, productoDto.titulo, productoDto.descripcion, categorias, productoDto.precio, productoDto.moneda, productoDto.stock, fotosUrls || [])
     return await this.productoRepo.saveProducto(producto)
   }
 
-  async modificarProducto(idProducto, productoDto) {
+  async modificarProducto(idProducto, idVendedor, productoDto, imagenes) {
     const productoExistente = await this.productoRepo.findById(idProducto)
     if (!productoExistente) {
       throw new EntidadNotFoundError(`producto con id ${idProducto} no encontrado`)
+    }
+    if (productoExistente.vendedor.id !== idVendedor) {
+      throw new NotAuthorizedError("No puedes modificar este recurso")
     }
     productoExistente.titulo = productoDto.titulo;
     productoExistente.descripcion = productoDto.descripcion;
@@ -67,7 +70,13 @@ export class ProductoService {
     productoExistente.moneda = productoDto.moneda;
     productoExistente.stock = productoDto.stock;
     productoExistente.ventas = productoDto.ventas;
-    productoExistente.fotos = productoDto.fotos || [];
+    productoExistente.activo = productoDto.activo;
+    
+    const uploadPromises = imagenes.map(file => uploadToS3(file));
+    const fotosProducto = productoDto.fotos;
+    const fotosUrls = await Promise.all(uploadPromises);
+  
+    productoExistente.fotos = fotosProducto.concat(fotosUrls) || [];
     //repetido
     const categorias = [];
     for (const nombreCategoria of productoDto.categorias) {
@@ -78,11 +87,20 @@ export class ProductoService {
       categorias.push(categoria);
     }
     productoExistente.categorias = categorias;
+    console.log(productoExistente)
     //repetido
-
-    return await this.productoRepo.updateProducto(productoExistente)
+    return await this.productoRepo.updateProducto(idProducto, productoExistente)
   }
 
+  async desactivarProducto(idProducto, idVendedor) {
+    const producto = await this.productoRepo.findById(idProducto)
+    if (!producto) throw new EntidadNotFoundError("producto con id " + idProducto + " no encontrado")
+    if (producto.vendedor.id !== idVendedor) {
+      throw new NotAuthorizedError("No puedes modificar este recurso")
+    } 
+    producto.activo = false
+    await this.productoRepo.updateProducto(idProducto, producto)
+  }
   async obtenerProducto(idProducto) {
     const producto = await this.productoRepo.findById(idProducto)
     if (!producto) throw new EntidadNotFoundError("producto con id " + idProducto + " no encontrado")
