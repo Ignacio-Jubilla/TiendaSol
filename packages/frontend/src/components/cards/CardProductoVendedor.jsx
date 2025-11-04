@@ -5,6 +5,8 @@ import { MdDeleteForever, MdWidthFull } from "react-icons/md";
 import { Link } from "react-router"
 import './CardProducto.css'
 import ModalAlert from '../modalAlert/ModalAlert';
+import productosService from '../../services/productos';
+
 
 const CardProductoVendedor = ({ producto }) => {
   const getImageUrl = () => {
@@ -16,19 +18,12 @@ const CardProductoVendedor = ({ producto }) => {
 
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false);
-  const handleModalSubmit = () => {
-    //dar de baja producto usando service;
-    //volver a fetchear producto
-    console.log('dio de baja producto con id ' + producto._id)
-    producto.activo = false;
-    setShow(false)
-  }
+
 
   return (
     <section className="card card-shadow-sm p-3 d-flex flex-row bg-dark-hover" key={producto._id}>
-      <ModalAlert handleClose={handleClose} handleModalSubmit={handleModalSubmit} message={"¿Esta seguro de que quiere dar de baja el producto?"} show={show}></ModalAlert>
       <div className="product-img d-flex">
-        <img src={getImageUrl()}  className="card-img-top" aria-label='Imagen de producto'/>
+        <img src={getImageUrl()}  className="card-img-top" aria-label='Imagen de producto' style={{width: "10rem"}, {height: "10rem"}}/>
       </div>
       <div className="card-body">
         <Card.Title>{producto.titulo}</Card.Title>
@@ -46,17 +41,12 @@ const CardProductoVendedor = ({ producto }) => {
   style={{ 
     minWidth: '10rem' 
   }}>
-        <Button as={Link} to={`/productos/${producto._id}/editar`}
+        <Button as={Link} to={`/mis-productos/${producto._id}/editar`}
          variant="primary" style={{ 
     minWidth: '10rem' 
   }}>
           Editar
         </Button>
-        {producto.activo ?
-        <Button variant='danger' onClick={() => {setShow(true)}} >
-          <MdDeleteForever style={{"font-size": "2rem"}}/>
-          Dar de baja
-        </Button> : null}
       </div>
     </section>
   )

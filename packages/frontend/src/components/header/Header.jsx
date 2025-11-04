@@ -15,9 +15,12 @@ import { Dropdown, OverlayTrigger } from 'react-bootstrap';
 import { Popover } from 'react-bootstrap';
 import carritoMock from '../../mocks/carrito.json'
 import { useCart } from '../../context/CartContext';
-
+import { useAuth } from '../../context/authContext';
+import authServices from '../../services/auth';
 const Header = () => {
   const {totalCart, cartItems} = useCart()
+  const {user, logoutContext} = useAuth()
+
   const [currentNotifications, setCurrentNotificacion] = useState(0);
   const [valorBusqueda, setValorBusqueda] = useState("");
   const [showPopover, setShowPopover] = useState(false);
@@ -29,7 +32,15 @@ const Header = () => {
   const [expanded, setExpanded] = useState(false);
 
   const handleClose = () => setExpanded(false);
-
+  const handleLogout = async () => {
+    try {
+      authServices.logout()
+    } catch (error) {
+      console.log('nothing')
+    }
+    logoutContext()
+    navigate('/')
+  }
   const handleSearch = (e) => {
     e.preventDefault();
     handleClose()
@@ -59,6 +70,7 @@ const Header = () => {
     <header className="" aria-label="Header" aria-description='Header principal de Tiendasol'>
       <div className='d-flex align-items-center'>
         <Link to="/" className="navbar-brand" aria-label="Boton homepage" aria-description="Boton para ir a homepage"><h1 id="title">Tienda  Sol</h1></Link>
+        {(user && user.tipo == "COMPRADOR") || !user ? 
         <Form className='d-flex my-3 container ms-5' onSubmit={handleSearch} >
           <Form.Control
             type="search"
@@ -67,8 +79,8 @@ const Header = () => {
             onChange={handleSearchChange}
             value={valorBusqueda}
           />
-          <Button variant="secondary" type="submit" className='d-flex align-items-center'><FaSearch aria-hidden="true"></FaSearch>Buscar</Button>
-        </Form>
+          <Button variant="secondary" type="submit" className='d-flex align-items-center'><FaSearch aria-hidden="true"></FaSearch></Button>
+        </Form>  : null }
       </div>
 
       <Navbar expand="lg" expanded={expanded}
@@ -90,21 +102,24 @@ const Header = () => {
               <Dropdown>
                 <Dropdown.Toggle variant="outline-dark" id="dropdown-basic">
                   <FaUser></FaUser>
-                  Usuario
+                  {!user ? "Ingresa" : user.nombre}
                 </Dropdown.Toggle>
-
+ 
                 <Dropdown.Menu>
-                  <Dropdown.Item href="#/action-1">Iniciar sesión</Dropdown.Item>
-                  <Dropdown.Item href="#/action-2">Cerrar sesión</Dropdown.Item>
-                  <Dropdown.Item href="#/action-3">Registrarse</Dropdown.Item>
+                  {user ? <Dropdown.Item onClick={handleLogout}>Cerrar sesión</Dropdown.Item> : 
+                  <>
+                 <Dropdown.Item as={Link} to={`/login`}>Iniciar sesión</Dropdown.Item><Dropdown.Item as={Link} to={`/register`}>Registrarse</Dropdown.Item>
+                 </>
+                  }
                 </Dropdown.Menu>
               </Dropdown>
-              <Link to="/pedidos" className="nav-link" aria-label='Ver mis pedidos' onClick={handleClose}>Mis pedidos</Link>
-              <Link to="/mis-productos" className="nav-link" aria-label='Ver mis productos' onClick={handleClose}>Mis productos</Link>
+              {user ? <Link to="/pedidos" className="nav-link" aria-label='Ver mis pedidos' onClick={handleClose}>Mis pedidos</Link> : null}
+              {user  && user.tipo == "VENDEDOR" ? <Link to="/mis-productos" className="nav-link" aria-label='Ver mis productos' onClick={handleClose}>Mis productos</Link> : null}
             </Nav>
           </Offcanvas.Body>
         </Navbar.Offcanvas>
         <div className="icon-group d-flex align-items-center gap-4 me-5">
+          {user && user.tipo == "COMPRADOR" ? 
           <OverlayTrigger 
           placement="bottom" 
           overlay={carritoPreview}
@@ -123,6 +138,8 @@ const Header = () => {
               </Link>
             </div>
           </OverlayTrigger>
+           : null}
+           {user ?
           <Link
             to="/notificaciones"
             className="icon-item position-relative"
@@ -131,6 +148,7 @@ const Header = () => {
             <HiBellAlert size={30} />
             {currentNotifications}
           </Link>
+           : null}
         </div>
       </Navbar>
     </header>

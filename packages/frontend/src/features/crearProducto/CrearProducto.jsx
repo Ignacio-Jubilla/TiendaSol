@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Button, CloseButton, Container, Form, Image, InputGroup, ListGroup } from "react-bootstrap";
-import { useParams } from "react-router";
-import productosMocked from '../../mocks/productos.json';
+import { Button, CloseButton, Container, Form, Image, InputGroup, ListGroup, Toast, ToastContainer } from "react-bootstrap";
 import LoadingSpinner from "../../components/spinner/LoadingSpinner";
 import { MdDeleteForever } from "react-icons/md";
 import productosService from "../../services/productos";
 import ErrorMessage from "../../components/errorMessage/ErrorMessage";
+import { useAuth } from "../../context/authContext";
+import authServices from "../../services/auth";
+import { useNavigate } from "react-router";
+import { FaCheckCircle } from "react-icons/fa";
+import ToastMessage from "../../components/toastMessage/ToastMessage";
 
 const CrearProducto = () => {
+  const navigate = useNavigate()
+  const { loginContext, logoutContext, user } = useAuth();
   const ALLOWED_IMAGE_TYPES = [
     'image/jpeg',
     'image/png',
@@ -24,7 +29,7 @@ const CrearProducto = () => {
   const [errorMessage, setErrorMessage] = useState("")
   const [imagenes, setImagenes] = useState([]);
   const [previews, setPreviews] = useState([]);
-
+  const [showNotification, setShowNotification] = useState(false)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -33,6 +38,8 @@ const CrearProducto = () => {
       [name]: value
     });
   };
+
+  const handleCloseNotification = () => setShowNotification(false);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -45,10 +52,38 @@ const CrearProducto = () => {
       setErrorMessage("Debes elegir al menos una categoria.");
       return;
     }
-
-    await productosService.postProducto(producto, imagenes)
-    alert("Producto creado")
+    try {
+      await productosService.postProducto({ vendedorId: user.id, ...producto }, imagenes)
+      setShowNotification(true)
+      setProducto({})
+      setImagenes([])
+      setPreviews([])
+      setSelectedCategory("")
+    } catch (err) {
+      if (err.response) {
+        if (err.response.status === 401) {
+          //retry with refresh method
+          try {
+            const refreshData = await authServices.refresh()
+            loginContext(refreshData.accessToken)
+            await productosService.postProducto({ vendedorId: user.id, ...producto }, imagenes)
+            setShowNotification(true)
+            setTimeout(() => {
+              navigate("/mis-productos")
+            }, 5000)
+          }
+          catch (err) {
+            logoutContext()
+            await authServices.logout()
+            navigate('/login')
+          }
+        }
+      } else {
+        setErrorMessage("Error creando producto, intente luego")
+      }
+    }
   }
+
   const handleFilesAdd = (e) => {
     setErrorMessage(""); // Limpiar error anterior
     const files = Array.from(e.target.files);
@@ -188,6 +223,8 @@ const CrearProducto = () => {
 
   return (
     <>
+      <ToastMessage showNotification={showNotification} handleCloseNotification={handleCloseNotification} header={<>Producto creado <FaCheckCircle size={20} style={{ color: "green"}}/></>}
+      message="Tu producto ha sido creado exitosamente, redirigiendo a pagina anterior"/>
       <Container className="my-4 p-2">
         <ErrorMessage msg={errorMessage} />
         <h1>Crear producto</h1>
