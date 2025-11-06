@@ -1,7 +1,7 @@
 import React, { use, useEffect, useState } from "react";
 import './CarouselItems.css'
 
-const CarouselItems = ({items, CardItem}) => {
+const CarouselItems = ({items, CardItem, handleAddItem}) => {
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(3)
 
@@ -32,7 +32,7 @@ const CarouselItems = ({items, CardItem}) => {
               transform: `translateX(-${index * (100 / visible)}%)`,
             }}>
             {items.map((item) => (
-              <CardItem item={item} key={item.id}/> 
+              <CardItem item={item} key={item.id} handleAddItem={handleAddItem}/> 
             ))}
           </div>
         </div>

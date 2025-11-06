@@ -9,7 +9,7 @@ import authServices from "../../services/auth";
 import { useNavigate } from "react-router";
 import { FaCheckCircle } from "react-icons/fa";
 import ToastMessage from "../../components/toastMessage/ToastMessage";
-
+import Select from 'react-select';
 const CrearProducto = () => {
   const navigate = useNavigate()
   const { loginContext, logoutContext, user } = useAuth();
@@ -23,7 +23,7 @@ const CrearProducto = () => {
   const MAX_SIZE_BYTES = 10 * 1024 * 1024;
   const MAX_SIZE_MB = 10;
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState(null)
   const [producto, setProducto] = useState({})
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
@@ -58,7 +58,10 @@ const CrearProducto = () => {
       setProducto({})
       setImagenes([])
       setPreviews([])
-      setSelectedCategory("")
+      setSelectedCategory(null)
+      setTimeout(() => {
+        navigate("/mis-productos")
+      }, 4000)
     } catch (err) {
       if (err.response) {
         if (err.response.status === 401) {
@@ -68,9 +71,13 @@ const CrearProducto = () => {
             loginContext(refreshData.accessToken)
             await productosService.postProducto({ vendedorId: user.id, ...producto }, imagenes)
             setShowNotification(true)
+            setProducto({})
+            setImagenes([])
+            setPreviews([])
+            setSelectedCategory(null)
             setTimeout(() => {
               navigate("/mis-productos")
-            }, 5000)
+            }, 4000)
           }
           catch (err) {
             logoutContext()
@@ -136,37 +143,37 @@ const CrearProducto = () => {
     e.target.value = null;
   };
 
-
   const handleAddCategory = () => {
+    // 'selectedCategory' ahora es un objeto { value: 'id', label: 'nombre' }
     if (selectedCategory) {
-      const newCategory = categories.find(c => c === selectedCategory);
 
-      if (newCategory) {
-        if (producto.categorias && producto.categorias.find(c => c === newCategory)) {
-          setErrorMessage("La categoría ya está agregada.");
-          return;
-        }
-        if (producto.categorias) {
-          setProducto({
-            ...producto,
-            categorias: [...producto.categorias, newCategory]
-          })
-        }
-        else {
-          setProducto({
-            ...producto,
-            categorias: [newCategory]
-          })
-        }
-
-        setSelectedCategory("");
+      // Previene duplicados
+      if (producto.categorias && producto.categorias.find(c => c === selectedCategory.label)) {
+        setErrorMessage("La categoría ya está agregada.");
+        return;
       }
+
+      // Añade el 'label' (el nombre) al array del producto
+      if (producto.categorias) {
+        setProducto({
+          ...producto,
+          categorias: [...producto.categorias, selectedCategory.label]
+        });
+      } else {
+        setProducto({
+          ...producto,
+          categorias: [selectedCategory.label]
+        });
+      }
+
+      setSelectedCategory(null); // Limpia el select
     }
   };
 
-  const changeSelectedCategory = (e) => {
-    setSelectedCategory(e.target.value)
-  }
+  // 'changeSelectedCategory' ahora recibe el objeto de react-select
+  const changeSelectedCategory = (selectedOption) => {
+    setSelectedCategory(selectedOption);
+  };
 
   const handleDeleteCategory = (categoria) => {
     setProducto({
@@ -174,6 +181,13 @@ const CrearProducto = () => {
       categorias: producto.categorias.filter(c => c !== categoria)
     });
   };
+
+  // --- 4. Transformar las categorías para react-select ---
+  // react-select necesita un formato específico: [{ value: '...', label: '...' }]
+  const categoryOptions = categories.map(c => ({
+    value: c, // El valor puede ser el string simple
+    label: c  // El texto a mostrar y buscar
+  }));
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -223,8 +237,8 @@ const CrearProducto = () => {
 
   return (
     <>
-      <ToastMessage showNotification={showNotification} handleCloseNotification={handleCloseNotification} header={<>Producto creado <FaCheckCircle size={20} style={{ color: "green"}}/></>}
-      message="Tu producto ha sido creado exitosamente, redirigiendo a pagina anterior"/>
+      <ToastMessage showNotification={showNotification} handleCloseNotification={handleCloseNotification} header={<>Producto creado <FaCheckCircle size={20} style={{ color: "green" }} /></>}
+        message="Tu producto ha sido creado exitosamente, redirigiendo a pagina anterior" />
       <Container className="my-4 p-2">
         <ErrorMessage msg={errorMessage} />
         <h1>Crear producto</h1>
@@ -267,11 +281,13 @@ const CrearProducto = () => {
               <Form.Control type="number" placeholder="stock de producto" name="stock" value={producto.stock} onChange={handleInputChange} required />
             </Form.Group>
 
+            {/* --- 5. SECCIÓN DE CATEGORÍAS (MODIFICADA) --- */}
             <Form.Group className="mb-3" controlId="categoriasProducto">
               <Form.Label>Categorías</Form.Label>
 
-              <ListGroup>
-                {producto.categorias ? (
+              {/* ListGroup (sin cambios) */}
+              <ListGroup className="mb-2">
+                {producto.categorias && producto.categorias.length > 0 ? (
                   producto.categorias.map(c => (
                     <ListGroup.Item
                       key={c}
@@ -280,11 +296,11 @@ const CrearProducto = () => {
                       {c}
                       <Button
                         variant="danger"
+                        size="sm" // <-- Añadido para consistencia
                         onClick={() => handleDeleteCategory(c)}
                         aria-label={`Quitar categoría ${c} del producto`}
-                        aria-hidden='true'
                       >
-                        <MdDeleteForever />
+                        <MdDeleteForever aria-hidden="true" />
                       </Button>
                     </ListGroup.Item>
                   ))
@@ -293,26 +309,30 @@ const CrearProducto = () => {
                 )}
               </ListGroup>
 
-              <InputGroup>
-                <Form.Select
-                  value={selectedCategory}
+              <div className="d-flex">
+                {/* Usa 'flex-grow-1' para que el Select ocupe todo el espacio disponible.
+    'react-select' usa la prop 'className' para su contenedor.
+  */}
+                <Select
+                  options={categoryOptions}
                   onChange={changeSelectedCategory}
-                  aria-label="Agregar categoria a producto"
-                >
-                  <option value="">Seleccionar</option>
-                  {categories.map(c => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </Form.Select>
+                  value={selectedCategory}
+                  placeholder="Buscar y seleccionar categoría..."
+                  isSearchable={true}
+                  className="flex-grow-1" // <-- ¡La clave está aquí!
+                />
+
                 <Button
                   variant="success"
                   onClick={handleAddCategory}
+                  type="button"
+                  className="ms-2" // Añade un margen
                 >
                   Agregar
                 </Button>
-              </InputGroup>
+              </div>
+              {/* --- FIN DEL REEMPLAZO --- */}
+
             </Form.Group>
 
             <Form.Group className="mb-3">

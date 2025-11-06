@@ -10,16 +10,27 @@ import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 import { useCart } from '../../context/CartContext';
 import ErrorMessage from '../../components/errorMessage/ErrorMessage';
 import { FaEnvelope, FaInbox, FaPhone } from 'react-icons/fa';
+import { use } from 'react';
+import ToastProductoAgreagado from '../../components/toast/ToastProductoAgregado';
 const DetalleProducto = () => {
   const { vendedorId, productoId } = useParams();
   const [loading, setLoading] = useState(true)
   const [producto, setProducto] = useState(null)
   const {addItemToCart, cartItems} = useCart()
   const [errorMessage, setErrorMessage] = useState("")
+  const [showNotification, setShowNotification] = useState(false)
+  const [cantidadToShow, setCantidadToShow] = useState(0)
+  const handleCloseToast = () => setShowNotification(false);
+
+const showToast = () => {
+    setShowNotification(true)
+    setTimeout(() => {
+      setShowNotification(false)
+    }, 10000)
+  }
 
   const handleAddItem = (producto, cantidad) => {
     const item = cartItems.find(item => item.productoId === producto._id)
-    if(item) console.log(producto.stock - (cantidad + item.cantidad))
     if(item && ( Number(item.cantidad)+ Number(cantidad)) > Number(producto.stock) )  {
       showErrorMessage("No hay suficiente stock para agregar al carrito")
       return;
@@ -27,13 +38,17 @@ const DetalleProducto = () => {
 
     if (!item && Number(cantidad) > Number(producto.stock)) return;
     addItemToCart(producto, cantidad);
+    setCantidadToShow(cantidad)
+    showToast()
   };
+
+
 
   const showErrorMessage = (msg) => {
     setErrorMessage(msg);
     setTimeout(() => {
       setErrorMessage("");
-    }, 6000);
+    }, 10000);
   } 
   const [cantidad, setCantidad] = useState(0);
   const navigate = useNavigate();
@@ -41,7 +56,6 @@ const DetalleProducto = () => {
   useEffect(() => {
   const fetchProduct = async() => {
     const dataApi = await productosService.getProducto(productoId);
-    console.log(dataApi)
     if (dataApi) {
       setProducto(dataApi)
     } else {
@@ -54,6 +68,7 @@ const DetalleProducto = () => {
 
   return (
     <Container className='mt-4'>
+      <ToastProductoAgreagado handleCloseNotification={handleCloseToast} producto={producto} show={showNotification} cantidad={cantidadToShow}/>
       <ErrorMessage msg={errorMessage} />
       <Button onClick={() => navigate(-1)} variant="primary" className="mb-4" aria-label='Boton para volver atras'>
       <IoArrowBackSharp aria-hidden='true'/>Volver atras
@@ -72,7 +87,7 @@ const DetalleProducto = () => {
           <Form onSubmit={(e) => {
             e.preventDefault()
             //logica para agregar a carrito
-            if (cantidad >= 0 && cantidad <= producto.stock) {
+            if (cantidad > 0 && cantidad <= producto.stock) {
               handleAddItem(producto, cantidad)
             }
           }}>

@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router";
 import { IoArrowBackSharp } from "react-icons/io5";
-import { Form, Button, Card, Accordion, Spinner } from "react-bootstrap";
+import { Form, Button, Card, Accordion, Spinner, Toast } from "react-bootstrap";
 import productosMocked from "../../mocks/productos.json";
 import CardProducto from "../../components/cards/CardProducto";
 import FiltrosBusqueda from "../FiltrosBusqueda/FiltrosBusqueda";
@@ -13,6 +13,8 @@ import { useNavigate } from "react-router";
 import { useSearchParams } from 'react-router';
 import productoService from "../../services/productos";
 import { useCart } from "../../context/CartContext";
+import ToastMessage from "../../components/toastMessage/ToastMessage";
+import ToastProductoAgreagado from "../../components/toast/ToastProductoAgregado";
 
 const ProductosVendedor = () => {
   const [productos, setProductos] = useState(null)
@@ -20,12 +22,23 @@ const ProductosVendedor = () => {
   const [searchParams, setSearchParams] = useSearchParams({});
   const [filtros, setFiltros] = useState({});
   const [errorMessage, setErrorMessage] = useState("")
-
+  const [showNotification, setShowNotification] = useState(false)
+  const [productToShow, setProductToShow] = useState(null)
   const navigate = useNavigate();
-  const productosData = productosMocked
-
+  const [cantidadToShow, setCantidadToShow] = useState(0)
   const [pagination, setPagination] = useState(null);
   const {addItemToCart, cartItems} = useCart()
+
+  const showToast = (producto) => {
+    setShowNotification(true)
+    setProductToShow(producto)
+    setTimeout(() => {
+      setShowNotification(false)
+    }, 10000)
+
+  }
+
+  const handleCloseToast = () => setShowNotification(false);
 
   const handleAddItem = (producto, cantidad) => {
     //search item and determinate if current quantity is greater than stock
@@ -34,7 +47,10 @@ const ProductosVendedor = () => {
       showErrorMessage("No hay suficiente stock para agregar al carrito")
       return;
     }
+
     addItemToCart(producto, cantidad);
+    setCantidadToShow(cantidad)
+    showToast(producto)
   };
 
   const showErrorMessage = (msg) => {
@@ -97,6 +113,8 @@ const ProductosVendedor = () => {
   return (
     <div className="container mt-4">
       <ErrorMessage msg={errorMessage}/>
+      <ToastProductoAgreagado handleCloseNotification={handleCloseToast} producto={productToShow} show={showNotification} cantidad={cantidadToShow}/>
+      
       <div className="row">
         <div className="mb-4 col-lg-3 col-md-5 col-12">
           <FiltrosBusqueda onSubmit={handleFiltrar} filtrosActuales={Object.fromEntries(searchParams.entries())} />
@@ -116,6 +134,7 @@ const ProductosVendedor = () => {
               ))}
             </>
           )}
+          <ControlPaginado onPageChange={handleChangePage} pagination={pagination} />
         </main>
       </div>
     </div>

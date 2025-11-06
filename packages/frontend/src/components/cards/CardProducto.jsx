@@ -36,7 +36,7 @@ const CardProducto = ({ producto, handleAddCart }) => {
         </Button><Form onSubmit={(e) => {
           e.preventDefault();
           //logica para agregar a carrito
-          if (cantidad >= 0 && cantidad <= producto.stock) {
+          if (cantidad > 0 && cantidad <= producto.stock) {
             handleAddCart(producto, cantidad);
           }
         } }>
@@ -49,9 +49,10 @@ const CardProducto = ({ producto, handleAddCart }) => {
               required={true}
               value={cantidad}
               onChange={(e) => setCantidad(e.target.value)} />
-            <button type='submit' className="btn btn-primary">
+            <Button type='submit' variant='primary' disabled={!(cantidad > 0)} >
               <FaCartPlus aria-hidden="true" style={{ "font-size": "2rem" }} />
-              Agregar</button>
+              Agregar
+              </Button>
           </Form></div>: 
         <Button disabled variant="secondary" style={{height: "20%;"}} >Sin stock</Button>}
     </section>

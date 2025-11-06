@@ -22,11 +22,13 @@ import NotFound from "./features/notFound/NotFound.jsx";
 import { AuthProvider } from "./context/authContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MainRouteRedirect from "./components/PublicRoute.jsx";
+import FinalizarCompra from "./features/finalizarCompra/FinalizarCompra.jsx";
 
 function App() {
   const ROLES = {
   COMPRADOR: 'COMPRADOR',
   VENDEDOR: 'VENDEDOR',
+  GUEST: null
   };
 
   return (
@@ -41,7 +43,11 @@ function App() {
           <Route path="/register" element={<Register/>} />
 
           <Route path="/landing" element={<LandingPage/>}/>
-
+          <Route path="/productos/:productoId" element={<DetalleProducto/>} />
+          <Route path="/productos" element={<ProductosVendedor />} />
+          <Route element={<ProtectedRoute allowedRoles={[ROLES.GUEST, ROLES.COMPRADOR]} />}>
+             <Route path="/carrito" element={<Carrito />} />
+          </Route>
           <Route element={<ProtectedRoute allowedRoles={[ROLES.VENDEDOR]} />}>
           <Route path="/mis-productos" element={<MisProductos />} />
           <Route path="/mis-productos/crear" element={<CrearProducto />} />
@@ -49,9 +55,7 @@ function App() {
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={[ROLES.COMPRADOR]} />}>         
-          <Route path="/productos/:productoId" element={<DetalleProducto/>} />
-          <Route path="/productos" element={<ProductosVendedor />} />
-          <Route path="/carrito" element={<Carrito/>}/>
+          <Route path="/finalizar-compra" element={<FinalizarCompra/>}/>
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={[ROLES.VENDEDOR, ROLES.COMPRADOR]} />}>

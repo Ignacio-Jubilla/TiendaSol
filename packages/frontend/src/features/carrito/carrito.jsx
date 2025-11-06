@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Card, Table, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import carritoMock from '../../mocks/carrito.json'
 import { useCart } from '../../context/CartContext';
+import { ConversorMonedas } from '../../services/conversorMonedas';
+import { obtenerTipoCambio } from '../../services/exchangeApiExternal';
+import tiposCambioManual from '../../services/tiposCambioManual';
 
-const Carrito = () => {
+const Carrito =  () => {
   const navegar = useNavigate();
+
   const [items, setItems] = useState(carritoMock);
   const {cartItems, totalValueCart, cleanCart, removeItem} = useCart()
   const totalCarrito = items.reduce((acc, item) => acc + item.cantidad * item.precioUnitario, 0);
   const handleRemoveItem = (productoId) => {
     removeItem(productoId);
   };
+  const conversorMoneda = new ConversorMonedas(obtenerTipoCambio() || tiposCambioManual)
 
   return (
     <Container className="mt-5 d-flex flex-column align-items-center">
@@ -46,28 +51,37 @@ const Carrito = () => {
                     <td>{item.nombre}</td>
                     <td>{item.cantidad}</td>
                     <td>${item.precioUnitario}</td>
-                    <td>${item.moneda}</td>
-                    <td>${item.precioUnitario * item.cantidad}</td>
+                    <td>{item.moneda == "DOLAR_USA" ? 'U$D' : item.moneda == "PESO_ARG" ? 'AR$' : "BRL"}</td>
+                    <td>${Number.parseFloat(item.precioUnitario * item.cantidad).toFixed(2)}</td>
                     <td><button className="btn btn-danger" onClick={() => handleRemoveItem(item.productoId)}>Eliminar</button></td>
                   </tr>
                 ))}
               </tbody>
             </Table>
 
-            <h5>Total: ${totalValueCart}</h5>
+            <h5>Total: </h5>
+
+            <h5>U$D {
+              Number.parseFloat(cartItems.map(item => conversorMoneda.convertir(item.moneda, "DOLAR_USA", item.precioUnitario) * item.cantidad)).toFixed(2)
+              }</h5>
+
+              <h5>ARS {
+              Number.parseFloat(cartItems.map(item => conversorMoneda.convertir(item.moneda, "PESO_ARG", item.precioUnitario) * item.cantidad)).toFixed(2)
+              }</h5>    
+              <h5>BRL {
+              Number.parseFloat(cartItems.map(item => conversorMoneda.convertir(item.moneda, "REAL", item.precioUnitario) * item.cantidad)).toFixed(2)
+              }</h5>
 
             <div className="d-flex justify-content-end mt-3">
               <Button variant="danger" className="me-2" onClick={()=> cleanCart()}>
                 Vaciar carrito
               </Button>
-              <Button variant="success" onClick={() => {
-                if(!cartItems || cartItems.length === 0){
-                  alert("Carrito vacío")
-                }else{
-                  alert("Aquí se generaría el pedido")}
-                }}
+              <Button variant="success" disabled={
+                (!cartItems || cartItems.length === 0)
+              }
+              as={Link}
+              to="/finalizar-compra"
               >
-
                 Proceder a comprar
               </Button>
             </div>

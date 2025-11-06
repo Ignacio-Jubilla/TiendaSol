@@ -21,7 +21,7 @@ const FiltrosBusqueda = ({ onSubmit, filtrosActuales }) => {
   };
 
   const formFiltro = (
-    <Form onSubmit={handleSubmit} >
+    <Form onSubmit={handleSubmit}>
         <label id="rangoPrecioLabel" className="form-label">Rango de precios</label>
         <section className="d-flex flex-direction-row mb-3" aria-labelledby="rangoPrecioLabel">
           <Form.Group controlId="filtroPrecioMin" className="me-2 flex-grow-1">

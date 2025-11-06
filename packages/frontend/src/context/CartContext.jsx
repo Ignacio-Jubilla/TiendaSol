@@ -40,7 +40,7 @@ export const CartProvider = ({ children }) => {
    );
   } else {
    if (Number(producto.stock) < Number(cantidad)) return 0;
-   const newItemPedido = { productoId: producto._id, nombre: producto.titulo, cantidad, precioUnitario: producto.precio, moneda: producto.moneda };
+   const newItemPedido = { productoId: producto._id, nombre: producto.titulo, cantidad, precioUnitario: producto.precio, moneda: producto.moneda, vendedor: producto.vendedor.id, foto: producto.fotos[0] };
    setCartItems([...cartItems, newItemPedido]);
   }
  };
@@ -50,14 +50,31 @@ export const CartProvider = ({ children }) => {
   0
  );
 
- const totalValueCart = cartItems.reduce(
+ const totalValueCart = Number.parseFloat(cartItems.reduce(
   (total, itemPedido) => Number(total) + Number(itemPedido.precioUnitario * itemPedido.cantidad),
   0
- ) 
+ )).toFixed(2)
 
  const removeItem = (productoId) => {
   setCartItems(cartItems.filter((item) => item.productoId !== productoId));
  };
+
+ const groupItemsByVendedor = () => {
+  const groupedItems = [];
+//{[vendedorId: xxxx, items: [] ], ...}
+  cartItems.forEach((item) => {
+    const vendedorId = item.vendedor;
+    const existingGroup = groupedItems.find((group) => group.vendedorId === vendedorId);
+    if (existingGroup) {
+      existingGroup.items.push(item);
+      } else {
+      groupedItems.push({ vendedorId, items: [item] });
+    }
+  });
+
+
+  return groupedItems
+ } 
 
  const value = {
   cartItems,
@@ -65,7 +82,8 @@ export const CartProvider = ({ children }) => {
   totalCart,
   totalValueCart,
   cleanCart,
-  removeItem
+  removeItem,
+  groupItemsByVendedor
  };
 
  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
