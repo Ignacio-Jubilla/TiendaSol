@@ -1,4 +1,6 @@
-export class CambioEstadoPedido {
+import { email } from "zod";
+
+export default class CambioEstadoPedido {
   constructor(estado, pedido, usuario, motivo){
     this.fecha = new Date();
     this.estado = estado;

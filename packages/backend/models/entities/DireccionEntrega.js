@@ -1,5 +1,6 @@
-export class DireccionEntrega {
-  constructor(calle, altura, piso, departamento, codigoPostal, ciudad, provincia, pais, lat, lon) {
+
+export default class DireccionEntrega {
+  constructor({calle, altura, piso, departamento, codigoPostal, ciudad, provincia, pais, lat, lon}) {
     this.calle = calle;
     this.altura = altura;
     this.piso = piso;
@@ -13,17 +14,19 @@ export class DireccionEntrega {
   }
 }
 
-//import DireccionEntrega from "./DireccionEntrega.js";
 
 export class DireccionEntregaBuilder {
   constructor() {
     this.calle = "";
-    this.numero = "";
+    this.altura = "";
+    this.piso = "";
     this.departamento = "";
     this.codigoPostal = "";
-    this.localidad = "";
+    this.ciudad = "";
     this.provincia = "";
     this.pais = "";
+    this.lat = null;
+    this.lon = null;
   }
 
   withCalle(calle) {
@@ -31,8 +34,13 @@ export class DireccionEntregaBuilder {
     return this;
   }
 
-  withNumero(numero) {
-    this.numero = numero;
+  withAltura(altura) {
+    this.altura = altura;
+    return this;
+  }
+
+  withPiso(piso) {
+    this.piso = piso;
     return this;
   }
 
@@ -46,8 +54,8 @@ export class DireccionEntregaBuilder {
     return this;
   }
 
-  withLocalidad(localidad) {
-    this.localidad = localidad;
+  withCiudad(ciudad) {
+    this.ciudad = ciudad;
     return this;
   }
 
@@ -61,15 +69,28 @@ export class DireccionEntregaBuilder {
     return this;
   }
 
+  withLat(lat) {
+    this.lat = lat;
+    return this;
+  }
+
+  withLon(lon) {
+    this.lon = lon;
+    return this;
+  }
+
   build() {
-    return new DireccionEntrega(
-      this.calle,
-      this.numero,
-      this.departamento,
-      this.codigoPostal,
-      this.localidad,
-      this.provincia,
-      this.pais
-    );
+    return new DireccionEntrega({
+      calle: this.calle,
+      altura: this.altura,
+      piso: this.piso,
+      departamento: this.departamento,
+      codigoPostal: this.codigoPostal,
+      ciudad: this.ciudad,
+      provincia: this.provincia,
+      pais: this.pais,
+      lat: this.lat,
+      lon: this.lon
+    });
   }
 }

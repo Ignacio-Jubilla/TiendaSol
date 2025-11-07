@@ -7,5 +7,5 @@ export class ItemPedido{
 
   getCantidad = () => this.cantidad
   getProducto = () => this.producto
-  subtotal = () => precioUnitario * cantidad
+  subtotal = () => this.precioUnitario * this.cantidad
 }

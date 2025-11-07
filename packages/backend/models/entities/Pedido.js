@@ -1,23 +1,22 @@
-import { CambioEstadoPedido } from "./CambioEstadoPedido.js";
-import { DireccionEntrega } from "./DireccionEntrega.js";
+import  CambioEstadoPedido  from "./CambioEstadoPedido.js";
+import  DireccionEntrega  from "./DireccionEntrega.js";
 import { EstadoPedido } from "./enums/EstadoPedido.js";
 import { TipoUsuario } from "./enums/TipoUsuario.js";
+import { ItemPedido } from "./ItemPedido.js";
 import {Usuario} from "./Usuario.js";
 import { v4 as uuidv4 } from 'uuid';
 
 
 export class Pedido {
-  static id = 0;
   constructor(usuario,items,moneda,direccionEntrega) {
-    this.id = uuidv4();
     this.comprador = usuario
-    this.items = items
+    this.items = items.map(item => new ItemPedido(item.productoId,item.cantidad,item.precioUnitario));
     this.total = this.calcularTotal();
     this.moneda = moneda;
     this.direccionEntrega = direccionEntrega
-    this.estado = EstadoPedido.PENDIENTE;
+    this.estado;
     this.fechaCreacion = new Date();
-    this.historialEstados = [];
+    this.historialEstados = [new CambioEstadoPedido(EstadoPedido.PENDIENTE, this, usuario, 'Pedido creado')];
   } 
   
   calcularTotal() {
@@ -31,5 +30,30 @@ export class Pedido {
   }
 
   validarStock = () => this.items.reduce((itemAnt, itemAct) => itemAnt && itemAct.getProducto().estaDisponible(itemAct.getCantidad()), true)
+
+  agregarEstadoInicial(usuario) {
+    if (this.historialEstados.length === 0) {
+      this.historialEstados.push(
+        new CambioEstadoPedido(EstadoPedido.PENDIENTE, this, usuario._id, 'Pedido creado')
+      );
+      this.estado = EstadoPedido.PENDIENTE;
+    }
+  }
+
+  
+  static fromDB(doc) {
+    const pedido = new Pedido(
+      doc.comprador, 
+      doc.items, 
+      doc.moneda, 
+      doc.direccionEntrega);
+    pedido._id = doc._id;
+    pedido.estado = doc.estado;
+    pedido.historialEstados = doc.historialEstados || [];
+    pedido.fechaCreacion = doc.fechaCreacion;
+    pedido.total = doc.total;
+    return pedido;
+  }
+
 
 }

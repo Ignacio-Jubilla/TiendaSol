@@ -1,0 +1,1061 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "TiendaSol",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Servidor Principal"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Pedidos",
+      "description": "Operaciones relacionadas con pedidos"
+    },
+    {
+      "name": "Productos",
+      "description": "Gestión de productos"
+    },
+    {
+      "name": "Notificaciones",
+      "description": "Manejo de notificaciones"
+    },
+    {
+      "name": "Categorías",
+      "description": "Operaciones para obtener las categorías de productos."
+    },
+    {
+      "name": "Autenticación",
+      "description": "Operaciones de registro, inicio de sesión y tokens"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Verifica el estado de salud del API",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/hello": {
+      "get": {
+        "summary": "Devuelve un saludo",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/pedidos": {
+      "get": {
+        "summary": "Obtener lista de pedidos",
+        "tags": [
+          "Pedidos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de pedidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo pedido",
+        "tags": [
+          "Pedidos"
+        ],
+        "responses": {
+          "201": {
+            "description": "Pedido creado"
+          }
+        }
+      }
+    },
+    "/api/pedidos/{id}/cancelado": {
+      "put": {
+        "summary": "Cancelar un pedido por ID",
+        "tags": [
+          "Pedidos"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pedido cancelado"
+          }
+        }
+      }
+    },
+    "/api/pedidos/usuario/{id}/historial": {
+      "get": {
+        "summary": "Obtener historial de pedidos de un usuario",
+        "tags": [
+          "Pedidos"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historial de pedidos"
+          }
+        }
+      }
+    },
+    "/api/pedidos/{id}/enviado": {
+      "get": {
+        "summary": "Obtener estado de envío de un pedido",
+        "tags": [
+          "Pedidos"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado de envío del pedido"
+          }
+        }
+      }
+    },
+    "/api/productos": {
+      "get": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Obtiene una lista paginada de productos con filtros",
+        "description": "Permite filtrar y paginar los productos. Utiliza los esquemas de Zod para la validación.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "vendedorId",
+            "schema": {
+              "type": "string",
+              "format": "objectid"
+            },
+            "description": "ID del vendedor para filtrar productos."
+          },
+          {
+            "in": "query",
+            "name": "valorBusqueda",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Término de búsqueda para filtrar por título, descripción, etc."
+          },
+          {
+            "in": "query",
+            "name": "precioMin",
+            "schema": {
+              "type": "number",
+              "minimum": 0
+            },
+            "description": "Precio mínimo."
+          },
+          {
+            "in": "query",
+            "name": "precioMax",
+            "schema": {
+              "type": "number",
+              "minimum": 0
+            },
+            "description": "Precio máximo."
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Número de página."
+          },
+          {
+            "in": "query",
+            "name": "perPage",
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "maximum": 30
+            },
+            "description": "Productos por página (Máx. 30)."
+          },
+          {
+            "in": "query",
+            "name": "ordenarPor",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PRECIO",
+                "VENTAS"
+              ]
+            },
+            "description": "Campo para ordenar."
+          },
+          {
+            "in": "query",
+            "name": "orden",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "default": "DESC"
+            },
+            "description": "Orden ascendente o descendente."
+          },
+          {
+            "in": "query",
+            "name": "activo",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            },
+            "description": "Filtrar por productos activos o inactivos."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginación de productos filtrados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductoPaginatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Crea un nuevo producto con imágenes",
+        "description": "Crea un nuevo producto. Requiere autenticación (Bearer Token) para extraer el usuario. Sube los detalles del producto como un string JSON en un campo 'producto' y los archivos de imagen en un campo 'imagenes'.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "producto": {
+                    "type": "string",
+                    "description": "Un string JSON que coincide con el schema 'ProductoInput'."
+                  },
+                  "imagenes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "Hasta 5 archivos de imagen (Max 10MB c/u)."
+                  }
+                }
+              },
+              "encoding": {
+                "producto": {
+                  "contentType": "application/json"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Producto creado exitosamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/productos/{id}": {
+      "get": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Obtiene un producto por su ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectid"
+            },
+            "description": "ID del producto a obtener."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID de producto no válido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Modifica un producto existente por ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectid"
+            },
+            "description": "ID del producto a modificar."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductoUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Producto modificado exitosamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/productos/categorias": {
+      "get": {
+        "tags": [
+          "Categorías"
+        ],
+        "summary": "Obtiene la lista de todas las categorías",
+        "description": "Devuelve un array de strings con los nombres de todas las categorías de productos disponibles.",
+        "responses": {
+          "200": {
+            "description": "Lista de categorías obtenida exitosamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "example": [
+                    "Indumentaria",
+                    "Hogar",
+                    "Tecnología"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Iniciar sesión",
+        "description": "Inicia la sesión de un usuario y devuelve un accessToken. Establece un refreshToken en una cookie httpOnly.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sesión iniciada.",
+            "headers": {
+              "Set-Cookie": {
+                "description": "Establece el refreshToken. (maxAge: 2 horas, httpOnly, secure, sameSite: lax)",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Registrar un nuevo usuario",
+        "description": "Registra un nuevo usuario y devuelve un accessToken. Establece un refreshToken en una cookie httpOnly.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuario registrado exitosamente.",
+            "headers": {
+              "Set-Cookie": {
+                "description": "Establece el refreshToken. (maxAge: 2 horas, httpOnly, secure, sameSite: lax)",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Refrescar el accessToken",
+        "description": "Utiliza el `refreshToken` (enviado como cookie httpOnly) para generar un nuevo par de tokens. El middleware `extractUserForRefresh` debe gestionar la autenticación (ej. leyendo la cookie o un Bearer token).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tokens refrescados.",
+            "headers": {
+              "Set-Cookie": {
+                "description": "Establece el nuevo refreshToken. (maxAge: 2 horas, httpOnly, secure, sameSite: lax)",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Cerrar sesión",
+        "description": "Limpia la cookie httpOnly `refreshToken` del cliente.",
+        "responses": {
+          "200": {
+            "description": "Sesión cerrada.",
+            "headers": {
+              "Set-Cookie": {
+                "description": "Limpia el refreshToken (max-age=0).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notificaciones": {
+      "get": {
+        "summary": "Obtener lista de notificaciones",
+        "tags": [
+          "Notificaciones"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de notificaciones"
+          }
+        }
+      }
+    },
+    "/api/notificaciones/{id}/leida": {
+      "put": {
+        "summary": "Marcar notificación como leída",
+        "tags": [
+          "Notificaciones"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notificación marcada como leída"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Error de validación"
+          }
+        }
+      },
+      "VendedorInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "objectid",
+            "example": "654e9a5b1a1bfa40f4be5d6a"
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Juan Vendedor"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "juan@vendedor.com"
+          }
+        }
+      },
+      "ProductoInput": {
+        "type": "object",
+        "description": "Esquema para el JSON enviado en el campo 'producto' al crear.",
+        "required": [
+          "vendedorId",
+          "titulo",
+          "descripcion",
+          "categorias",
+          "precio",
+          "moneda",
+          "stock"
+        ],
+        "properties": {
+          "vendedorId": {
+            "type": "string",
+            "format": "objectid",
+            "description": "ID del vendedor (usuario).",
+            "example": "654e9a5b1a1bfa40f4be5d6a"
+          },
+          "titulo": {
+            "type": "string",
+            "minLength": 3,
+            "example": "Remera de Algodón"
+          },
+          "descripcion": {
+            "type": "string",
+            "minLength": 10,
+            "example": "La mejor remera de algodón peinado."
+          },
+          "categorias": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 3
+            },
+            "minItems": 1,
+            "example": [
+              "Indumentaria",
+              "Remeras"
+            ]
+          },
+          "precio": {
+            "type": "number",
+            "format": "float",
+            "exclusiveMinimum": 0,
+            "example": 2500.5
+          },
+          "moneda": {
+            "type": "string",
+            "enum": [
+              "DOLAR_USA",
+              "PESO_ARG",
+              "REAL"
+            ],
+            "example": "PESO_ARG"
+          },
+          "stock": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 100
+          }
+        }
+      },
+      "ProductoUpdateInput": {
+        "type": "object",
+        "description": "Esquema para el body en la ruta PUT /productos/{id}.",
+        "required": [
+          "titulo",
+          "descripcion",
+          "categorias",
+          "precio",
+          "moneda",
+          "stock",
+          "ventas"
+        ],
+        "properties": {
+          "titulo": {
+            "type": "string",
+            "minLength": 3,
+            "example": "Remera de Algodón Premium"
+          },
+          "descripcion": {
+            "type": "string",
+            "minLength": 10,
+            "example": "La mejor remera de algodón peinado 24/1."
+          },
+          "categorias": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 3
+            },
+            "minItems": 1,
+            "example": [
+              "Indumentaria",
+              "Premium"
+            ]
+          },
+          "precio": {
+            "type": "number",
+            "format": "float",
+            "exclusiveMinimum": 0,
+            "example": 3500
+          },
+          "moneda": {
+            "type": "string",
+            "enum": [
+              "DOLAR_USA",
+              "PESO_ARG",
+              "REAL"
+            ],
+            "example": "PESO_ARG"
+          },
+          "stock": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 50
+          },
+          "ventas": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 10
+          }
+        }
+      },
+      "ProductoResponse": {
+        "type": "object",
+        "description": "Respuesta de un producto individual (con categorías populadas).",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "objectid",
+            "example": "654e9a6b1a1bfa40f4be5d6d"
+          },
+          "vendedor": {
+            "$ref": "#/components/schemas/VendedorInfo"
+          },
+          "titulo": {
+            "type": "string",
+            "example": "Remera de Algodón"
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "La mejor remera de algodón peinado."
+          },
+          "categorias": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Array de objetos Categoria populados."
+          },
+          "precio": {
+            "type": "number",
+            "format": "float",
+            "example": 2500.5
+          },
+          "moneda": {
+            "type": "string",
+            "enum": [
+              "DOLAR_USA",
+              "PESO_ARG",
+              "REAL"
+            ],
+            "example": "PESO_ARG"
+          },
+          "stock": {
+            "type": "integer",
+            "example": 100
+          },
+          "ventas": {
+            "type": "integer",
+            "example": 0
+          },
+          "fotos": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "example": [
+              "http://localhost:3001/uploads/uuid-imagen.jpg"
+            ]
+          },
+          "activo": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "ProductoSimpleResponse": {
+        "type": "object",
+        "description": "Respuesta de un producto en una lista (con categorías como strings).",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "objectid",
+            "example": "654e9a6b1a1bfa40f4be5d6d"
+          },
+          "vendedor": {
+            "$ref": "#/components/schemas/VendedorInfo"
+          },
+          "titulo": {
+            "type": "string",
+            "example": "Remera de Algodón"
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "La mejor remera de algodón peinado."
+          },
+          "categorias": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Indumentaria",
+              "Remeras"
+            ]
+          },
+          "precio": {
+            "type": "number",
+            "format": "float",
+            "example": 2500.5
+          },
+          "moneda": {
+            "type": "string",
+            "enum": [
+              "DOLAR_USA",
+              "PESO_ARG",
+              "REAL"
+            ],
+            "example": "PESO_ARG"
+          },
+          "stock": {
+            "type": "integer",
+            "example": 100
+          },
+          "ventas": {
+            "type": "integer",
+            "example": 0
+          },
+          "fotos": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "example": [
+              "http://localhost:3001/uploads/uuid-imagen.jpg"
+            ]
+          },
+          "activo": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "ProductoPaginatedResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductoSimpleResponse"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "example": 1
+              },
+              "total_pages": {
+                "type": "integer",
+                "example": 5
+              }
+            }
+          }
+        }
+      },
+      "LoginInput": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "juan@vendedor.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "123456"
+          }
+        }
+      },
+      "RegisterInput": {
+        "type": "object",
+        "required": [
+          "nombre",
+          "email",
+          "telefono",
+          "tipo",
+          "password"
+        ],
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "minLength": 3,
+            "example": "Juan Perez"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "juan@vendedor.com"
+          },
+          "telefono": {
+            "type": "string",
+            "minLength": 8,
+            "example": "1122334455"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "COMPRADOR",
+              "VENDEDOR"
+            ],
+            "example": "VENDEDOR"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 8,
+            "example": "supersecret123"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Sesion iniciada"
+          },
+          "accessToken": {
+            "type": "string",
+            "format": "jwt",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        }
+      },
+      "LogoutResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Sesion cerrada"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Error de validación o datos incorrectos.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Recurso no encontrado.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "No autorizado. Credenciales inválidas, token faltante o inválido."
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

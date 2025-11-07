@@ -1,0 +1,22 @@
+export class PedidoOutputDTO{
+  constructor(pedido) {
+    this.id = pedido._id || pedido.id,
+    this.compradorId = pedido.comprador?.toString() || null,
+    this.items = (pedido.items || []).map(item => ({
+      productoId: item.producto?.toString() || null,
+      cantidad: item.cantidad,
+      precioUnitario: item.precioUnitario
+    })),
+    this.total = pedido.total,
+    this.moneda = pedido.moneda,
+    this.direccionEntrega = { ...pedido.direccionEntrega },
+    this.estado = pedido.estado,
+    this.fechaCreacion = pedido.fechaCreacion,
+    this.historialEstados = (pedido.historialEstados || []).map(ce => ({
+      estado: ce.estado || null,
+      usuarioId: ce.usuarioId ? ce.usuarioId.toString() : null,
+      fecha: ce.fecha || null,
+      motivo: ce.motivo || null
+    }));
+  }
+}

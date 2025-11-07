@@ -1,11 +1,15 @@
 import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
-import pedidosRouter  from './routes/pedidosRoutes.js'
+import pedidosRouter from './routes/PedidosRoutes.js'
+import productosRouter from './routes/ProductosRouter.js'
+import usuariosRouter from './routes/UsuariosRoutes.js'
+import authRouter from './routes/authRoutes.js'
 import middleware from './utils/middleware.js'
 import config from './utils/config.js'
-
+import cookieParser from 'cookie-parser'
 import { DBConnector } from './utils/dbConnector.js'
+import notificacionesRouter from './routes/NotificacionRoutes.js'
 
 const app = express()
 
@@ -13,6 +17,7 @@ const connector = new DBConnector()
 connector.connect()
 
 app.use(express.json())
+app.use(cookieParser())
 app.use(
   cors({
     origin: process.env.ALLOWED_ORIGINS
@@ -20,9 +25,11 @@ app.use(
       : true,
   }),
 )
+
 //loggear requests
 app.use(middleware.requestLogger)
-app.use('/api/pedidos', pedidosRouter)
+
+
 app.get('/api/health', (req,res) => {
     res.status(200).json({
         status: 'ok',
@@ -35,6 +42,16 @@ app.get('/hello', (req, res) => {
     'hello world' })
 })
 
+
+app.use('/api/pedidos', pedidosRouter)
+
+app.use('/api/productos', productosRouter)
+
+app.use('/api/notificaciones', notificacionesRouter)
+app.use('/api/usuarios', usuariosRouter)
+app.use('/api/auth', authRouter)
+//expone imagenes de productos
+app.use('/uploads', express.static('uploads'))
 app.use(middleware.errorHandler)
 app.use(middleware.unknownEndpoint)
 
