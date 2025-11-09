@@ -12,7 +12,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
       // Esta función se ejecuta solo una vez, al cargar el componente
         const storedUser = localStorage.getItem('user');
-        return storedUser ? JSON.parse(storedUser) : null;
+        const ahora = new Date().getTime();
+        return storedUser && storedUser.expiry < ahora ? JSON.parse(storedUser) : null;
     });
   
     useEffect(() => {
@@ -24,7 +25,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const user = jwtDecode(accessToken);
       localStorage.setItem('accessToken', accessToken);
-      setUser(user)
+      const ahora = new Date();
+      //expira en 2 horas como el refresh
+      const expiry =  ahora.getTime() + (120 * 60 * 1000)
+      localStorage.setItem('user', JSON.stringify(user));
+      setUser({...user, expiry})
     } catch (error) {
       setUser(null)
     }
