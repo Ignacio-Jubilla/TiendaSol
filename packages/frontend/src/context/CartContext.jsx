@@ -26,8 +26,9 @@ export const CartProvider = ({ children }) => {
   if(!cantidad || cantidad === 0) return;
 
   const itemInCart = cartItems.find(
-   (item) => item.productoId == producto._id
+   (item) => item.productoId === producto._id
   );
+
 
   if (itemInCart) {
    if (Number(producto.stock) < Number(itemInCart.cantidad) + Number(cantidad)) return 0;

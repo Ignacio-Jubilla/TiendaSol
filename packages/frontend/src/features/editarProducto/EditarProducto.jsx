@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, CloseButton, Container, Form, Image, InputGroup, ListGroup } from "react-bootstrap";
+import { Button, Card, CloseButton, Container, Form, Image, InputGroup, ListGroup } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router"; // Importa useParams
 import LoadingSpinner from "../../components/spinner/LoadingSpinner";
 import { MdDeleteForever } from "react-icons/md";
@@ -8,7 +8,6 @@ import ErrorMessage from "../../components/errorMessage/ErrorMessage";
 import { useAuth } from "../../context/authContext";
 import authServices from "../../services/auth";
 import { FaCheckCircle } from "react-icons/fa";
-import ToastMessage from "../../components/toastMessage/ToastMessage";
 import ModalAlert from "../../components/modalAlert/ModalAlert";
 
 // --- Constantes (igual que en CrearProducto) ---
@@ -21,7 +20,7 @@ const EditarProducto = () => {
   const navigate = useNavigate();
   const { productoId } = useParams();
   const { loginContext, logoutContext, user } = useAuth();
-
+  const [submitted, setSubmitted] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -30,6 +29,8 @@ const EditarProducto = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showNotification, setShowNotification] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Cargando datos...")
+  const [segundosRedireccion, setSegundosRedireccion] = useState(5);
+
   // --- Estados separados para imágenes ---
   // 'nuevasImagenes' son archivos File
   const [nuevasImagenes, setNuevasImagenes] = useState([]);
@@ -75,47 +76,61 @@ const EditarProducto = () => {
 
   const handleCloseNotification = () => setShowNotification(false);
 
+  useEffect(() => {
+    if (!submitted) {
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      setSegundosRedireccion(prevSegundos => {
+        if (prevSegundos <= 1) {
+          clearInterval(intervalId);
+          navigate("/mis-productos");
+          return 0;
+        }
+
+        return prevSegundos - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+
+  }, [submitted, navigate]);
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setShowModal(false)
     const totalImagenes = (producto.fotos?.length || 0) + nuevasImagenes.length;
-    
+
     if (totalImagenes === 0) {
-      setErrorMessage("Debes subir al menos una imagen."); 
+      setErrorMessage("Debes subir al menos una imagen.");
       return;
     }
     if (!producto.categorias || producto.categorias.length === 0) {
       setErrorMessage("Debes elegir al menos una categoria."); return;
     }
-        setLoadingMessage("Guardando cambios...")
-
+    setLoadingMessage("Guardando cambios...")
+    const productToSubmit = {...producto, activo: producto.activo.toString()}
     setLoading(true)
     try {
-      await productosService.updateProducto(productoId, producto, nuevasImagenes);
+      await productosService.updateProducto(productoId, productToSubmit, nuevasImagenes);
       setShowNotification(true);
-      setLoadingMessage("Cambios guardados, redirigiendo a productos")
-      setTimeout(() => {
-        navigate("/mis-productos");
-      }, 5000); 
-
+      setSubmitted(true)
+      setLoading(false)
+    
     } catch (err) {
       if (err.response) {
         if (err.response.status === 401) {
-          console.log('reintento con refresh')
           try {
             const refreshData = await authServices.refresh();
             loginContext(refreshData.accessToken);
-            console.log('refrescado')
-            const productoResp = await productosService.updateProducto(productoId, producto, nuevasImagenes);
-            console.log(productoResp)
-            console.log('Producto actualizado')
+            const productoResp = await productosService.updateProducto(productoId, productToSubmit, nuevasImagenes);
+            setSubmitted(true)
+            setLoading(false)
             setShowNotification(true);
             setLoadingMessage("Cambios guardados, redirigiendo a productos")
-            setTimeout(() => {
-              navigate("/mis-productos");
-            }, 5000);
+
           } catch (refreshErr) {
-            console.log("error con refresh")
             logoutContext();
             await authServices.logout();
             navigate('/login');
@@ -140,7 +155,7 @@ const EditarProducto = () => {
       setErrorMessage(`No puedes subir más de ${MAX_IMAGES} imágenes.`);
       files.splice(MAX_IMAGES - totalActual);
     }
-    
+
     // (Validaciones de tamaño y tipo - idénticas)
     const validFiles = [];
     const largeFiles = [];
@@ -215,132 +230,136 @@ const EditarProducto = () => {
   // --- Renderizado ---
   return (
     <>
-    <ModalAlert handleClose={()=>setShowModal(false)} handleModalSubmit={handleFormSubmit} message="¿Esta seguro de que quiere editar el producto?" show={showModal}/>
-      <ToastMessage 
-        showNotification={showNotification} 
-        handleCloseNotification={handleCloseNotification} 
-        header={<>Producto actualizado <FaCheckCircle size={20} style={{ color: "green"}}/></>}
-        message="Tu producto ha sido modificado"
-      />
+      <ModalAlert handleClose={() => setShowModal(false)} handleModalSubmit={handleFormSubmit} message="¿Esta seguro de que quiere editar el producto?" show={showModal} />
       <Container className="my-4 p-2">
         <ErrorMessage msg={errorMessage} />
         <h1>Editar producto</h1>
-        {loading || !producto ? ( 
+        {loading || !producto ? (
           <LoadingSpinner message={loadingMessage} />
-        ) : (
-          <Form onSubmit={(e) => {e.preventDefault();setShowModal(true)}}>
-            {/* Campos de texto (se auto-llenan con 'value={producto.titulo}', etc.) */}
-            <Form.Group className="mb-3" controlId="tituloProducto">
-              <Form.Label>Nombre</Form.Label>
-              <Form.Control type="text" minLength={3} placeholder="Ingrese titulo" name="titulo" value={producto.titulo} onChange={handleInputChange} required />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="descripcionProducto">
-              <Form.Label>Descripcion</Form.Label>
-              <Form.Control as="textarea" minLength={10} placeholder="Descripcion" name="descripcion" value={producto.descripcion} onChange={handleInputChange} required />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="estadoProducto">
-              <Form.Label>Estado</Form.Label>
-              <Form.Select name="activo" value={producto.activo} onChange={handleInputChange} required>
-                <option value="true">Activo</option>
-                <option value="false">En pausa</option>
-              </Form.Select>
+        ) :
+          submitted ?
+            (
+              <Card>
+                <Card.Body className="d-flex flex-column align-items-center justify-items-center">
+                  <FaCheckCircle color="green" size={100}></FaCheckCircle>
+                  <h1>Producto editado</h1>
+                  <p className="text-muted">Redirigiendo a pagina de productos en {segundosRedireccion}...</p>
+                </Card.Body>
+              </Card>
+            ) :
+
+            <Form onSubmit={(e) => { e.preventDefault(); setShowModal(true) }}>
+              {/* Campos de texto (se auto-llenan con 'value={producto.titulo}', etc.) */}
+              <Form.Group className="mb-3" controlId="tituloProducto">
+                <Form.Label>Nombre</Form.Label>
+                <Form.Control type="text" minLength={3} placeholder="Ingrese titulo" name="titulo" value={producto.titulo} onChange={handleInputChange} required />
               </Form.Group>
-            <Form.Group className="mb-3" controlId="precioProducto">
-              <Form.Label>Precio</Form.Label>
-              <Form.Control type="number" placeholder="Precio de producto" name="precio" value={producto.precio} onChange={handleInputChange} required />
-            </Form.Group>
-            <Form.Group controlId="tipoMoneda" className="mb-3">
-              <Form.Label>Tipo de moneda</Form.Label>
-              <Form.Select name="moneda" value={producto.moneda} onChange={handleInputChange} required>
-                <option value="DOLAR_USA">Dolar estadounidense</option>
-                <option value="PESO_ARG">Peso arg.</option>
-                <option value="REAL">Real</option>
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="stockProducto">
-              <Form.Label>Stock</Form.Label>
-              <Form.Control type="number" placeholder="stock de producto" name="stock" value={producto.stock} onChange={handleInputChange} required />
-            </Form.Group>
-            
-            {/* Categorías (idéntico, se auto-llena) */}
-            <Form.Group className="mb-3" controlId="categoriasProducto">
-              <Form.Label>Categorías</Form.Label>
-              <ListGroup className="mb-2">
-                {producto.categorias && producto.categorias.length > 0 ? (
-                  producto.categorias.map(c => (
-                    <ListGroup.Item key={c} className="d-flex justify-content-between">
-                      {c}
-                      <Button variant="danger" size="sm" onClick={() => handleDeleteCategory(c)} aria-label={`Quitar categoría ${c}`}>
-                        <MdDeleteForever aria-hidden="true" />
-                      </Button>
-                    </ListGroup.Item>
-                  ))
-                ) : ( <ListGroup.Item>Sin categorias.</ListGroup.Item> )}
-              </ListGroup>
-              <InputGroup>
-                <Form.Select value={selectedCategory} onChange={changeSelectedCategory} aria-label="Agregar categoria a producto">
-                  <option value="">Seleccionar</option>
-                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
+              <Form.Group className="mb-3" controlId="descripcionProducto">
+                <Form.Label>Descripcion</Form.Label>
+                <Form.Control as="textarea" minLength={10} placeholder="Descripcion" name="descripcion" value={producto.descripcion} onChange={handleInputChange} required />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="estadoProducto">
+                <Form.Label>Estado</Form.Label>
+                <Form.Select name="activo" value={producto.activo} onChange={handleInputChange} required>
+                  <option value="true">Activo</option>
+                  <option value="false">En pausa</option>
                 </Form.Select>
-                <Button variant="success" onClick={handleAddCategory} type="button">
-                  Agregar
-                </Button>
-              </InputGroup>
-            </Form.Group>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="precioProducto">
+                <Form.Label>Precio</Form.Label>
+                <Form.Control type="number" placeholder="Precio de producto" name="precio" value={producto.precio} onChange={handleInputChange} required />
+              </Form.Group>
+              <Form.Group controlId="tipoMoneda" className="mb-3">
+                <Form.Label>Tipo de moneda</Form.Label>
+                <Form.Select name="moneda" value={producto.moneda} onChange={handleInputChange} required>
+                  <option value="DOLAR_USA">Dolar estadounidense</option>
+                  <option value="PESO_ARG">Peso arg.</option>
+                  <option value="REAL">Real</option>
+                </Form.Select>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="stockProducto">
+                <Form.Label>Stock</Form.Label>
+                <Form.Control type="number" placeholder="stock de producto" name="stock" value={producto.stock} onChange={handleInputChange} min={0} required />
+              </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Imágenes (Máx. {MAX_IMAGES}, Límite {MAX_SIZE_MB}MB c/u)</Form.Label>
-              <div className="p-2 border rounded" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', minHeight: '100px' }}>
-                
-                {/* 1. Renderiza las imágenes EXISTENTES (de producto.fotos) */}
-                {producto.fotos && producto.fotos.map((url, index) => (
-                  <div key={`existing-${index}`} style={{ position: 'relative' }}>
-                    <Image src={url} alt="Imagen existente" thumbnail style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
-                    <CloseButton
-                      style={{ position: 'absolute', top: '2px', right: '2px'}}
-                      onClick={() => handleDeleteExistingImage(url)}
-                      aria-label="Eliminar imagen existente"
-                    />
-                  </div>
-                ))}
+              {/* Categorías (idéntico, se auto-llena) */}
+              <Form.Group className="mb-3" controlId="categoriasProducto">
+                <Form.Label>Categorías</Form.Label>
+                <ListGroup className="mb-2">
+                  {producto.categorias && producto.categorias.length > 0 ? (
+                    producto.categorias.map(c => (
+                      <ListGroup.Item key={c} className="d-flex justify-content-between">
+                        {c}
+                        <Button variant="danger" size="sm" onClick={() => handleDeleteCategory(c)} aria-label={`Quitar categoría ${c}`}>
+                          <MdDeleteForever aria-hidden="true" />
+                        </Button>
+                      </ListGroup.Item>
+                    ))
+                  ) : (<ListGroup.Item>Sin categorias.</ListGroup.Item>)}
+                </ListGroup>
+                <InputGroup>
+                  <Form.Select value={selectedCategory} onChange={changeSelectedCategory} aria-label="Agregar categoria a producto">
+                    <option value="">Seleccionar</option>
+                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                  </Form.Select>
+                  <Button variant="success" onClick={handleAddCategory} type="button">
+                    Agregar
+                  </Button>
+                </InputGroup>
+              </Form.Group>
 
-                {/* 2. Renderiza las imágenes NUEVAS (de nuevasPreviews) */}
-                {nuevasPreviews.map((previewUrl, index) => (
-                  <div key={`new-${index}`} style={{ position: 'relative' }}>
-                    <Image src={previewUrl} alt="Nueva imagen" thumbnail style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
-                    <CloseButton
-                      style={{ position: 'absolute', top: '2px', right: '2px'}}
-                      onClick={() => handleDeleteNewPreview(index)}
-                      aria-label="Eliminar nueva imagen"
-                    />
-                  </div>
-                ))}
+              <Form.Group className="mb-3">
+                <Form.Label>Imágenes (Máx. {MAX_IMAGES}, Límite {MAX_SIZE_MB}MB c/u)</Form.Label>
+                <div className="p-2 border rounded" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', minHeight: '100px' }}>
 
-                {(producto.fotos?.length || 0) + nuevasImagenes.length < MAX_IMAGES && (
-                  <Form.Label
-                    htmlFor="file-upload-button"
-                    className="border rounded d-flex align-items-center justify-content-center"
-                    style={{ width: '100px', height: '100px', cursor: 'pointer'}}
-                  >
-                    +
-                  </Form.Label>
-                )}
-              </div>
-              <Form.Control
-                id="file-upload-button"
-                type="file"
-                multiple
-                accept="image/png, image/jpeg, image/webp"
-                onChange={handleFilesAdd}
-                style={{ display: 'none' }}
-              />
-            </Form.Group>
-            
-            <Button variant="success" type="submit" disabled={loading}>
-              {loading ? "Guardando..." : "Guardar Cambios"}
-            </Button>
-          </Form>
-        )}
+                  {/* 1. Renderiza las imágenes EXISTENTES (de producto.fotos) */}
+                  {producto.fotos && producto.fotos.map((url, index) => (
+                    <div key={`existing-${index}`} style={{ position: 'relative' }}>
+                      <Image src={url} alt="Imagen existente" thumbnail style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
+                      <CloseButton
+                        style={{ position: 'absolute', top: '2px', right: '2px' }}
+                        onClick={() => handleDeleteExistingImage(url)}
+                        aria-label="Eliminar imagen existente"
+                      />
+                    </div>
+                  ))}
+
+                  {/* 2. Renderiza las imágenes NUEVAS (de nuevasPreviews) */}
+                  {nuevasPreviews.map((previewUrl, index) => (
+                    <div key={`new-${index}`} style={{ position: 'relative' }}>
+                      <Image src={previewUrl} alt="Nueva imagen" thumbnail style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
+                      <CloseButton
+                        style={{ position: 'absolute', top: '2px', right: '2px' }}
+                        onClick={() => handleDeleteNewPreview(index)}
+                        aria-label="Eliminar nueva imagen"
+                      />
+                    </div>
+                  ))}
+
+                  {(producto.fotos?.length || 0) + nuevasImagenes.length < MAX_IMAGES && (
+                    <Form.Label
+                      htmlFor="file-upload-button"
+                      className="border rounded d-flex align-items-center justify-content-center"
+                      style={{ width: '100px', height: '100px', cursor: 'pointer' }}
+                    >
+                      +
+                    </Form.Label>
+                  )}
+                </div>
+                <Form.Control
+                  id="file-upload-button"
+                  type="file"
+                  multiple
+                  accept="image/png, image/jpeg, image/webp"
+                  onChange={handleFilesAdd}
+                  style={{ display: 'none' }}
+                />
+              </Form.Group>
+
+              <Button variant="success" type="submit" disabled={loading}>
+                {loading ? "Guardando..." : "Guardar Cambios"}
+              </Button>
+            </Form>}
       </Container>
     </>
   );

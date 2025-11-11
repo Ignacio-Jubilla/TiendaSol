@@ -13,33 +13,37 @@ import { FaEnvelope, FaInbox, FaPhone } from 'react-icons/fa';
 import { use } from 'react';
 import ToastProductoAgreagado from '../../components/toast/ToastProductoAgregado';
 const DetalleProducto = () => {
-  const { vendedorId, productoId } = useParams();
+  const { productoId } = useParams();
   const [loading, setLoading] = useState(true)
   const [producto, setProducto] = useState(null)
   const {addItemToCart, cartItems} = useCart()
   const [errorMessage, setErrorMessage] = useState("")
   const [showNotification, setShowNotification] = useState(false)
-  const [cantidadToShow, setCantidadToShow] = useState(0)
+  const [productoToast, setProductoToast] = useState(null); 
+  const [cantidadToast, setCantidadToast] = useState(0);
+
   const handleCloseToast = () => setShowNotification(false);
 
-const showToast = () => {
-    setShowNotification(true)
+const showToast = (productoAgregado, cantidadAgregada) => {
+    setProductoToast(productoAgregado);
+    setCantidadToast(cantidadAgregada);
+    setShowNotification(true);
     setTimeout(() => {
-      setShowNotification(false)
-    }, 10000)
+      setShowNotification(false);
+    }, 10000);
   }
 
+
   const handleAddItem = (producto, cantidad) => {
-    const item = cartItems.find(item => item.productoId === producto._id)
+    const item = cartItems.find(item => item.productoId === productoId)
     if(item && ( Number(item.cantidad)+ Number(cantidad)) > Number(producto.stock) )  {
       showErrorMessage("No hay suficiente stock para agregar al carrito")
       return;
     }
 
     if (!item && Number(cantidad) > Number(producto.stock)) return;
-    addItemToCart(producto, cantidad);
-    setCantidadToShow(cantidad)
-    showToast()
+    addItemToCart({_id: productoId, ...producto}, cantidad);
+    showToast(producto, cantidad);
   };
 
 
@@ -68,7 +72,12 @@ const showToast = () => {
 
   return (
     <Container className='mt-4'>
-      <ToastProductoAgreagado handleCloseNotification={handleCloseToast} producto={producto} show={showNotification} cantidad={cantidadToShow}/>
+      <ToastProductoAgreagado 
+        handleCloseNotification={handleCloseToast} 
+        producto={productoToast}
+        show={showNotification} 
+        cantidad={cantidadToast}
+      />
       <ErrorMessage msg={errorMessage} />
       <Button onClick={() => navigate(-1)} variant="primary" className="mb-4" aria-label='Boton para volver atras'>
       <IoArrowBackSharp aria-hidden='true'/>Volver atras
@@ -100,7 +109,7 @@ const showToast = () => {
               onChange={(e) => setCantidad(e.target.value)}
               placeholder="Cantidad"
               name="cantidad" />
-            <button className="btn btn-primary">Agregar al carrito</button>
+            <button className="btn btn-primary"> Agregar al carrito</button>
           </Form>
           </Col>
           <Col lg={8} md={6}>

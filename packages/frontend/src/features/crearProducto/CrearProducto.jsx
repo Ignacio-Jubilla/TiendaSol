@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, CloseButton, Container, Form, Image, InputGroup, ListGroup, Toast, ToastContainer } from "react-bootstrap";
+import { Button, Card, CloseButton, Container, Form, Image, InputGroup, ListGroup, Toast, ToastContainer } from "react-bootstrap";
 import LoadingSpinner from "../../components/spinner/LoadingSpinner";
 import { MdDeleteForever } from "react-icons/md";
 import productosService from "../../services/productos";
@@ -30,6 +30,18 @@ const CrearProducto = () => {
   const [imagenes, setImagenes] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [showNotification, setShowNotification] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [segundosRedireccion, setSegundosRedireccion] = useState(5)
+  const [loadingMessage, setLoadingMessage] = useState("Cargando datos...")
+
+
+  const showErrorMessage = (msg) => {
+    setErrorMessage(msg)
+    setTimeout(() => {
+      setErrorMessage("")
+    }, 5000)
+  }
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -44,14 +56,16 @@ const CrearProducto = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (imagenes.length === 0) {
-      setErrorMessage("Debes subir al menos una imagen.");
+      showErrorMessage("Debes subir al menos una imagen.");
       return;
     }
 
     if (!producto.categorias || producto.categorias.length === 0) {
-      setErrorMessage("Debes elegir al menos una categoria.");
+      showErrorMessage("Debes elegir al menos una categoria.");
       return;
     }
+    setLoadingMessage("Creando producto...")
+    setLoading(true)
     try {
       await productosService.postProducto({ vendedorId: user.id, ...producto }, imagenes)
       setShowNotification(true)
@@ -59,10 +73,10 @@ const CrearProducto = () => {
       setImagenes([])
       setPreviews([])
       setSelectedCategory(null)
-      setTimeout(() => {
-        navigate("/mis-productos")
-      }, 4000)
+      setSubmitted(true)
+      setLoading(false)
     } catch (err) {
+      console.log(err)
       if (err.response) {
         if (err.response.status === 401) {
           //retry with refresh method
@@ -75,9 +89,8 @@ const CrearProducto = () => {
             setImagenes([])
             setPreviews([])
             setSelectedCategory(null)
-            setTimeout(() => {
-              navigate("/mis-productos")
-            }, 4000)
+            setSubmitted(true)
+            setLoading(false)
           }
           catch (err) {
             logoutContext()
@@ -86,7 +99,8 @@ const CrearProducto = () => {
           }
         }
       } else {
-        setErrorMessage("Error creando producto, intente luego")
+        showErrorMessage("Error creando producto, intente luego")
+        setLoading(false)
       }
     }
   }
@@ -99,7 +113,7 @@ const CrearProducto = () => {
 
     // 1. Validar cantidad total (usando la constante MAX_IMAGES)
     if (imagenes.length + files.length > MAX_IMAGES) {
-      setErrorMessage(`No puedes subir más de ${MAX_IMAGES} imágenes en total.`);
+      showErrorMessage(`No puedes subir más de ${MAX_IMAGES} imágenes en total.`);
       // Cortamos el array de 'files' para que solo se agreguen las que caben
       files.splice(MAX_IMAGES - imagenes.length);
     }
@@ -129,7 +143,7 @@ const CrearProducto = () => {
     }
 
     if (errorMessages.length > 0) {
-      setErrorMessage(errorMessages.join(' ')); // Une todos los mensajes de error
+      showErrorMessage(errorMessages.join(' ')); // Une todos los mensajes de error
     }
 
     // 4. Agregar los archivos válidos al estado
@@ -149,7 +163,7 @@ const CrearProducto = () => {
 
       // Previene duplicados
       if (producto.categorias && producto.categorias.find(c => c === selectedCategory.label)) {
-        setErrorMessage("La categoría ya está agregada.");
+        showErrorMessage("La categoría ya está agregada.");
         return;
       }
 
@@ -205,6 +219,27 @@ const CrearProducto = () => {
     fetchCategories()
   }, [])
 
+  useEffect(() => {
+      if (!submitted) {
+        return;
+      }
+  
+      const intervalId = setInterval(() => {
+        setSegundosRedireccion(prevSegundos => {
+          if (prevSegundos <= 1) {
+            clearInterval(intervalId);
+            navigate("/mis-productos");
+            return 0;
+          }
+  
+          return prevSegundos - 1;
+        });
+      }, 1000);
+  
+      return () => clearInterval(intervalId);
+  
+    }, [submitted, navigate]);
+
   const handleFileChange = (e) => {
     // 1. Limpiamos previews anteriores para evitar memory leaks
     previews.forEach(url => URL.revokeObjectURL(url));
@@ -237,14 +272,21 @@ const CrearProducto = () => {
 
   return (
     <>
-      <ToastMessage showNotification={showNotification} handleCloseNotification={handleCloseNotification} header={<>Producto creado <FaCheckCircle size={20} style={{ color: "green" }} /></>}
-        message="Tu producto ha sido creado exitosamente, redirigiendo a pagina anterior" />
       <Container className="my-4 p-2">
         <ErrorMessage msg={errorMessage} />
         <h1>Crear producto</h1>
         {loading ? (
-          <LoadingSpinner message="Cargando categorias" />
+          <LoadingSpinner message={loadingMessage} />
         ) : categories ?
+        submitted ? 
+          <Card>
+                <Card.Body className="d-flex flex-column align-items-center justify-items-center">
+                  <FaCheckCircle color="green" size={100}></FaCheckCircle>
+                  <h1>Producto creado</h1>
+                  <p className="text-muted">Redirigiendo a pagina de productos en {segundosRedireccion}...</p>
+                </Card.Body>
+              </Card>
+        : 
           <Form role="" onSubmit={handleFormSubmit}>
             <Form.Group className="mb-3" controlId="tituloProducto">
               <Form.Label>Nombre</Form.Label>
@@ -278,7 +320,7 @@ const CrearProducto = () => {
 
             <Form.Group className="mb-3" controlId="stockProducto">
               <Form.Label>Stock</Form.Label>
-              <Form.Control type="number" placeholder="stock de producto" name="stock" value={producto.stock} onChange={handleInputChange} required />
+              <Form.Control type="number" placeholder="stock de producto" name="stock" value={producto.stock} min={1} onChange={handleInputChange} required />
             </Form.Group>
 
             {/* --- 5. SECCIÓN DE CATEGORÍAS (MODIFICADA) --- */}

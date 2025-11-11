@@ -124,7 +124,7 @@ const buscarProductoSchema = z.object({
   precioMin: z.coerce.number().nonnegative().optional(),
   precioMax: z.coerce.number().nonnegative().optional(),
   page: z.coerce.number().nonnegative().optional().default(1),
-  perPage: z.coerce.number().nonnegative().optional().default(30)
+  perPage: z.coerce.number().nonnegative().optional().default(10)
     .transform((val) => (val > 30 ? 30 : val)),
   ordenarPor: z.enum(["PRECIO", "VENTAS"]).optional(),
   orden: z.enum(["ASC", "DESC"]).optional().default("DESC"),

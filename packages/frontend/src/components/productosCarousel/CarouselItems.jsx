@@ -32,7 +32,7 @@ const CarouselItems = ({items, CardItem, handleAddItem}) => {
               transform: `translateX(-${index * (100 / visible)}%)`,
             }}>
             {items.map((item) => (
-              <CardItem item={item} key={item.id} handleAddItem={handleAddItem}/> 
+              <CardItem item={item} key={item.id} handleAddItem={()=>handleAddItem(item)}/> 
             ))}
           </div>
         </div>

@@ -1,7 +1,8 @@
 import React, { useState } from "react"
-import { Button, Container, Form, Row } from "react-bootstrap"
+import { Button, Container, Form, InputGroup, Row } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../../context/authContext"
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Importa los íconos
 import ErrorMessage from "../../components/errorMessage/ErrorMessage"
 import authServices from "../../services/auth"
 import auth from "../../services/auth"
@@ -10,12 +11,25 @@ const Login = () => {
   const {loginContext} = useAuth()
   const [errorMessage, setErrorMessage] = useState("")
   const [disabledButton, setDisabledButton] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
   const [loginCredentials, setLoginCredentials] = useState({
     email: "",
     password: ""
   })
 
+  const toggleShowPassword = () => {
+    setShowPassword(prev => !prev);
+  }
+  
+const showErrorMessage = (msg) => {
+  setErrorMessage(msg)
+  setTimeout(() => {
+    setErrorMessage("")
+  }, 5000)
+}
+
   const handleChange = (e) => {
+
     setLoginCredentials({
       ...loginCredentials,
       [e.target.name]: e.target.value
@@ -25,7 +39,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault()
     if (!loginCredentials.email || !loginCredentials.password) {
-      setErrorMessage("Email o contraseña no pueden ser vacios")
+      showErrorMessage("Email o contraseña no pueden ser vacios")
       return ;
     }
     try {
@@ -35,9 +49,9 @@ const Login = () => {
       navigate("/")
     } catch (error) {
       if(error.response.status === 401) {
-      setErrorMessage("Credenciales incorrectas")
+      showErrorMessage("Credenciales incorrectas")
       } else {
-        setErrorMessage("No se pudo iniciar sesion, intente nuevamente")
+        showErrorMessage("No se pudo iniciar sesion, intente nuevamente")
       }
     }finally{
       setDisabledButton(false)
@@ -55,10 +69,28 @@ const Login = () => {
           <Form.Label>Correo electronico</Form.Label>
           <Form.Control type="text" placeholder="user@gmail.com" name="email" onChange={handleChange}/>
         </Form.Group>
-        <Form.Group className="mb-3 col-12 col-lg-6 col-md-6" controlId="password">
-          <Form.Label>Contraseña</Form.Label>
-          <Form.Control type="password" placeholder="Contraseña" name="password" onChange={handleChange}/>
-        </Form.Group>
+        {/* --- 5. CAMBIOS EN EL CAMPO DE CONTRASEÑA --- */}
+    <Form.Group className="mb-3 col-12 col-lg-6 col-md-6" controlId="password">
+     <Form.Label>Contraseña</Form.Label>
+          <InputGroup>
+       <Form.Control 
+              // El tipo cambia dinámicamente
+              type={showPassword ? "text" : "password"} 
+              placeholder="Contraseña" 
+              name="password" 
+              onChange={handleChange}
+            />
+
+            <Button 
+              variant="outline-secondary" 
+              onClick={toggleShowPassword}
+              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </Button>
+          </InputGroup>
+    </Form.Group>
+
         </Row>
         <Button disabled={disabledButton} variant="primary" type="submit" onClick={handleLogin}>
           Iniciar Sesion

@@ -6,6 +6,7 @@ import { useCart } from '../../context/CartContext';
 import { ConversorMonedas } from '../../services/conversorMonedas';
 import { obtenerTipoCambio } from '../../services/exchangeApiExternal';
 import tiposCambioManual from '../../services/tiposCambioManual';
+import './carrito.css'
 
 const Carrito =  () => {
   const navegar = useNavigate();
@@ -53,7 +54,7 @@ const Carrito =  () => {
               <tbody>
                 {cartItems.map(item => (
                   <tr key={item.productoId}>
-                    <td>{item.nombre}</td>
+                    <td><a href={`/productos/${item.productoId}`} className='link-carrito-producto'>{item.nombre}</a></td>
                     <td>{item.cantidad}</td>
                     <td>${item.precioUnitario}</td>
                     <td>{item.moneda == "DOLAR_USA" ? 'U$D' : item.moneda == "PESO_ARG" ? 'AR$' : "BRL"}</td>

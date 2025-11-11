@@ -6,11 +6,10 @@ import { useAuth } from "../../context/authContext";
 import ToastMessage from "../../components/toastMessage/ToastMessage";
 import { FaCheckCircle } from "react-icons/fa";
 
-const MAPBOX_ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
-
 const FinalizarCompra = () => {
   const { groupItemsByVendedor, cleanCart } = useCart();
   const { user } = useAuth();
+  const MAPBOX_ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN ;
   const [direccionEntrega, setDireccionEntrega] = useState({
     calle: "",
     altura: "",
@@ -121,6 +120,8 @@ const FinalizarCompra = () => {
 
   const handleSubmitPedido = (e) => {
     e.preventDefault();
+    //try catch con pedidosService.js
+    //mostrar spinner mientras carga subida de pedido
     cleanCart();
     setDisableSubmit(true)
     setShowNotification(true);
