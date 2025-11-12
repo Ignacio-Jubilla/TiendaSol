@@ -6,6 +6,7 @@ import { useCart } from '../../context/CartContext';
 import { ConversorMonedas } from '../../services/conversorMonedas';
 import { obtenerTipoCambio } from '../../services/exchangeApiExternal';
 import tiposCambioManual from '../../services/tiposCambioManual';
+import './carrito.css'
 
 const Carrito =  () => {
   const navegar = useNavigate();
@@ -17,6 +18,11 @@ const Carrito =  () => {
     removeItem(productoId);
   };
   const conversorMoneda = new ConversorMonedas(obtenerTipoCambio() || tiposCambioManual)
+  const obtenerSumaPrecioEn = (moneda, items) => {
+    const precios = items.map(item => 
+      conversorMoneda.convertir(item.moneda, moneda, item.precioUnitario) * item.cantidad)
+    return Number.parseFloat(precios.reduce((acc, precio) => acc + precio, 0)).toFixed(2)
+  }
 
   return (
     <Container className="mt-5 d-flex flex-column align-items-center">
@@ -48,7 +54,7 @@ const Carrito =  () => {
               <tbody>
                 {cartItems.map(item => (
                   <tr key={item.productoId}>
-                    <td>{item.nombre}</td>
+                    <td><a href={`/productos/${item.productoId}`} className='link-carrito-producto'>{item.nombre}</a></td>
                     <td>{item.cantidad}</td>
                     <td>${item.precioUnitario}</td>
                     <td>{item.moneda == "DOLAR_USA" ? 'U$D' : item.moneda == "PESO_ARG" ? 'AR$' : "BRL"}</td>
@@ -62,14 +68,14 @@ const Carrito =  () => {
             <h5>Total: </h5>
 
             <h5>U$D {
-              Number.parseFloat(cartItems.map(item => conversorMoneda.convertir(item.moneda, "DOLAR_USA", item.precioUnitario) * item.cantidad)).toFixed(2)
+              obtenerSumaPrecioEn("DOLAR_USA", cartItems)
               }</h5>
 
               <h5>ARS {
-              Number.parseFloat(cartItems.map(item => conversorMoneda.convertir(item.moneda, "PESO_ARG", item.precioUnitario) * item.cantidad)).toFixed(2)
+              obtenerSumaPrecioEn("PESO_ARG", cartItems)
               }</h5>    
               <h5>BRL {
-              Number.parseFloat(cartItems.map(item => conversorMoneda.convertir(item.moneda, "REAL", item.precioUnitario) * item.cantidad)).toFixed(2)
+              obtenerSumaPrecioEn("REAL", cartItems)
               }</h5>
 
             <div className="d-flex justify-content-end mt-3">

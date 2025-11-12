@@ -1,14 +1,29 @@
-import React, { useState, useRef, useSyncExternalStore } from 'react';
+import React, { useState, useRef, useSyncExternalStore, useEffect } from 'react';
 import { FaArrowCircleRight } from "react-icons/fa";
 import { FaArrowCircleLeft } from "react-icons/fa";
 import { FaAngleDoubleLeft } from "react-icons/fa";
 import { FaAngleDoubleRight } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
-import { Form, Button, Accordion } from 'react-bootstrap';
+import { Form, Button, Accordion, ListGroup } from 'react-bootstrap';
+import productosService from '../../services/productos';
+import Select from 'react-select';
 
 const FiltrosBusqueda = ({ onSubmit, filtrosActuales }) => {
   const [filtros, setFiltros] = useState(filtrosActuales || {});
-  
+  const [categorias, setCategorias] = useState([]);
+
+  const handleChangeCategory = (selectedOption) => {
+    setFiltros(prevFiltros => ({
+      ...prevFiltros,
+      categoria: selectedOption ? selectedOption.value : ""
+    }));
+  }
+
+  const categoryOptions = categorias.map(c => ({
+    value: c, // El valor puede ser el string simple
+    label: c  // El texto a mostrar y buscar
+  }));
+
   const handleInputChange = (e) => {
     const{name, value} = e.target
     setFiltros({ ...filtros, [name]: value});
@@ -19,6 +34,25 @@ const FiltrosBusqueda = ({ onSubmit, filtrosActuales }) => {
     e.preventDefault();
     onSubmit({ ...filtros, page: 1 });
   };
+
+  const selectedOptionObject = categoryOptions.find(
+    option => option.value === filtros.categoria
+  ) || null;
+
+  useEffect(() => {
+      const fetchCategories = async () => {
+        try {
+          const categorias = await productosService.getCategorias()
+          if (categorias) {
+            setCategorias(categorias)
+          }
+        } catch (err) {
+          console.log(err)
+          console.log('error')
+        }
+      }
+      fetchCategories()
+    }, [])
 
   const formFiltro = (
     <Form onSubmit={handleSubmit}>
@@ -87,6 +121,21 @@ const FiltrosBusqueda = ({ onSubmit, filtrosActuales }) => {
             onChange={handleInputChange}
           />
         </Form.Group>
+
+        <Form.Group className='mb-4'>
+        <Form.Label>Categoria</Form.Label>
+        <Select
+          options={categoryOptions}
+          onChange={handleChangeCategory}
+          value={selectedOptionObject}
+          placeholder="Buscar y seleccionar categoría..."
+          isSearchable={true}
+          isClearable={true}
+          name="categoria"
+          className="flex-grow-1"
+        />
+      </Form.Group>
+      
         <Button type='submit'>
           <FaSearch aria-hidden="true"/> Buscar
         </Button>

@@ -18,12 +18,13 @@ const extractUser = async(req, res, next) => {
 
  const token = authorization.split(' ')[1];
  req.user = jwt.verify(token, JWT_SECRET)
-   next(); // Continuar con la siguiente ruta/middleware
+   next();
 };
 
 
 const extractUserForRefresh = (req, res, next) => {
-  const token = req.cookies.refreshToken;
+  //extract token from bearer header
+  const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) return res.status(401).json({ error: "No autenticado" });
     req.user = jwt.verify(token, JWT_SECRET);

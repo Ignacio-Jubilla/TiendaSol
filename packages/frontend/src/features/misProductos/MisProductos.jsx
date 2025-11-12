@@ -67,7 +67,7 @@ useEffect(() => {
 }, [filtros])
 
   return (
-    <Container className='mt-4'>
+    <Container className='mt-4 mb-4'>
       <ErrorMessage msg={errorMessage} />
       <Row>
         <Col lg={3} md={5} xs={12} className="mb-4">
@@ -78,7 +78,7 @@ useEffect(() => {
           <Button as={Link} to={"/mis-productos/crear"} aria-label='Boton para agregar un nuevo producto' className='mb-3'>
           <IoIosAddCircle aria-hidden="true" style={{fontSize: "2rem"}}/>
           Crear producto</Button>
-          {loading ? <LoadingSpinner message="Cargando prductos" /> : productos.length === 0 ? <p>No se encontraron producto.</p> :
+          {loading ? <LoadingSpinner message="Cargando prductos" /> : !productos || productos.length === 0 ? <p>No se encontraron producto.</p> :
             productos.map(producto => <CardProductoVendedor producto={producto} key={producto._id} />)
           }
         </Col>

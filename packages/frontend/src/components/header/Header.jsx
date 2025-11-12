@@ -13,7 +13,7 @@ import { RiDeleteBin6Fill } from "react-icons/ri";
 const Header = () => {
   const { totalCart, cartItems, totalValueCart, removeItem } = useCart();
   const { user, logoutContext } = useAuth();
-
+  const suggestionsRef = useRef(null); 
   const [currentNotifications, setCurrentNotificacion] = useState(0);
   const [valorBusqueda, setValorBusqueda] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -24,6 +24,24 @@ const Header = () => {
 
   const inputRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (
+      inputRef.current &&
+      !inputRef.current.contains(e.target) &&
+      suggestionsRef.current &&
+      !suggestionsRef.current.contains(e.target)
+    ) {
+      setShowSuggestions(false);
+    }
+  };
+
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []);
 
   const handleClose = () => setExpanded(false);
 
@@ -95,11 +113,6 @@ const Header = () => {
   };
 
   const handleLogout = async () => {
-    try {
-      authServices.logout();
-    } catch (error) {
-      console.log('nothing');
-    }
     logoutContext();
     navigate('/');
   };
@@ -121,7 +134,7 @@ const Header = () => {
                   <img src={item.foto} style={{ width: '4rem', height: '4rem' }} alt={item.nombre} />
                   <div className='d-flex flex-direction-row justify-content between  w-100'>
                   <div className="ms-2">
-                    {item.nombre} <br />x{item.cantidad} (${item.precioUnitario * item.cantidad})
+                    <a href={`/productos/${item.productoId}`} className='link-carrito-producto'>{item.nombre}</a> <br />x{item.cantidad} (${item.precioUnitario * item.cantidad})
                   </div>
                   <Button variant='danger ms-5' onClick={() => removeItem(item.productoId)} >
                     <RiDeleteBin6Fill size={20}/>
@@ -186,6 +199,7 @@ const Header = () => {
             {showSuggestions && suggestions.length > 0 && (
               <ul
                 className="list-group position-absolute w-100  mt-0"
+                ref={suggestionsRef} 
                 style={{
                   zIndex: 11,
                   borderRadius: '0 0 8px 8px',

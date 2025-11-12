@@ -10,6 +10,7 @@ const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME
 const AWS_BUCKET_REGION = process.env.AWS_BUCKET_REGION
 const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY
 const AWS_SECRET_KEY = process.env.AWS_SECRET_KEY
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN
 
 export default {
   PORT,
@@ -21,5 +22,6 @@ export default {
   AWS_BUCKET_NAME,
   AWS_BUCKET_REGION,
   AWS_ACCESS_KEY,
-  AWS_SECRET_KEY
+  AWS_SECRET_KEY,
+  ALLOWED_ORIGIN
 }

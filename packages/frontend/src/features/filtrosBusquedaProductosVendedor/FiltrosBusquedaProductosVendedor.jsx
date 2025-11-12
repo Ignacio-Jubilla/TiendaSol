@@ -35,7 +35,7 @@ const FiltrosBusquedaProductosVendedor = ({ onSubmit, filtrosActuales }) => {
           max={30}
           placeholder='Cantidad de productos por pagina'
           name="perPage"
-          value={filtros.perPage || ''}
+          value={filtros.perPage || 10}
           onChange={handleInputChange}
         />
       </Form.Group>

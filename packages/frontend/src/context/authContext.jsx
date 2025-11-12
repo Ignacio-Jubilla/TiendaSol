@@ -10,45 +10,70 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(() => {
-      // Esta función se ejecuta solo una vez, al cargar el componente
-        const storedUser = localStorage.getItem('user');
-        return storedUser ? JSON.parse(storedUser) : null;
-    });
-  
-    useEffect(() => {
-      localStorage.setItem('user', JSON.stringify(user));
-    }, [user]); 
+    const storedUserStr = localStorage.getItem('user');
+    if (!storedUserStr) {
+      return null;
+    }
 
-  const loginContext = (accessToken) => {
-    
     try {
-      const user = jwtDecode(accessToken);
-      localStorage.setItem('accessToken', accessToken);
-      setUser(user)
+      const storedUser = JSON.parse(storedUserStr);
+      const ahora = new Date().getTime();
+
+      if (storedUser.expiry > ahora) {
+        return storedUser;
+      } else {
+        localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        return null;
+      }
     } catch (error) {
-      setUser(null)
+      return null;
+    }
+  });
+ 
+  const loginContext = (data) => {
+    const { accessToken, refreshToken } = data;
+    try {
+      let decodedUser = jwtDecode(accessToken);
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+
+      const ahora = new Date();
+      const expiry = ahora.getTime() + (120 * 60 * 1000);
+      
+      const userToStore = { ...decodedUser, expiry };
+      
+      localStorage.setItem('user', JSON.stringify(userToStore));
+      
+      setUser(userToStore);
+    } catch (error) {
+      setUser(null);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
     }
   };
 
-  // Función de Logout
   const logoutContext = () => {
     localStorage.removeItem('accessToken');
-    setUser(null)
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user'); // <-- CORREGIDO
+    setUser(null);
   };
 
   const getToken = () => {
     return localStorage.getItem('accessToken');
   };
 
-   const value = {
+  const value = {
     user,
     loginContext,
     logoutContext,
     getToken
-    };
+  };
 
   return (
-    <AuthContext.Provider value={ value}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
