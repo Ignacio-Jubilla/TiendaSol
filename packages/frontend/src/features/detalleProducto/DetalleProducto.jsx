@@ -129,14 +129,15 @@ const showToast = (productoAgregado, cantidadAgregada) => {
             </Row>
             <Row>
               <Col xs={12} md={6} lg={4}>
-            <h4>Descripción:</h4>
-            <p>{producto.descripcion}</p>
-            </Col>
-              <Col>
-            <h4>Datos de vendedor:</h4>
+<h4>Datos de vendedor:</h4>
             <h6>{producto.vendedor.nombre}</h6>
             <p><FaPhone></FaPhone> {producto.vendedor.telefono}</p>
             <p><FaEnvelope></FaEnvelope> {producto.vendedor.email}</p>
+
+            </Col>
+              <Col>
+            <h4>Descripción:</h4>
+            <p>{producto.descripcion}</p>
             </Col> 
             </Row>
         </div>

@@ -13,26 +13,9 @@ export default class AuthController{
     }
     const {accessToken, refreshToken} = await this.authService.login(parsedBody.data)
 
-    return this.setTokens(res, accessToken, refreshToken)
+    return res.status(200).json({accessToken, refreshToken})
   }
 
-  setTokens = (res, accessToken, refreshToken) => {
-    res.cookie(
-      'refreshToken',
-      refreshToken,
-      {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax',
-        maxAge: 2 * 60 * 60 * 1000,
-      }
-    )
-
-    return res.status(200).json({
-      message: "Sesion iniciada",
-      accessToken
-    })
-  }
 
   register = async(req, res) => {
     const body = req.body
@@ -41,20 +24,14 @@ export default class AuthController{
       return res.status(400).json(parsedBody.error.issues)
     }
     const {accessToken, refreshToken} = await this.authService.register(parsedBody.data)
-    return this.setTokens(res, accessToken, refreshToken)
+    return res.status(200).json({accessToken, refreshToken})
   }
 
   refresh = async(req, res) => {
     const {accessToken, refreshToken} = await  this.authService.refresh(req.user)
-    return this.setTokens(res, accessToken, refreshToken)
+    return res.status(200).json({accessToken, refreshToken})
   }
 
-  logout = async(req, res) => {
-    res.clearCookie('refreshToken')
-    return res.status(200).json({
-      message: "Sesion cerrada"
-    })
-  }
 
   // addRole = async(req, res) => {
   //   const body = req.body

@@ -123,7 +123,7 @@ const EditarProducto = () => {
         if (err.response.status === 401) {
           try {
             const refreshData = await authServices.refresh();
-            loginContext(refreshData.accessToken);
+            loginContext(refreshData);
             const productoResp = await productosService.updateProducto(productoId, productToSubmit, nuevasImagenes);
             setSubmitted(true)
             setLoading(false)
@@ -132,7 +132,6 @@ const EditarProducto = () => {
 
           } catch (refreshErr) {
             logoutContext();
-            await authServices.logout();
             navigate('/login');
           }
         }

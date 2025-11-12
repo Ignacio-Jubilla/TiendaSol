@@ -6,11 +6,10 @@ import productosRouter from './routes/ProductosRouter.js'
 import usuariosRouter from './routes/UsuariosRoutes.js'
 import authRouter from './routes/authRoutes.js'
 import middleware from './utils/middleware.js'
-import config from './utils/config.js'
 import cookieParser from 'cookie-parser'
 import { DBConnector } from './utils/dbConnector.js'
 import notificacionesRouter from './routes/NotificacionRoutes.js'
-
+import config from './utils/config.js'
 const app = express()
 
 const connector = new DBConnector()
@@ -20,9 +19,8 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
-      : true,
+    origin : config.ALLOWED_ORIGIN || true,
+    credentials: true,
   }),
 )
 

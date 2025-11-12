@@ -6,7 +6,7 @@ import { FaCartPlus } from "react-icons/fa";
 import './CardProducto.css'
 
 const CardProducto = ({ producto, handleAddCart }) => {
-  const [cantidad, setCantidad] = useState(0);
+  const [cantidad, setCantidad] = useState(1);
   const getImageUrl = () => {
     if (producto.fotos && producto.fotos.length > 0) {
       return producto.fotos[0];
@@ -17,7 +17,7 @@ const CardProducto = ({ producto, handleAddCart }) => {
     <section className="card card-shadow-sm p-3 d-flex flex-row bg-dark-hover" key={producto.id}>
       <div className="product-img d-flex">
         <img src={getImageUrl()}  className="card-img-top" aria-label='Imagen de producto'
-        style={{width: "10rem"}, {height: "10rem"}}
+        style={{height: "10rem"}, {width: "10rem"}}
         />
       </div>
       <div className="card-body">
@@ -28,7 +28,9 @@ const CardProducto = ({ producto, handleAddCart }) => {
         <p>
           <strong>Stock: {producto.stock}</strong>
         </p>
-        {producto.categorias.map(cat => <span key={cat._id} className="badge bg-secondary">{cat.nombre}</span>)}
+
+        {producto.categorias.map(cat => <span key={cat} className="badge bg-secondary me-2">{cat}</span>)}
+        <p>Vendido por: {producto.vendedor.nombre}</p>
       </div>
 
         {Number(producto.stock) > 0 ?  <div className="d-grid gap-1"><Button as={Link} to={`/productos/${producto._id}`} variant="primary">

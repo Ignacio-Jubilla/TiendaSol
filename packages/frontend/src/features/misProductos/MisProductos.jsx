@@ -67,7 +67,7 @@ useEffect(() => {
 }, [filtros])
 
   return (
-    <Container className='mt-4'>
+    <Container className='mt-4 mb-4'>
       <ErrorMessage msg={errorMessage} />
       <Row>
         <Col lg={3} md={5} xs={12} className="mb-4">

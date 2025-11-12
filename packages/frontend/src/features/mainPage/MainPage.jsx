@@ -30,8 +30,7 @@ const MainPage = () => {
       try {
       const productosApi = await productosService.getProductosMasVendidos()
       setProductos(productosApi.data)
-      const vendedoresApi = vendedoresMocked.data
-      setVendedores(vendedoresApi)
+
       const categoriasApi = await productosService.getCategorias()
       setCategorias(categoriasApi)
     }
@@ -52,7 +51,6 @@ const MainPage = () => {
     setTimeout(() => {
       setShowNotification(false)
     }, 10000)
-
   }
 
   const handleCloseToast = () => setShowNotification(false);

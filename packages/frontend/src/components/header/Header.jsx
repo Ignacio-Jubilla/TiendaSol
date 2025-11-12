@@ -113,11 +113,6 @@ const Header = () => {
   };
 
   const handleLogout = async () => {
-    try {
-      authServices.logout();
-    } catch (error) {
-      console.log('nothing');
-    }
     logoutContext();
     navigate('/');
   };

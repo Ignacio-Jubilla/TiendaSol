@@ -45,7 +45,7 @@ const showErrorMessage = (msg) => {
     try {
       setDisabledButton(true)
       const data = await authServices.login(loginCredentials)
-      loginContext(data.accessToken)
+      loginContext(data)
       navigate("/")
     } catch (error) {
       if(error.response.status === 401) {

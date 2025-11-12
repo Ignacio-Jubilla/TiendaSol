@@ -31,11 +31,13 @@ export const AuthProvider = ({ children }) => {
     }
   });
  
-  const loginContext = (accessToken) => {
+  const loginContext = (data) => {
+    const { accessToken, refreshToken } = data;
     try {
       let decodedUser = jwtDecode(accessToken);
       localStorage.setItem('accessToken', accessToken);
-      
+      localStorage.setItem('refreshToken', refreshToken);
+
       const ahora = new Date();
       const expiry = ahora.getTime() + (120 * 60 * 1000);
       
@@ -47,12 +49,14 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setUser(null);
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
     }
   };
 
   const logoutContext = () => {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user'); // <-- CORREGIDO
     setUser(null);
   };

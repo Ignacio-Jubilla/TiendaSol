@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router";
+import { data, Link, useParams } from "react-router";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { Form, Button, Card, Accordion, Spinner, Toast } from "react-bootstrap";
 import productosMocked from "../../mocks/productos.json";
@@ -41,14 +41,13 @@ const ProductosVendedor = () => {
   const handleCloseToast = () => setShowNotification(false);
 
   const handleAddItem = (producto, cantidad) => {
-    //search item and determinate if current quantity is greater than stock
     const item = cartItems.find(item => item.productoId === producto._id)
     if(item && Number(item.cantidad) + Number(cantidad) > Number(producto.stock)) {
       showErrorMessage("No hay suficiente stock para agregar al carrito")
       return;
     }
 
-    addItemToCart(producto, cantidad);
+    addItemToCart(producto, cantidad)
     setCantidadToShow(cantidad)
     showToast(producto)
   };
@@ -79,7 +78,7 @@ const ProductosVendedor = () => {
       newFiltros[key] = value;
     });
     setSearchParams({ ...newFiltros, page: 1 });
-  };
+  }
 
   const handleChangePage = (page) => {
     if (loading) {
@@ -88,11 +87,16 @@ const ProductosVendedor = () => {
     }
     const filtrosActuales = Object.fromEntries(searchParams.entries());
     setSearchParams({ ...filtrosActuales, page });
-  };
+  }
 
   const fetchData = async () => {
           setLoading(true)
-          const filtros = Object.fromEntries(searchParams.entries());
+          let filtros = Object.fromEntries(searchParams.entries());
+          if (filtros.perPage && filtros.perPage <= 0) {
+            filtros.perPage = 10
+            //change the search param 
+            setSearchParams({ ...filtros, page: 1 });
+          }
           try {
               const dataApi = await productoService.getProductos({...filtros})
               if (dataApi) {
@@ -108,7 +112,6 @@ const ProductosVendedor = () => {
           }
       }
   useEffect(() => { fetchData()}, [searchParams])
-
 
   return (
     <div className="container mt-4">

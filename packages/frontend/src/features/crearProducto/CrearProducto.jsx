@@ -82,7 +82,7 @@ const CrearProducto = () => {
           //retry with refresh method
           try {
             const refreshData = await authServices.refresh()
-            loginContext(refreshData.accessToken)
+            loginContext(refreshData)
             await productosService.postProducto({ vendedorId: user.id, ...producto }, imagenes)
             setShowNotification(true)
             setProducto({})
@@ -94,7 +94,6 @@ const CrearProducto = () => {
           }
           catch (err) {
             logoutContext()
-            await authServices.logout()
             navigate('/login')
           }
         }
@@ -323,11 +322,9 @@ const CrearProducto = () => {
               <Form.Control type="number" placeholder="stock de producto" name="stock" value={producto.stock} min={1} onChange={handleInputChange} required />
             </Form.Group>
 
-            {/* --- 5. SECCIÓN DE CATEGORÍAS (MODIFICADA) --- */}
             <Form.Group className="mb-3" controlId="categoriasProducto">
               <Form.Label>Categorías</Form.Label>
 
-              {/* ListGroup (sin cambios) */}
               <ListGroup className="mb-2">
                 {producto.categorias && producto.categorias.length > 0 ? (
                   producto.categorias.map(c => (
@@ -368,12 +365,11 @@ const CrearProducto = () => {
                   variant="success"
                   onClick={handleAddCategory}
                   type="button"
-                  className="ms-2" // Añade un margen
+                  className="ms-2"
                 >
                   Agregar
                 </Button>
               </div>
-              {/* --- FIN DEL REEMPLAZO --- */}
 
             </Form.Group>
 
