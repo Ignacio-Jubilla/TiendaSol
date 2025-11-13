@@ -27,52 +27,8 @@ const Carrito =  () => {
 
 
   const handleProcederAComprar = async () => {
-    try {
       if (!cartItems.length) return;
-
-      const user = JSON.parse(localStorage.getItem("user"));
-      
-      const userId = user._id || user.id;
-
-    if(!userId) {
-      alert("Debes iniciar sesión para proceder con la compra.");
-      return;
-    }
-      
-      console.log("Usuario:", user);
-
-      const direccion = user.direccion || {};
-      
-      const pedidoData = {
-        compradorId: userId,
-        calle: direccion.calle || "Calle Falsa 123",
-        altura: direccion.altura || "123",
-        piso: direccion.piso || "1",
-        departamento: direccion.departamento || "A",
-        codigoPostal: direccion.codigoPostal || "1000",
-        ciudad: direccion.ciudad || "Ciudad Ejemplo",
-        provincia: direccion.provincia || "Provincia Ejemplo",
-        pais: direccion.pais || "País Ejemplo",
-        moneda: user.moneda || "DOLAR_USA",
-        items: cartItems.map(item => ({
-          productoId: item.productoId,
-          cantidad: item.cantidad,
-          precioUnitario: item.precioUnitario
-        }))
-      };
-
-      console.log("Pedido a enviar:", pedidoData);
-
-      const nuevoPedido = await pedidoService.crearPedido(pedidoData);
-
-      console.log("Pedido creado:", nuevoPedido);
-
-      // Redirigir al detalle del pedido o a "Mis pedidos"
       navegar(`/finalizar-compra`);
-    } catch (error) {
-      console.error("Error al crear el pedido:", error);
-      alert("No se pudo crear el pedido. Intenta nuevamente. msj: " + (error.response?.data?.error || error.message));
-    }
   };
 
   return (
