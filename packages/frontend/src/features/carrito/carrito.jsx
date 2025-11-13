@@ -6,6 +6,7 @@ import { useCart } from '../../context/CartContext';
 import { ConversorMonedas } from '../../services/conversorMonedas';
 import { obtenerTipoCambio } from '../../services/exchangeApiExternal';
 import tiposCambioManual from '../../services/tiposCambioManual';
+import pedidoService from '../../services/pedidos';
 import './carrito.css'
 
 const Carrito =  () => {
@@ -23,6 +24,56 @@ const Carrito =  () => {
       conversorMoneda.convertir(item.moneda, moneda, item.precioUnitario) * item.cantidad)
     return Number.parseFloat(precios.reduce((acc, precio) => acc + precio, 0)).toFixed(2)
   }
+
+
+  const handleProcederAComprar = async () => {
+    try {
+      if (!cartItems.length) return;
+
+      const user = JSON.parse(localStorage.getItem("user"));
+      
+      const userId = user._id || user.id;
+
+    if(!userId) {
+      alert("Debes iniciar sesión para proceder con la compra.");
+      return;
+    }
+      
+      console.log("Usuario:", user);
+
+      const direccion = user.direccion || {};
+      
+      const pedidoData = {
+        compradorId: userId,
+        calle: direccion.calle || "Calle Falsa 123",
+        altura: direccion.altura || "123",
+        piso: direccion.piso || "1",
+        departamento: direccion.departamento || "A",
+        codigoPostal: direccion.codigoPostal || "1000",
+        ciudad: direccion.ciudad || "Ciudad Ejemplo",
+        provincia: direccion.provincia || "Provincia Ejemplo",
+        pais: direccion.pais || "País Ejemplo",
+        moneda: user.moneda || "DOLAR_USA",
+        items: cartItems.map(item => ({
+          productoId: item.productoId,
+          cantidad: item.cantidad,
+          precioUnitario: item.precioUnitario
+        }))
+      };
+
+      console.log("Pedido a enviar:", pedidoData);
+
+      const nuevoPedido = await pedidoService.crearPedido(pedidoData);
+
+      console.log("Pedido creado:", nuevoPedido);
+
+      // Redirigir al detalle del pedido o a "Mis pedidos"
+      navegar(`/finalizar-compra`);
+    } catch (error) {
+      console.error("Error al crear el pedido:", error);
+      alert("No se pudo crear el pedido. Intenta nuevamente. msj: " + (error.response?.data?.error || error.message));
+    }
+  };
 
   return (
     <Container className="mt-5 d-flex flex-column align-items-center">
@@ -82,11 +133,12 @@ const Carrito =  () => {
               <Button variant="danger" className="me-2" onClick={()=> cleanCart()}>
                 Vaciar carrito
               </Button>
-              <Button variant="success" disabled={
-                (!cartItems || cartItems.length === 0)
-              }
-              as={Link}
-              to="/finalizar-compra"
+              <Button variant="success" 
+                      disabled={(!cartItems || cartItems.length === 0)}
+                      style={{
+                        opacity: (!cartItems || cartItems.length === 0) ? 0.65 : 1,
+                      }}
+                      onClick={() => handleProcederAComprar()}
               >
                 Proceder a comprar
               </Button>
