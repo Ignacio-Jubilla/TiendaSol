@@ -109,7 +109,7 @@ const showToast = (productoAgregado, cantidadAgregada) => {
               onChange={(e) => setCantidad(e.target.value)}
               placeholder="Cantidad"
               name="cantidad" />
-            <button className="btn btn-primary"> Agregar al carrito</button>
+            <button id="add-item"className="btn btn-primary"> Agregar al carrito</button>
           </Form>
           </Col>
           <Col lg={8} md={6}>
