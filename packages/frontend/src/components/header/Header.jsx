@@ -9,6 +9,7 @@ import { useAuth } from '../../context/authContext';
 import authServices from '../../services/auth';
 import productosService from '../../services/productos';
 import { RiDeleteBin6Fill } from "react-icons/ri";
+import { confirmAction,showSuccess } from '../../utils/confirmAction';
 
 const Header = () => {
   const { totalCart, cartItems, totalValueCart, removeItem } = useCart();
@@ -136,7 +137,16 @@ const Header = () => {
                   <div className="ms-2">
                     <a href={`/productos/${item.productoId}`} className='link-carrito-producto'>{item.nombre}</a> <br />x{item.cantidad} (${item.precioUnitario * item.cantidad})
                   </div>
-                  <Button variant='danger ms-5' onClick={() => removeItem(item.productoId)} >
+                  <Button variant='danger ms-5' onClick={async () => {
+                    const confirmed = await confirmAction({
+                      title: "Eliminar producto?",
+                      text: "Se eliminará este producto del carrito.",
+                      confirmText: "Sí, eliminar",
+                    });
+                    if (!confirmed) return;
+                    removeItem(item.productoId);
+                    showSuccess("Producto eliminado del carrito.");
+                  }} >
                     <RiDeleteBin6Fill size={20}/>
                   </Button>
                   </div>
@@ -175,6 +185,7 @@ const Header = () => {
           <div className="position-relative flex-grow-1 ms-5">
             <Form
               className="d-flex"
+              id="header-search"
               onSubmit={(e) => {
                 e.preventDefault();
                   navigate(`/productos?valorBusqueda=${valorBusqueda}`);

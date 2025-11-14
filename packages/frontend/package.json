@@ -18,6 +18,7 @@
     "react-router-dom": "^7.9.4",
     "react-scripts": "5.0.1",
     "react-select": "^5.10.2",
+    "sweetalert2": "^11.26.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -40,5 +41,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "cypress": "^15.6.0"
   }
 }

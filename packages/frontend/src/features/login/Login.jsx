@@ -6,6 +6,8 @@ import { FaEye, FaEyeSlash } from "react-icons/fa"; // Importa los íconos
 import ErrorMessage from "../../components/errorMessage/ErrorMessage"
 import authServices from "../../services/auth"
 import auth from "../../services/auth"
+import './login.css'
+
 const Login = () => {
   const navigate = useNavigate();
   const {loginContext} = useAuth()
@@ -58,50 +60,45 @@ const showErrorMessage = (msg) => {
     }
     }
   return (
-    <Container className="justify-content-center mt-4">
+  <div className="login-container">
+    <div className="login-card">
       <ErrorMessage msg={errorMessage} />
       <Form>
-        <Form.Text>
-          <h1>Iniciar sesion</h1>
-        </Form.Text>
+        <h1>Iniciar sesión</h1>
         <Row>
-        <Form.Group className="mb-3 col-12 col-lg-6 col-md-6" controlId="username">
-          <Form.Label>Correo electronico</Form.Label>
-          <Form.Control type="text" placeholder="user@gmail.com" name="email" onChange={handleChange}/>
-        </Form.Group>
-        {/* --- 5. CAMBIOS EN EL CAMPO DE CONTRASEÑA --- */}
-    <Form.Group className="mb-3 col-12 col-lg-6 col-md-6" controlId="password">
-     <Form.Label>Contraseña</Form.Label>
-          <InputGroup>
-       <Form.Control 
-              // El tipo cambia dinámicamente
-              type={showPassword ? "text" : "password"} 
-              placeholder="Contraseña" 
-              name="password" 
-              onChange={handleChange}
-            />
+          <Form.Group className="mb-3 col-12" controlId="username">
+            <Form.Label>Correo electrónico</Form.Label>
+            <Form.Control type="text" placeholder="user@gmail.com" name="email" onChange={handleChange}/>
+          </Form.Group>
 
-            <Button 
-              variant="outline-secondary" 
-              onClick={toggleShowPassword}
-              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </Button>
-          </InputGroup>
-    </Form.Group>
-
+          <Form.Group className="mb-3 col-12" controlId="password">
+            <Form.Label>Contraseña</Form.Label>
+            <InputGroup>
+              <Form.Control 
+                type={showPassword ? "text" : "password"} 
+                placeholder="Contraseña" 
+                name="password" 
+                onChange={handleChange}
+              />
+              <Button variant="outline-secondary" onClick={toggleShowPassword}>
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </Button>
+            </InputGroup>
+          </Form.Group>
         </Row>
-        <Button disabled={disabledButton} variant="primary" type="submit" onClick={handleLogin}>
-          Iniciar Sesion
+
+        <Button disabled={disabledButton} variant="primary" type="submit" className="w-100" onClick={handleLogin}>
+          {disabledButton ? "Cargando..." : "Iniciar Sesión"}
         </Button>
-        <br />
-        <Form.Text>
-          No tienes una cuenta? <a href="/register">Registrate</a>
-        </Form.Text>
+
+        <p className="text-center mt-3">
+          No tienes una cuenta? <a href="/register">Regístrate</a>
+        </p>
       </Form>
-    </Container>
-  )
+    </div>
+  </div>
+);
+
 }
 
 export default Login

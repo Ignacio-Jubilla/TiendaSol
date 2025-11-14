@@ -18,11 +18,20 @@ export class PedidosController {
     try {
       const {page = 1, limit = 10} =req.query;
 
+      const userId = req.user?.id;
+    const userTipo = req.user?.tipo; // "COMPRADOR" o "VENDEDOR"
+
       const parseFiltros = filtrosSchema.safeParse(req.query);
       if (parseFiltros.error) {
         return res.status(400).json(parseFiltros.error.issues);
       }
       const filtros = parseFiltros.data;
+
+      if (userTipo === "COMPRADOR") {
+      filtros.usuarioId = userId;
+    } else if (userTipo === "VENDEDOR") {
+      filtros.vendedorId = userId;
+    }
       
       const pedidosPaginados = await this.pedidoService.obtenerPedidosPaginados(page,limit,filtros);
       res.status(200).json(pedidosPaginados);
@@ -30,7 +39,21 @@ export class PedidosController {
       res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
     }
   }
-  
+
+  obtenerPedidoPorId = async (req, res) => {
+    try {
+      let pedidoId = req.params.id;
+      const parsePedidoId = idSchema.safeParse(pedidoId);
+      if (parsePedidoId.error) {
+        return res.status(400).json(parsePedidoId.error.issues);
+      }
+      pedidoId = parsePedidoId.data;
+      const pedido = await this.pedidoService.obtenerPedidoPorId(pedidoId);
+      res.status(200).json(pedido);
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
+    }
+  }
 
   crearPedido = async (req, res) => {
     try{
@@ -59,7 +82,50 @@ export class PedidosController {
     res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
   }
   }
-  
+  // tanto para cancelar como para marcar enviado, luego se delega en el service para cada caso
+  actualizarEstadoPedido = async (req, res) => {
+  try {
+    let pedidoId = req.params.id
+    const parsePedidoId = idSchema.safeParse(pedidoId);
+    if (parsePedidoId.error) {
+      return res.status(400).json(parsePedidoId.error.issues);
+    }
+    pedidoId = parsePedidoId.data;
+
+    const { estado } = req.query;
+    if (!estado) {
+        return res.status(400).json({ error: 'Falta el parámetro "estado" en query.' });
+    }
+
+    const estadoNormalizado = estado.toString().toLowerCase();
+
+    if (estadoNormalizado === 'cancelado') {
+        const parseBody = cancelarPedidoSchema.safeParse(req.body);
+      if (parseBody.error) {
+      return res.status(400).json(parseBody.error.issues);
+      }
+
+      const {motivo} = parseBody.data
+
+      const resultado = await this.pedidoService.cancelarPedido(pedidoId, motivo);
+      if(!resultado) {
+        return res.status(500).json({ error: 'error de cancelacion' });
+      }
+      res.status(200).json(resultado);
+    }
+    else if (estadoNormalizado === 'enviado') {
+        const pedidoEnviado = await this.pedidoService.marcarEnviado(pedidoId);
+        res.status(200).json(pedidoEnviado);
+    }
+        
+    
+  } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
+  }
+  }
+
+
+  /*
   cancelarPedido = async (req, res) => {
   try {
     let pedidoId = req.params.id
@@ -100,15 +166,18 @@ export class PedidosController {
       res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
     }
   }
+  */
 
 }
+
+
 
 const itemPedidoSchemaZod = z.object({
   productoId: z.string().refine((id) => mongoose.isValidObjectId(id), {
     message: "Id de producto no válido",
   }),
-  cantidad: z.number().min(1, { message: "Cantidad debe ser al menos 1" }),
-  precioUnitario: z.number().min(0, { message: "PrecioUnitario no puede ser negativo" })
+  cantidad: z.coerce.number().min(1, { message: "Cantidad debe ser al menos 1" }),
+  precioUnitario: z.coerce.number().min(0, { message: "PrecioUnitario no puede ser negativo" })
 });
 
 const crearPedidoSchema = z.object({

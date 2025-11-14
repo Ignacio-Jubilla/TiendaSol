@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Card, Row, Col, Badge, Table,Button } from 'react-bootstrap';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 import ErrorMessage from '../../components/errorMessage/ErrorMessage';
-import pedidosMock from '../../mocks/pedidos.json';
+import pedidoService from '../../services/pedidos.js';
+import { confirmAction, showSuccess, showError } from '../../utils/confirmAction.js';
+import CardPedido from '../../components/cards/CardPedido.jsx';
 
 // Función para darle color al estado
 const estadoColor = (estado) => {
@@ -26,20 +28,54 @@ const DetallePedido = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    setLoading(true);
-    const pedidoEncontrado = pedidosMock.data.find(p => p._id === pedidoId);
-    if (pedidoEncontrado) {
-      setPedido(pedidoEncontrado);
-    } else {
-      setErrorMessage("Pedido no encontrado");
-    }
-    setLoading(false);
-  }, 500);
+    const fetchPedido = async () => {
+      setLoading(true);
+      try {
+        // el backend devuelve { data: [...], pagination: {...} }
+        const pedidoEncontrado = await pedidoService.obtenerPedidoPorId(pedidoId);
+        if (pedidoEncontrado) {
+          setPedido(pedidoEncontrado);
+        } else {
+          setErrorMessage("Pedido no encontrado");
+        }
+      } catch (error) {
+        console.error(error);
+        setErrorMessage("Error al cargar el pedido");
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    if (pedidoId) fetchPedido();
+  }, [pedidoId]);
+  
+  const handleCancelarPedido = async () => {
+      try {
+     if (!pedido) return;
+      const confirmacion = await confirmAction({
+        title: "Cancelar pedido?",
+        text: "¿Estás seguro que deseas cancelar este pedido?",
+        confirmText: "Sí, cancelar",
+      });
+      if (!confirmacion) return;
+      
+      setLoading(true);
+    
+      await pedidoService.actualizarEstadoPedido(pedidoId, "CANCELADO", { motivo: "Cancelado por el usuario desde detalle" });
+      setPedido(prev => ({ ...prev, estado: "CANCELADO" }));
+      showSuccess("Pedido cancelado correctamente.");
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("No se pudo cancelar el pedido");
+      showError("No se pudo cancelar el pedido");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   if (loading) return <LoadingSpinner message="Cargando detalle..." />;
   if (!pedido) return <ErrorMessage msg={errorMessage || "Pedido no encontrado"} />;
-
-
+  
   return (
     <Container className="mt-5 d-flex flex-column align-items-center">
 
@@ -49,37 +85,13 @@ const DetallePedido = () => {
         </Button>
     </div>
 
-      <Card style={{ maxWidth: '700px', width: '100%' }} className="p-4 shadow-sm">
-        <Card.Title className="mb-3">Pedido #{pedido._id}</Card.Title>
-
-        <Row className="mb-3">
-          <Col><strong>Estado:</strong> <Badge bg={estadoColor(pedido.estado)}>{pedido.estado}</Badge></Col>
-          <Col><strong>Fecha:</strong> {new Date(pedido.fechaCreacion).toLocaleDateString()}</Col>
-          <Col><strong>Total:</strong> ${pedido.total}</Col>
-        </Row>
-
-        <h5>Items</h5>
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>Producto ID</th>
-              <th>Cantidad</th>
-              <th>Precio Unitario</th>
-              <th>Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pedido.items.map(item => (
-              <tr key={item.productoId}>
-                <td>{item.productoId}</td>
-                <td>{item.cantidad}</td>
-                <td>${item.precioUnitario}</td>
-                <td>${item.precioUnitario * item.cantidad}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Card>
+      <CardPedido 
+      pedido={pedido} 
+      onPedidoCancelado={handleCancelarPedido} 
+      ShowDetalleBtn={false}
+      >
+        <Badge bg={estadoColor(pedido.estado)}>{pedido.estado}</Badge>
+      </CardPedido>
     </Container>
   );
 };

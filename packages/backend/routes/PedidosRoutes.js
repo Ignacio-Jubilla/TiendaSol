@@ -38,16 +38,16 @@ pedidosRouter.get('/', asyncHandler(async (req, res) => {
   return await pedidosController.obtenerPedidos(req, res);
 }))
 
+pedidosRouter.get('/:id', asyncHandler(async (req, res) => {
+  return await pedidosController.obtenerPedidoPorId(req, res);
+}))
+
 pedidosRouter.post('/', asyncHandler(async (req, res) => {
   return await pedidosController.crearPedido(req, res);
 }))
 //patch 
-pedidosRouter.patch('/:id/cancelado', asyncHandler(async (req, res) => {
-  return await pedidosController.cancelarPedido(req, res);
-}))
-
-pedidosRouter.patch('/:id/enviado', asyncHandler( async (req, res) => { //chequear
-  return await pedidosController.marcarEnviado(req, res);
+pedidosRouter.patch('/:id', asyncHandler(async (req, res) => {
+  return await pedidosController.actualizarEstadoPedido(req, res);
 }))
 
 

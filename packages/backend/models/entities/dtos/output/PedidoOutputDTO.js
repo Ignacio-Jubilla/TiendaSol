@@ -1,9 +1,13 @@
 export class PedidoOutputDTO{
   constructor(pedido) {
-    this.id = pedido._id || pedido.id,
-    this.compradorId = pedido.comprador?.toString() || null,
+    this._id = pedido._id || pedido.id,
+    this.compradorId = pedido.comprador?._id
+            ? pedido.comprador._id.toString()
+            : pedido.comprador?.toString() || null;
     this.items = (pedido.items || []).map(item => ({
-      productoId: item.producto?.toString() || null,
+      productoId: item.producto?._id
+            ? item.producto._id.toString()
+            : item.producto?.toString() || null,
       cantidad: item.cantidad,
       precioUnitario: item.precioUnitario
     })),

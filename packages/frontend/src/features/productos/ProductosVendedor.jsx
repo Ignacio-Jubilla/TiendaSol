@@ -132,9 +132,11 @@ const ProductosVendedor = () => {
           ) : (
             <>
               <ControlPaginado onPageChange={handleChangePage} pagination={pagination} />
+              <div id="productos">
               {productos.map((p) => (
                 <CardProducto key={p.id || p._id} producto={p} handleAddCart={handleAddItem} />
               ))}
+              </div>
             </>
           )}
           <ControlPaginado onPageChange={handleChangePage} pagination={pagination} />

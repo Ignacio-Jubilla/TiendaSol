@@ -35,7 +35,16 @@ export class PedidoService {
         }
 
     }
-    
+
+    obtenerPedidoPorId = async (pedidoId) => {
+        const pedido = await this.pedidoRepository.findById(pedidoId);
+        if (!pedido) {
+            throw new PedidoNotFound(`Pedido con id ${pedidoId} no encontrado`);
+        }
+        console.log("Pedido encontrado:", this.toOutputDTO(pedido));
+        return this.toOutputDTO(pedido);
+    }
+
     async crearPedido(pedidoInputDTO) {
         const usuario = await this.usuariosRepository.findById(pedidoInputDTO.compradorId);
         if (!usuario) {

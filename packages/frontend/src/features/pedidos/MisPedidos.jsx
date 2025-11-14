@@ -4,8 +4,8 @@ import CardPedido from '../../components/cards/CardPedido';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 import ControlPaginado from '../../components/controlPaginado/ControlPaginado';
 import ErrorMessage from '../../components/errorMessage/ErrorMessage';
-
-import pedidosMock from '../../mocks/pedidos.json'
+import pedidoService from '../../services/pedidos.js'; 
+import { confirmAction, showSuccess } from '../../utils/confirmAction.js';
 
 
 // Función para darle color al estado
@@ -21,51 +21,73 @@ import pedidosMock from '../../mocks/pedidos.json'
     }
   };
 
-const MisPedidos = ({ usuarioId }) => {
+const MisPedidos = () => {
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const [pagination, setPagination] = useState(pedidosMock.pagination);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    PorPagina: 5,
+    total: 0,
+    total_pages: 1
+  });
+  
+  const user = JSON.parse(localStorage.getItem("user"));
+  const usuarioId = user?._id || user?.id;
 
-  useEffect(() => {
-    setLoading(true);
 
-    const timer = setTimeout(() => {
-      // Pedidos de la página 1
-      const pageSize = pagination.porPagina || 5;
-      const pedidosPagina = pedidosMock.data.slice(0, pageSize);
 
-      setPedidos(pedidosPagina);
-      setPagination(prev => ({
-        ...prev,
-        page: 1
-      }));
-      setLoading(false);
-    }, 1000);
+  const fetchPedidos = async (page=1) => {
+  setLoading(true);
+  try {
+    // podés agregar estado o paginación después
+    const response = await pedidoService.obtenerPedidos({ usuarioId, page, limit: pagination.PorPagina });
 
-    return () => clearTimeout(timer);
-  }, [usuarioId]);
+    const pedidosData = response.data || [];
+    const paginaActual = response.pagina || 1;
+    const porPaginaActual = response.PorPagina || 5; 
+    const totalPedidos = response.total || 0;
+    const totalPaginas = response.totalPaginas || 1;
 
-  const handleChangePage = (page) => {
-    setLoading(true);
+    // si tu backend devuelve algo como { docs, totalDocs, limit, page, totalPages }
+    setPedidos(pedidosData);
+    setPagination({
+      page: paginaActual,
+      PorPagina: porPaginaActual,
+      total: totalPedidos,
+      total_pages: totalPaginas
+    });
+    
+  } catch (error) {
+    console.error(error);
+    console.log(error.response)
+    setErrorMessage('No se pudieron cargar tus pedidos');
+  } finally {
+    setLoading(false);
+  }
+};
 
-    const pageSize = pagination.porPagina || 5;
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize;
+useEffect(() => {
+  if(!usuarioId) return;
+  fetchPedidos(1);
+}, [usuarioId]);
 
-    const pedidosPagina = pedidosMock.data.slice(start, end);
-
-    // Simula retardo de API
-    setTimeout(() => {
-      setPedidos(pedidosPagina);
-      setPagination(prev => ({ ...prev, page }));
-      setLoading(false);
-    }, 500);
+  const handleChangePage = async(page) => {
+    if(loading) return;
+    fetchPedidos(page);
   };
+
 
   return (
     <Container className="mt-4">
       <ErrorMessage msg={errorMessage} />
+      {pedidos.length > 0 && (
+        <Row className="mb-3">
+          <Col xs={12}>
+            <ControlPaginado onPageChange={handleChangePage} pagination={pagination} />
+          </Col>
+        </Row>
+      )}
       <Row>
         <Col xs={12}>
           {loading ? (
@@ -73,11 +95,31 @@ const MisPedidos = ({ usuarioId }) => {
           ) : pedidos.length === 0 ? (
             <p>No tenés pedidos aún.</p>
           ) : (
-            pedidos.map(pedido => <CardPedido 
+            pedidos.map(pedido => 
+            <CardPedido 
                 key={pedido._id} 
                 pedido={pedido}
-                onPedidoCancelado={(pedidoId) => {
+                onPedidoCancelado={async (pedidoId) => {
+                  try{
+                    
+
+                    const confirmed = await confirmAction({
+                      title: "Cancelar pedido?",
+                      text: "¿Estás seguro que querés cancelar este pedido?",
+                      confirmText: "Sí, cancelar",
+                    });
+                    if (!confirmed) return;
+                    
+                    //setLoading(true);
+                    await pedidoService.actualizarEstadoPedido(pedidoId, "CANCELADO", { motivo: "Cancelado por el usuario desde Mis Pedidos" });
                     setPedidos(prev => prev.map(p => p._id === pedidoId ? {...p, estado: "CANCELADO"} : p));
+                    showSuccess("Pedido cancelado correctamente.");
+                  } catch (error) {
+                    console.error(error);
+                    setErrorMessage("No se pudo cancelar el pedido");
+                  } finally {
+                    setLoading(false);
+                  }
                 }}
                 >
                     <Badge bg={estadoColor(pedido.estado)} className="ms-2">
@@ -85,7 +127,8 @@ const MisPedidos = ({ usuarioId }) => {
                     </Badge>
                 </CardPedido>
             )
-          )}
+          )
+          }
         </Col>
       </Row>
 
