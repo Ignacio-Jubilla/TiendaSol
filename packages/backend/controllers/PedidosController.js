@@ -176,8 +176,8 @@ const itemPedidoSchemaZod = z.object({
   productoId: z.string().refine((id) => mongoose.isValidObjectId(id), {
     message: "Id de producto no válido",
   }),
-  cantidad: z.number().min(1, { message: "Cantidad debe ser al menos 1" }),
-  precioUnitario: z.number().min(0, { message: "PrecioUnitario no puede ser negativo" })
+  cantidad: z.coerce.number().min(1, { message: "Cantidad debe ser al menos 1" }),
+  precioUnitario: z.coerce.number().min(0, { message: "PrecioUnitario no puede ser negativo" })
 });
 
 const crearPedidoSchema = z.object({
