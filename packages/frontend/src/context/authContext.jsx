@@ -17,16 +17,18 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const storedUser = JSON.parse(storedUserStr);
-      const ahora = new Date().getTime();
-
-      if (storedUser.expiry > ahora) {
-        return storedUser;
-      } else {
-        localStorage.removeItem('user');
-        localStorage.removeItem('accessToken');
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) {
         return null;
       }
+
+      jwtDecode(refreshToken)
+      localStorage.setItem('user', JSON.stringify(storedUser));
+      return storedUser;
     } catch (error) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
       return null;
     }
   });
@@ -37,15 +39,8 @@ export const AuthProvider = ({ children }) => {
       let decodedUser = jwtDecode(accessToken);
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
-
-      const ahora = new Date();
-      const expiry = ahora.getTime() + (120 * 60 * 1000);
-      
-      const userToStore = { ...decodedUser, expiry };
-      
-      localStorage.setItem('user', JSON.stringify(userToStore));
-      
-      setUser(userToStore);
+      localStorage.setItem('user', JSON.stringify(decodedUser));      
+      setUser( decodedUser );
     } catch (error) {
       setUser(null);
       localStorage.removeItem('accessToken');
