@@ -24,8 +24,8 @@ const Carrito =  () => {
       text: "¿Estás seguro que deseas eliminar este producto del carrito?",
       confirmText: "Sí, eliminar",
     });
-  if (!result.isConfirmed) return;
-  
+
+  if (!result) return;
   removeItem(productoId);
 
   showSuccess("Producto eliminado del carrito.");
