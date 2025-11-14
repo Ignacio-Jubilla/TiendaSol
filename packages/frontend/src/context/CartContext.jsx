@@ -1,5 +1,7 @@
 // 1. Importa 'useEffect'
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import {confirmAction,showSuccess} from '../utils/confirmAction.js';
+import Swal from 'sweetalert2';
 
 const CartContext = createContext();
 
@@ -20,7 +22,9 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]); 
 
- const cleanCart = () => setCartItems([]);
+ const cleanCart = async () =>{ 
+  setCartItems([]); 
+  };
 
  const addItemToCart = (producto, cantidad) => {
   if(!cantidad || cantidad === 0) return;

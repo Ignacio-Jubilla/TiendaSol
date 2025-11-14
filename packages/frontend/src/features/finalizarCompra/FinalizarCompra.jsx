@@ -5,9 +5,11 @@ import axios from 'axios';
 import { useAuth } from "../../context/authContext";
 import ToastMessage from "../../components/toastMessage/ToastMessage";
 import { FaCheckCircle } from "react-icons/fa";
+import pedidoService from "../../services/pedidos.js";
+import Swal from "sweetalert2";
 
 const FinalizarCompra = () => {
-  const { groupItemsByVendedor, cleanCart } = useCart();
+  const { groupItemsByVendedor, cleanCart, cartItems } = useCart();
   const { user } = useAuth();
   const MAPBOX_ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN ;
   const [direccionEntrega, setDireccionEntrega] = useState({
@@ -118,16 +120,83 @@ const FinalizarCompra = () => {
     setSugerencias([]);
   };
 
-  const handleSubmitPedido = (e) => {
+  const handleSubmitPedido = async (e) => {
     e.preventDefault();
     //try catch con pedidosService.js
     //mostrar spinner mientras carga subida de pedido
-    cleanCart();
-    setDisableSubmit(true)
-    setShowNotification(true);
-    setTimeout(() => {
-      window.location.href = "/pedidos";
-    }, 5000);
+
+    const result = await Swal.fire({
+    title: 'Finalizar compra',
+    text: '¿Deseás confirmar tu compra?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, continuar',
+    cancelButtonText: 'Cancelar',
+    reverseButtons: true,
+  });
+
+  if (!result.isConfirmed) return;
+  
+  try{
+    if (!cartItems || cartItems.length === 0) {
+      Swal.fire('Carrito vacío', 'No tienes productos en el carrito.', 'error');
+    return;
+  }
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user._id || user.id;
+
+  if (!userId) {
+    alert("Debes iniciar sesión para proceder con la compra.");
+    return;
+  }
+
+  const pedidoData = {
+    compradorId: userId,
+    calle: direccionEntrega.calle || "Calle Falsa 123",
+    altura: direccionEntrega.altura || "123",
+    piso: direccionEntrega.piso || "1",
+    departamento: direccionEntrega.departamento || "A",
+    codigoPostal: direccionEntrega.codigoPostal || "1000",
+    ciudad: direccionEntrega.ciudad || "Ciudad Ejemplo",
+    provincia: direccionEntrega.provincia || "Provincia Ejemplo",
+    pais: direccionEntrega.pais || "País Ejemplo",
+    lat: direccionEntrega.lat || 0,
+    lng: direccionEntrega.lng || 0,
+    moneda: user.moneda || "DOLAR_USA",
+    items: cartItems.map(item => ({
+      productoId: item.productoId,
+      cantidad: item.cantidad,
+      precioUnitario: item.precioUnitario
+    }))
+  };
+
+  // Crear pedido en backend
+  const nuevoPedido = await pedidoService.crearPedido(pedidoData);
+
+  await Swal.fire({
+      icon: 'success',
+      title: '¡Pedido creado!',
+      text: 'Serás redirigido a tus pedidos.',
+      timer: 2000,
+      showConfirmButton: false
+    });
+
+  cleanCart();
+  setDisableSubmit(true)
+  setShowNotification(true);
+  setTimeout(() => {
+    window.location.href = "/pedidos";
+  }, 2500);
+
+  }catch(error){
+    await Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo crear el pedido, intente nuevamente.'
+    });
+    setDisableSubmit(false);
+  }
   }
 
   const handleValorBusquedaChange = (e) => {
@@ -230,7 +299,7 @@ const FinalizarCompra = () => {
           </Row>
         </FormGroup>
 
-        <Button type="submit" className="mt-3" disabled={disableSubmit}>Continuar</Button>
+        <Button type="submit" className="mt-3" disabled={disableSubmit}>Confirmar</Button>
       </Form>
     </Container>
   )

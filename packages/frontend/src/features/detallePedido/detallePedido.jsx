@@ -4,7 +4,8 @@ import { Container, Card, Row, Col, Badge, Table,Button } from 'react-bootstrap'
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 import ErrorMessage from '../../components/errorMessage/ErrorMessage';
 import pedidoService from '../../services/pedidos.js';
-
+import { confirmAction, showSuccess, showError } from '../../utils/confirmAction.js';
+import CardPedido from '../../components/cards/CardPedido.jsx';
 
 // Función para darle color al estado
 const estadoColor = (estado) => {
@@ -31,8 +32,7 @@ const DetallePedido = () => {
       setLoading(true);
       try {
         // el backend devuelve { data: [...], pagination: {...} }
-        const response = await pedidoService.obtenerPedidos({ pedidoId });
-        const pedidoEncontrado = Array.isArray(response.data) ? response.data.find(p => p._id === pedidoId) : null;
+        const pedidoEncontrado = await pedidoService.obtenerPedidoPorId(pedidoId);
         if (pedidoEncontrado) {
           setPedido(pedidoEncontrado);
         } else {
@@ -50,18 +50,24 @@ const DetallePedido = () => {
   }, [pedidoId]);
   
   const handleCancelarPedido = async () => {
-    if (!pedido) return;
-    const confirmacion = window.confirm("¿Deseás cancelar este pedido?");
-    if (!confirmacion) return;
+      try {
+     if (!pedido) return;
+      const confirmacion = await confirmAction({
+        title: "Cancelar pedido?",
+        text: "¿Estás seguro que deseas cancelar este pedido?",
+        confirmText: "Sí, cancelar",
+      });
+      if (!confirmacion) return;
+      
+      setLoading(true);
     
-    setLoading(true);
-    try {
-      await pedidoService.actualizarEstadoPedido(pedido._id, "CANCELADO", { motivo: "Cancelado por el usuario desde detalle" });
+      await pedidoService.actualizarEstadoPedido(pedidoId, "CANCELADO", { motivo: "Cancelado por el usuario desde detalle" });
       setPedido(prev => ({ ...prev, estado: "CANCELADO" }));
-      alert("Pedido cancelado correctamente");
+      showSuccess("Pedido cancelado correctamente.");
     } catch (error) {
       console.error(error);
       setErrorMessage("No se pudo cancelar el pedido");
+      showError("No se pudo cancelar el pedido");
     } finally {
       setLoading(false);
     }
@@ -79,45 +85,13 @@ const DetallePedido = () => {
         </Button>
     </div>
 
-      <Card style={{ maxWidth: '700px', width: '100%' }} className="p-4 shadow-sm">
-        <Card.Title className="mb-3">Pedido #{pedido._id}</Card.Title>
-
-        <Row className="mb-3">
-          <Col><strong>Estado:</strong> <Badge bg={estadoColor(pedido.estado)}>{pedido.estado}</Badge></Col>
-          <Col><strong>Fecha:</strong> {new Date(pedido.fechaCreacion).toLocaleDateString()}</Col>
-          <Col><strong>Total:</strong> ${pedido.total}</Col>
-        </Row>
-        
-         {pedido.estado !== "CANCELADO" && (
-          <div className="mb-3">
-            <Button variant="danger" onClick={handleCancelarPedido}>
-              Cancelar Pedido
-            </Button>
-          </div>
-        )}
-    
-        <h5>Items</h5>
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>Producto ID</th>
-              <th>Cantidad</th>
-              <th>Precio Unitario</th>
-              <th>Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pedido.items.map(item => (
-              <tr key={item.productoId}>
-                <td>{item.productoId}</td>
-                <td>{item.cantidad}</td>
-                <td>${item.precioUnitario}</td>
-                <td>${item.precioUnitario * item.cantidad}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Card>
+      <CardPedido 
+      pedido={pedido} 
+      onPedidoCancelado={handleCancelarPedido} 
+      ShowDetalleBtn={false}
+      >
+        <Badge bg={estadoColor(pedido.estado)}>{pedido.estado}</Badge>
+      </CardPedido>
     </Container>
   );
 };

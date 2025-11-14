@@ -8,6 +8,8 @@ import { obtenerTipoCambio } from '../../services/exchangeApiExternal';
 import tiposCambioManual from '../../services/tiposCambioManual';
 import pedidoService from '../../services/pedidos';
 import './carrito.css'
+import Swal from 'sweetalert2';
+import { confirmAction, showSuccess } from '../../utils/confirmAction.js';
 
 const Carrito =  () => {
   const navegar = useNavigate();
@@ -15,8 +17,18 @@ const Carrito =  () => {
   const [items, setItems] = useState(carritoMock);
   const {cartItems, totalValueCart, cleanCart, removeItem} = useCart()
   const totalCarrito = items.reduce((acc, item) => acc + item.cantidad * item.precioUnitario, 0);
-  const handleRemoveItem = (productoId) => {
-    removeItem(productoId);
+  const handleRemoveItem = async (productoId) => {
+
+    const result = await confirmAction({
+      title: "Eliminar producto?",
+      text: "¿Estás seguro que deseas eliminar este producto del carrito?",
+      confirmText: "Sí, eliminar",
+    });
+  if (!result.isConfirmed) return;
+  
+  removeItem(productoId);
+
+  showSuccess("Producto eliminado del carrito.");
   };
   const conversorMoneda = new ConversorMonedas(obtenerTipoCambio() || tiposCambioManual)
   const obtenerSumaPrecioEn = (moneda, items) => {
@@ -43,7 +55,7 @@ const Carrito =  () => {
       <Card style={{ maxWidth: '700px', width: '100%' }} className="p-4 shadow-sm">
         <Card.Title className="mb-3">Tu Carrito</Card.Title>
 
-        {!cartItems ? (
+        {!cartItems || cartItems.length === 0 ? (
           <p>Tu carrito está vacío.</p>
         ) : (
           <>
@@ -86,7 +98,28 @@ const Carrito =  () => {
               }</h5>
 
             <div className="d-flex justify-content-end mt-3">
-              <Button variant="danger" className="me-2" onClick={()=> cleanCart()}>
+              <Button variant="danger" className="me-2" onClick={async ()=> {
+                if (cartItems.length === 0) {
+                    Swal.fire({
+                      icon: "info",
+                      title: "El carrito ya está vacío",
+                      timer: 1500,
+                      showConfirmButton: false
+                    });
+                    return;
+                  }
+                const confirmed = await confirmAction({
+                    title: "Vaciar carrito?",
+                    text: "Se eliminarán todos los productos del carrito.",
+                    confirmText: "Sí, vaciar",
+                  });
+                  if (!confirmed) return;
+                
+                cleanCart()
+
+                showSuccess("Se eliminaron todos los productos.");
+                
+                }}>
                 Vaciar carrito
               </Button>
               <Button variant="success" 

@@ -5,6 +5,7 @@ import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 import ControlPaginado from '../../components/controlPaginado/ControlPaginado';
 import ErrorMessage from '../../components/errorMessage/ErrorMessage';
 import pedidoService from '../../services/pedidos.js'; 
+import { confirmAction, showSuccess } from '../../utils/confirmAction.js';
 
 
 // Función para darle color al estado
@@ -99,9 +100,19 @@ useEffect(() => {
                 pedido={pedido}
                 onPedidoCancelado={async (pedidoId) => {
                   try{
-                    setLoading(true);
+                    
+
+                    const confirmed = await confirmAction({
+                      title: "Cancelar pedido?",
+                      text: "¿Estás seguro que querés cancelar este pedido?",
+                      confirmText: "Sí, cancelar",
+                    });
+                    if (!confirmed) return;
+                    
+                    //setLoading(true);
                     await pedidoService.actualizarEstadoPedido(pedidoId, "CANCELADO", { motivo: "Cancelado por el usuario desde Mis Pedidos" });
                     setPedidos(prev => prev.map(p => p._id === pedidoId ? {...p, estado: "CANCELADO"} : p));
+                    showSuccess("Pedido cancelado correctamente.");
                   } catch (error) {
                     console.error(error);
                     setErrorMessage("No se pudo cancelar el pedido");

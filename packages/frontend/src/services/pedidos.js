@@ -37,19 +37,19 @@ const actualizarEstadoPedido = async (pedidoId, estado, body = {}) => {
   return response.data;
 };
 
-/*
+
 const obtenerPedidoPorId = async (id) => {
   const token = localStorage.getItem("accessToken");
-  const response = await axios.get(`${baseUrl}/pedidos?pedidoId=${id}`, {
+  const response = await axios.get(`${baseUrl}/pedidos/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
 };
-*/
+
 
 export default {
   obtenerPedidos,
   crearPedido,
   actualizarEstadoPedido,
-  //obtenerPedidoPorId,
+  obtenerPedidoPorId,
 };
