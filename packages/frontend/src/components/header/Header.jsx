@@ -185,6 +185,7 @@ const Header = () => {
           <div className="position-relative flex-grow-1 ms-5">
             <Form
               className="d-flex"
+              id="header-search"
               onSubmit={(e) => {
                 e.preventDefault();
                   navigate(`/productos?valorBusqueda=${valorBusqueda}`);

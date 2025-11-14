@@ -33,7 +33,7 @@ const CardProducto = ({ producto, handleAddCart }) => {
         <p>Vendido por: {producto.vendedor.nombre}</p>
       </div>
 
-        {Number(producto.stock) > 0 ?  <div className="d-grid gap-1"><Button as={Link} to={`/productos/${producto._id}`} variant="primary">
+        {Number(producto.stock) > 0 ?  <div className="d-grid gap-1 card-buttons"><Button as={Link} to={`/productos/${producto._id}`} variant="primary">
           Ver mas
         </Button><Form onSubmit={(e) => {
           e.preventDefault();
