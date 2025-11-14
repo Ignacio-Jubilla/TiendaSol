@@ -15,6 +15,10 @@ export class PedidoRepository {
 
         if(filtros.maxPrice){ query.total = { $lte: filtros.maxPrice }; }
         if(filtros.estado){ query.estado = filtros.estado; }
+        //
+        /*if (filtro.vendedorId) {
+              query.vendedor = new mongoose.Types.ObjectId(filtro.vendedorId)
+            }*/
         if(filtros.usuarioId){ query.comprador = filtros.usuarioId; }
         if(filtros.vendedorId) query["items.producto.vendedor"] = filtros.vendedorId;
         if (filtros.vendedorId) {

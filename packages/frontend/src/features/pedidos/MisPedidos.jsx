@@ -60,6 +60,7 @@ const MisPedidos = () => {
     
   } catch (error) {
     console.error(error);
+    console.log(error.response)
     setErrorMessage('No se pudieron cargar tus pedidos');
   } finally {
     setLoading(false);
