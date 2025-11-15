@@ -14,7 +14,9 @@ export class NotificacionesController {
     */
     async obtenerNotificaciones(req, res){
         try{
-            const { usuario, leidas = true, page = 1, limit = 10 } = req.query;
+            const { leidas = true, page = 1, limit = 10 } = req.query;
+
+            const usuario = req.user.id
 
             if(!usuario){
                 throw new NotificacionUsuarioError()
@@ -30,7 +32,13 @@ export class NotificacionesController {
 
     async marcarNotificacionLeida(req, res){
         try {
-            const notificacion = await this.notificacionService.marcarNotificacionLeida(req.params.id, req.query.usuario)
+            const usuario = req.user.id
+
+            if(!usuario){
+                throw new NotificacionUsuarioError()
+            }
+
+            const notificacion = await this.notificacionService.marcarNotificacionLeida(req.params.id, usuario)
 
             res.status(201).json(notificacion)
 

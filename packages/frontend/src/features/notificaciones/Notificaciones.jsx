@@ -13,7 +13,7 @@ import notificacionesMocked from './../../mocks/notificaciones.json'
 import { FaSearch } from 'react-icons/fa';
 
 const Notificaciones = () => {
-  const { user } = useAuth()
+  const { getToken } = useAuth()
   const [notificaciones, setNotificaciones] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -25,11 +25,10 @@ const Notificaciones = () => {
   const cargarNotificaciones = async ({pagina = 1, limit= 10, leidas= false}) => {
     try {
       setLoading(true)
-      const usuario = user.id
 
-      const notificacionesPage = await notificacionesService.getNotificaciones(usuario, leidas, pagina, limit)
+      const notificacionesPage = await notificacionesService.getNotificaciones(leidas, pagina, limit, getToken())
       setNotificaciones(notificacionesPage.data)
-      setSearchParams({usuario: usuario, page: notificacionesPage.pagina, leidas: notificacionesLeidas})
+      setSearchParams({page: notificacionesPage.pagina, leidas: notificacionesLeidas})
       setPagination({
         page: notificacionesPage.pagina,
         total_pages: notificacionesPage.totalPaginas
@@ -46,7 +45,7 @@ const Notificaciones = () => {
   }, [])
   
   const marcarLeida = async (id) => {
-    await notificacionesService.marcarNotificacionLeida(id)
+    await notificacionesService.marcarNotificacionLeida(id, getToken())
 
     cargarNotificaciones({})
     }
