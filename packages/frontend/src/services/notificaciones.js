@@ -17,7 +17,7 @@ const getNotificaciones = async (leidas, page, limit, token) => {
 }
 
 const marcarNotificacionLeida = async (id, token) => {
-  const response = await axios.patch(baseUrl + `/notificaciones/${id}/leida`,
+  const response = await axios.patch(baseUrl + `/notificaciones/${id}`,
     null, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -26,4 +26,13 @@ const marcarNotificacionLeida = async (id, token) => {
   return response.data
 }
 
-export default {getNotificaciones, marcarNotificacionLeida}
+const contarNotificacionesNoLeidas = async (token) => {
+  const response = await axios.get(baseUrl + `/notificaciones/no-leidas/cantidad`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+  return response.data
+}
+
+export default {getNotificaciones, marcarNotificacionLeida, contarNotificacionesNoLeidas}

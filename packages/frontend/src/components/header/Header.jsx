@@ -10,12 +10,14 @@ import authServices from '../../services/auth';
 import productosService from '../../services/productos';
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { confirmAction,showSuccess } from '../../utils/confirmAction';
+import { useNotificacion } from '../../context/NotificacionContext';
 
 const Header = () => {
   const { totalCart, cartItems, totalValueCart, removeItem } = useCart();
   const { user, logoutContext } = useAuth();
+  const { notificaciones } = useNotificacion();
   const suggestionsRef = useRef(null); 
-  const [currentNotifications, setCurrentNotificacion] = useState(0);
+  //const [currentNotifications, setCurrentNotificacion] = useState(0);
   const [valorBusqueda, setValorBusqueda] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [highlightIndex, setHighlightIndex] = useState(-1); // -1 = sin selección
@@ -37,6 +39,8 @@ const Header = () => {
       setShowSuggestions(false);
     }
   };
+
+  //setCurrentNotificacion(notificaciones)
 
   document.addEventListener('mousedown', handleClickOutside);
   return () => {
@@ -315,10 +319,10 @@ const Header = () => {
             <Link
               to="/notificaciones"
               className="icon-item position-relative"
-              aria-label={`Ir a notificaciones, actualmente tienes ${currentNotifications} notificaciones`}
+              aria-label={`Ir a notificaciones, actualmente tienes ${notificaciones} notificaciones`}
             >
               <HiBellAlert size={30} />
-              {currentNotifications}
+              {notificaciones}
             </Link>
           ) : null}
         </div>

@@ -48,6 +48,17 @@ export class NotificacionesController {
         }
     }
 
+    async contarNotificacionesNoLeidas(req, res){
+        try {
+            const usuario = req.user.id
+            const cantidad = await this.notificacionService.contarNotificacionesNoLeidas(usuario)
+            res.status(200).json({ cantidad })
+        } catch (error){
+            console.log(error)
+            res.status(error.statusCode).json({ error: error.message });
+        }
+    }
+
 
 
 }

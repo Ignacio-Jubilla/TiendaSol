@@ -9,6 +9,7 @@ import ControlPaginado from '../../components/controlPaginado/ControlPaginado';
 import { useSearchParams } from 'react-router';
 import { Button, Form } from 'react-bootstrap';
 import { useAuth } from '../../context/authContext';
+import { useNotificacion } from '../../context/NotificacionContext';
 import notificacionesMocked from './../../mocks/notificaciones.json'
 import { FaSearch } from 'react-icons/fa';
 
@@ -47,11 +48,11 @@ const Notificaciones = () => {
   const marcarLeida = async (id) => {
     await notificacionesService.marcarNotificacionLeida(id, getToken())
 
-    cargarNotificaciones({})
+    cargarNotificaciones({pagina: pagination.page, limit: perPage})
     }
 
   const handleChangePage = (pag) => {
-    cargarNotificaciones({pagina: pag, leidas: notificacionesLeidas})
+    cargarNotificaciones({pagina: pag, limit: perPage, leidas: notificacionesLeidas})
   }
 
   const handleLeidasChange = (notiLeidas) => {
@@ -61,6 +62,14 @@ const Notificaciones = () => {
   useEffect(() => {
   cargarNotificaciones({ leidas: notificacionesLeidas });
   }, [notificacionesLeidas]);
+
+  const validPerPage = (num) => {
+    if( num >= 10 && num <= 30){
+      setPerPage(num)
+    } else {
+      setPerPage(10)
+    }
+  }
 
   return (
     <div className="notificaciones container">
@@ -83,9 +92,13 @@ const Notificaciones = () => {
       value={perPage}
       min={10}
       max={30}
-      onChange={(e) => setPerPage(e.target.value)}
+      onChange={(e) => { setPerPage(e.target.value) }}
+      onBlur={(e) => validPerPage(e.target.value)}
     />
-    <Button className='ms-2'>
+    <Form.Control.Feedback type="invalid" tooltip>
+                {'tiene que ser numerico'}
+              </Form.Control.Feedback>
+    <Button className='ms-2' onClick={() => cargarNotificaciones({pagina: pagination.page, limit: perPage, leidas: notificacionesLeidas})}>
     <FaSearch aria-hidden="true" />
     </Button>
   </Form.Group>

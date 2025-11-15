@@ -33,8 +33,12 @@ notificacionesRouter.patch('/:id/leida', asyncHandler(async (req, res) => {
 }))
 */
 
-notificacionesRouter.patch('/:id/leida', middleware.extractUser, asyncHandler(async (req, res) => {
+notificacionesRouter.patch('/:id', middleware.extractUser, asyncHandler(async (req, res) => {
     return await notificacionesController.marcarNotificacionLeida(req, res)
+}))
+
+notificacionesRouter.get('/no-leidas/cantidad', middleware.extractUser, asyncHandler(async (req, res) => {
+    return await notificacionesController.contarNotificacionesNoLeidas(req, res)
 }))
 
 export default notificacionesRouter

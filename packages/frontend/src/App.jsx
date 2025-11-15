@@ -20,6 +20,7 @@ import { CartProvider } from "./context/CartContext.jsx";
 import Notificaciones from "./features/notificaciones/Notificaciones.jsx";
 import NotFound from "./features/notFound/NotFound.jsx";
 import { AuthProvider } from "./context/authContext.jsx";
+import { NotificacionProvider } from "./context/NotificacionContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MainRouteRedirect from "./components/PublicRoute.jsx";
 import FinalizarCompra from "./features/finalizarCompra/FinalizarCompra.jsx";
@@ -35,6 +36,7 @@ function App() {
     <BrowserRouter>
     <CartProvider>
       <AuthProvider>
+      <NotificacionProvider>
       <Routes>
         <Route path="/" element={<Layout  />} >
         <Route path="/" element={<MainRouteRedirect/>}>
@@ -66,6 +68,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      </NotificacionProvider>
       </AuthProvider>
       </CartProvider>
     </BrowserRouter>

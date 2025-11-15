@@ -73,4 +73,10 @@ export class NotificacionService {
         return new NotificacionOutputDTO(notificacionLeida)
     }
 
+    async contarNotificacionesNoLeidas(idUsuario){
+        const cantidadNoLeidas = await this.notificacionesRepository.contarNotificacionesDeUnUsuario(idUsuario, false);
+        
+        return cantidadNoLeidas
+    }
+
 }
