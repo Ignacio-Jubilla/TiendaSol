@@ -18,20 +18,10 @@ const traductor = new TraductorManual()
 const factoryNotificacion = new FactoryNotificacion(traductor)
 const notificacionService = new NotificacionService(notificacionesRepository, usuarioRepository, factoryNotificacion, productoRepository)
 const notificacionesController = new NotificacionesController(notificacionService)
-/*
-notificacionesRouter.get('/', asyncHandler(async (req, res) => {
-    return await notificacionesController.obtenerNotificaciones(req, res)
-}))
-*/
 
 notificacionesRouter.get('/', middleware.extractUser,asyncHandler(async (req, res) => {
     return await notificacionesController.obtenerNotificaciones(req, res)
 }))
-/*
-notificacionesRouter.patch('/:id/leida', asyncHandler(async (req, res) => {
-    return await notificacionesController.marcarNotificacionLeida(req, res)
-}))
-*/
 
 notificacionesRouter.patch('/:id', middleware.extractUser, asyncHandler(async (req, res) => {
     return await notificacionesController.marcarNotificacionLeida(req, res)

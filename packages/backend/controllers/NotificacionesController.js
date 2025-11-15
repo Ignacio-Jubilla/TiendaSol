@@ -6,12 +6,6 @@ export class NotificacionesController {
         this.notificacionService = notificacionService;
     }
 
-    /*
-        De momento pasamos el USER como query param, explicacion de eze:
-        
-        "Respecto al user, no va a ser necesario pasarlo por parámetro pues lo tomaremos de otra forma;
-        aunque por el momento lo pueden establecer así. Luego los ayudaremos a modificarlo."
-    */
     async obtenerNotificaciones(req, res){
         try{
             const { leidas = true, page = 1, limit = 10 } = req.query;
