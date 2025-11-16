@@ -3,7 +3,12 @@ import Logo from "../../media/tiendaSolLogo.png"
 import "./LandingPage.css"
 import { Button, Col, Row, Stack } from 'react-bootstrap';
 import { Link } from 'react-router';
+import { useAuth } from '../../context/authContext';
+
 const LandingPage = () => {
+
+  const { user } = useAuth()
+
   return (
     <>
       <div className='container-fluid'>
@@ -28,13 +33,15 @@ const LandingPage = () => {
               <li>Accede a notificaciones sobre pedidos recibidos</li>
             </ul>
           </Col>
+          {!user ? 
           <Col className="d-flex flex-column align-items-center p-3 rounded-bottom-4 register-login">
             <h4>¡Ingresa ahora y descubre lo que TiendaSol puede ofrecerte!</h4>
             <Stack gap={5} direction='horizontal' className='mx-auto'>
               <Button variant="light" aria-label='Iniciar sesion' as={Link} to={`/login`}>Iniciar sesión</Button>
               <Button variant="dark" aria-label='Registrate' as={Link} to={`/register`}>Registrarse</Button>
             </Stack>
-          </Col>
+          </Col> : null
+          }
         </Row>
       </div>
     </>

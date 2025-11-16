@@ -12,7 +12,7 @@ const ValidationCheck = ({ isValid, message }) => (
     className="d-flex align-items-center py-1 px-2 border-0"
     style={{ fontSize: '0.9rem' }}
   >
-    {isValid ? <FiCheck color="green" /> : <FiX color="gray" />}
+    {isValid ? <FiCheck color="green" /> : <FiX color="red" />}
     <span className="ms-2">{message}</span>
   </ListGroup.Item>
 );

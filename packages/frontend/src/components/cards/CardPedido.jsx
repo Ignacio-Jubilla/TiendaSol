@@ -15,6 +15,7 @@ const CardPedido = ({ pedido, onPedidoCancelado, children, ShowDetalleBtn = true
   useEffect(() => {
   const fetchNombres = async () => {
     const nombres = {};
+    console.log(pedido)
     for (const item of pedido.items) {
       try {
         const producto = item.producto || await productosService.getProducto(item.productoId);
@@ -33,7 +34,7 @@ const CardPedido = ({ pedido, onPedidoCancelado, children, ShowDetalleBtn = true
   return (
     <section className="card-pedido" key={pedido._id}>
       <div className="pedido-header d-flex justify-content-between align-items-center">
-        <span className="pedido-id">Pedido #{pedido._id}</span>
+        <span className="pedido-id">Pedido</span>
         <span className="badge-modern">{children}</span>
       </div>
 
@@ -51,7 +52,7 @@ const CardPedido = ({ pedido, onPedidoCancelado, children, ShowDetalleBtn = true
 
       <div className="d-flex gap-2 justify-content-end">
         {ShowDetalleBtn && (<Button 
-          className="btn-modern btn-modern-primary"
+          variant="primary"
           onClick={()=> navegar(`/pedidos/${pedido._id}`)}
         >
           Ver detalle
@@ -60,10 +61,10 @@ const CardPedido = ({ pedido, onPedidoCancelado, children, ShowDetalleBtn = true
 
         {["PENDIENTE", "CONFIRMADO", "EN_PREPARACION"].includes(pedido.estado) && (
           <Button 
-            className="btn-modern btn-modern-danger"
+            variant="danger"
             onClick={handleCancelar}
           >
-            Cancelar
+            Cancelar pedido
           </Button>
         )}
       </div>
