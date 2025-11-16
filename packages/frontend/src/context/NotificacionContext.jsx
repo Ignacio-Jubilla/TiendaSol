@@ -21,13 +21,13 @@ export const NotificacionProvider = ({ children }) => {
         }
     }
 
-    const restarNotificacion = ()=> {
+    const restarNotificacion = () => {
         setNotificaciones(prev => Math.max(0, prev - 1))
     }
 
     useEffect(() => {
         cargarNotificaciones()
-        }, [])
+        }, [user])
     
 
     const value = {

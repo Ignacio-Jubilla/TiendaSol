@@ -11,6 +11,7 @@ import productosService from '../../services/productos';
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { confirmAction,showSuccess } from '../../utils/confirmAction';
 import { useNotificacion } from '../../context/NotificacionContext';
+import NotificacionPreview from '../notificacionPreview/NotificacionPreview';
 
 const Header = () => {
   const { totalCart, cartItems, totalValueCart, removeItem } = useCart();
@@ -24,6 +25,7 @@ const Header = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [showPopover, setShowPopover] = useState(false);
+  const [showNotificacionPopover, setShowNotificacionPopover] = useState(false);
 
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -316,6 +318,18 @@ const Header = () => {
           </OverlayTrigger> : null}
 
           {user ? (
+            <OverlayTrigger placement="bottom" 
+              overlay={<NotificacionPreview onOpen={() => setShowNotificacionPopover(true)} onClose={() => setShowNotificacionPopover(false)}/>}
+              show={showNotificacionPopover}
+              delay={{ show: 100, hide: 200 }}
+              trigger={['hover', 'focus']}
+            >
+            <div
+              className="icon-item position-relative"
+              onMouseEnter={() => setShowNotificacionPopover(true)}
+              onMouseLeave={() => setShowNotificacionPopover(false)}
+              onClick={() => setShowNotificacionPopover(false)}
+            >
             <Link
               to="/notificaciones"
               className="icon-item position-relative"
@@ -324,7 +338,8 @@ const Header = () => {
               <HiBellAlert size={30} />
               {notificaciones}
             </Link>
-          ) : null}
+            </div>
+          </OverlayTrigger>) : null}
         </div>
       </Navbar>
     </header>

@@ -15,6 +15,7 @@ import { FaSearch } from 'react-icons/fa';
 
 const Notificaciones = () => {
   const { getToken } = useAuth()
+  const { restarNotificacion } = useNotificacion()
   const [notificaciones, setNotificaciones] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -47,6 +48,7 @@ const Notificaciones = () => {
   
   const marcarLeida = async (id) => {
     await notificacionesService.marcarNotificacionLeida(id, getToken())
+    restarNotificacion()
 
     cargarNotificaciones({pagina: pagination.page, limit: perPage})
     }
