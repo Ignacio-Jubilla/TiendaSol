@@ -13,8 +13,8 @@ const pedidoSchema = new mongoose.Schema({
     ref: 'Usuario',
     required: true 
   },
-  items: [itemPedidoSchema],
-  total: { type: Number, required: true },
+  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ItemPedido' }],
+  total: { type: Number},
   moneda: { type: String, required: true },
   direccionEntrega: direccionEntregaSchema,
   estado: { type: String, enum: Object.values(EstadoPedido), default: EstadoPedido.PENDIENTE },

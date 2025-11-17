@@ -1,3 +1,5 @@
+import { es } from "zod/v4/locales";
+
 export class PedidoOutputDTO{
   constructor(pedido) {
     this._id = pedido._id || pedido.id,
@@ -9,7 +11,8 @@ export class PedidoOutputDTO{
             ? item.producto._id.toString()
             : item.producto?.toString() || null,
       cantidad: item.cantidad,
-      precioUnitario: item.precioUnitario
+      precioUnitario: item.precioUnitario,
+      estado: item.estado || null
     })),
     this.total = pedido.total,
     this.moneda = pedido.moneda,

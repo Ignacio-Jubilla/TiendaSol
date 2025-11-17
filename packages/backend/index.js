@@ -6,6 +6,7 @@ import productosRouter from './routes/ProductosRouter.js'
 import usuariosRouter from './routes/UsuariosRoutes.js'
 import authRouter from './routes/authRoutes.js'
 import middleware from './utils/middleware.js'
+import itemPedidoRouter from './routes/ItemPedidoRouter.js'
 import cookieParser from 'cookie-parser'
 import { DBConnector } from './utils/dbConnector.js'
 import notificacionesRouter from './routes/NotificacionRoutes.js'
@@ -48,6 +49,7 @@ app.use('/api/productos', productosRouter)
 app.use('/api/notificaciones', notificacionesRouter)
 app.use('/api/usuarios', usuariosRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/itemPedidos', itemPedidoRouter)
 //expone imagenes de productos
 app.use('/uploads', express.static('uploads'))
 app.use(middleware.errorHandler)

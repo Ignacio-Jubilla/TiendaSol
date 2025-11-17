@@ -9,12 +9,12 @@ import { es } from "zod/v4/locales";
 
 
 export class PedidoService {
-    constructor(PedidoRepository,UsuariosRepository,ProductosRepository,NotificacionService) {
+    constructor(PedidoRepository,ItemPedidoRepository, UsuariosRepository,ProductosRepository,NotificacionService) {
         this.pedidoRepository = PedidoRepository,
+        this.itemPedidoRepository=ItemPedidoRepository;
         this.usuariosRepository=UsuariosRepository,
         this.productosRepository=ProductosRepository;
         this.notificacionService=NotificacionService;
-
     }
     async obtenerPedidosPaginados(page, limit, filtros) {
         const numeroPagina = Math.max(Number(page),1);
@@ -49,41 +49,55 @@ export class PedidoService {
     }
 
     async crearPedido(pedidoInputDTO) {
+
         const usuario = await this.usuariosRepository.findById(pedidoInputDTO.compradorId);
+
         if (!usuario) {
-            throw new UsuarioNotExists('El usuario comprador no existe');
+            throw new UsuarioNotExists('El usuario comprador no existe')
         }
+        let total = 0;
         for (const item of pedidoInputDTO.items) {
             const producto = await this.productosRepository.findById(item.productoId);
             if (!producto) {
                 throw new EntidadNotFoundError("producto con id " + item.productoId + " no encontrado");
             }
             producto.estaDisponible(item.cantidad);
+            total += producto.precio * item.cantidad;
         }
-        const nuevoPedido = new Pedido(usuario, pedidoInputDTO.items,
-            pedidoInputDTO.moneda, pedidoInputDTO.direccionEntrega);
-        nuevoPedido.agregarEstadoInicial(usuario);
-        //ahora tendria que mapear el pedido para guardarlo
-        const pedidoData = this.creacionToDB(nuevoPedido); 
-
-        // se descuenta el stock de los productos del pedido
+        
+        const pedidoData = this.creacionToDB({...pedidoInputDTO, total: total }); 
+        
+        const pedidoGuardado = await this.pedidoRepository.save(pedidoData);
+        let listaItemsId = [];
         for (const item of pedidoInputDTO.items) {
             const producto = await this.productosRepository.findById(item.productoId);
             
             producto.reducirStock(item.cantidad);
-
+            
             await this.productosRepository.updateProducto(
                 item.productoId,
                 { stock: producto.stock }
             );
+            
+            const itemPedidoData = {
+                producto: item.productoId,
+                cantidad: item.cantidad,
+                precioUnitario: producto.precio,
+                estado: EstadoPedido.PENDIENTE,
+                idPedido: pedidoGuardado._id || pedidoGuardado.id, 
+            };
+            const itemPedidoGuardado = await this.itemPedidoRepository.save(itemPedidoData);
+            listaItemsId.push(itemPedidoGuardado._id);
         }
-
-        const pedidoGuardado = await this.pedidoRepository.save(pedidoData);
         
-        await this.notificacionService.crearNotificacion(pedidoGuardado);
+        //add list of items id to pedido
+        pedidoGuardado.items = listaItemsId;
+
+        await this.pedidoRepository.update(pedidoGuardado._id, { items: listaItemsId });
+
+        //await this.notificacionService.crearNotificacion(pedidoGuardado);
         
         return this.toOutputDTO(pedidoGuardado);
-    
     }
 
     // tema a consultar, 
@@ -122,7 +136,13 @@ export class PedidoService {
                 }
             );
         }
-
+        const listaa = [EstadoPedido.CANCELADO, EstadoPedido.ENTREGADO, EstadoPedido.ENVIADO];
+        for(const item of pedidoBase.items){
+            if(listaa.includes(item.estado)) continue;
+            const itemPedidoId = item._id;
+            const estado = EstadoPedido.CANCELADO;
+            await this.itemPedidoRepository.updateEstado(itemPedidoId, estado);
+        }
         pedido.actualizarEstado(EstadoPedido.CANCELADO, usuarioQueCancela , motivo);
 
         const updateData = this.modifToDB(pedido);
@@ -132,91 +152,37 @@ export class PedidoService {
         return this.toOutputDTO(updateData);
     }
 
-
-    async marcarEnviado(pedidoId) {
-        const pedidoBase = await this.pedidoRepository.findById(pedidoId);
-
+    async verificarEstado(pedidoId) {
+        const pedidoBase = await this.pedidoRepository.findById(pedidoId)
         if (!pedidoBase) {
-            throw new PedidoNotFound();
-        }
-        const lista = [EstadoPedido.CANCELADO, EstadoPedido.ENTREGADO, EstadoPedido.ENVIADO];
-
-        if (lista.includes(pedidoBase.estado)) {
-            throw new NoPuedeEnviarseError();
+            throw new PedidoNotFound()
         }
 
-        const pedido = Pedido.fromDB(pedidoBase);
-        
-        const usuarioQueEnvia = await this.usuariosRepository.findById(pedido.comprador);
-        if (!usuarioQueEnvia) {
-            throw new UsuarioNotExists('El usuario no existe');
-        }
+        const listaEstados = [];
+        let estadoActual
 
-        // falta notificar al usuario que envía
-        
-        //const productos = pedido.items.map(item => item.producto);
-        
-        //productos.
-
-        //se aumenta la cantidad vendida de cada producto
-
-        for (const item of pedidoBase.items) {
-            // item.producto puede ser un ObjectId o un objeto con _id
-            const productoId = item.producto._id.toString();
-            console.log("productoId:", productoId);
-
-            const producto = await this.productosRepository.findById(productoId);
-
-            if (!producto) {
-                throw new EntidadNotFoundError(`Producto con id ${productoId} no encontrado`);
+        for (const itemId of pedidoBase.id) {
+            const itemPedido = await this.itemPedidoRepository.findById(itemId);
+            if(!itemPedido){
+                throw new EntidadNotFoundError(`ItemPedido con id ${itemId} no encontrado`);
             }
 
-            producto.aumentarVentas(item.cantidad);
-
-            await this.productosRepository.updateProducto(
-                productoId,
-                { 
-                    stock: producto.stock,
-                    ventas: producto.ventas
+            if (listaEstados.length === 0) {
+                estadoActual = itemPedido.estado
+            } else {
+                if(listaEstados.contains(itemPedido.estado)) {
+                    estadoActual = itemPedido.estado
+                } else {
+                    estadoActual = EstadoPedido.PENDIENTE
                 }
-            );
-        }
-
-        pedido.actualizarEstado(EstadoPedido.ENVIADO, usuarioQueEnvia,null);
-
-        const updateData = this.modifToDB(pedido);
-
-        const updatePedido = await this.pedidoRepository.update(pedidoBase._id, updateData);
-
-        await this.notificacionService.crearNotificacion(updatePedido);
-
-        return this.toOutputDTO(updatePedido);
+            }
+             listaEstados.push(itemPedido.estado)
     }
 
-    async actualizarEstadoItemPedido(pedidoId, itemPedidoId, estado) {
+    await this.pedidoRepository.actualizar(pedido)
 
-        const pedido = await this.pedidoRepository.findById(pedidoId);
-        if (!pedido) throw new EntidadNotFoundError(`Pedido ${pedidoId} no encontrado`);
+}
 
-
-        const itemPedido = pedido.items.find(item => item.producto._id.toString() === itemPedidoId.toString());
-        if (!itemPedido) {
-            throw new EntidadNotFoundError(`El itemPedido con id ${itemPedidoId} no pertenece al pedido ${pedidoId}`);
-        }
-        itemPedido.estado = estado;
-
-        const estadosItems = pedido.items.map(i => i.estado);
-
-        if (estadosItems.every(e => e === EstadoPedido.ENVIADO)) pedido.estado = EstadoPedido.ENVIADO;
-        else if (estadosItems.every(e => e === EstadoPedido.CANCELADO)) pedido.estado = EstadoPedido.CANCELADO;
-        else if (estadosItems.every(e => e === EstadoPedido.PENDIENTE)) pedido.estado = EstadoPedido.PENDIENTE;
-        else pedido.estado = EstadoPedido.PARCIAL;
-
-
-        await pedido.save();
-        return pedido;
-
-    }
 
     toOutputDTOs(pedidos){
         return pedidos.map(x=>this.toOutputDTO(x))
@@ -226,18 +192,9 @@ export class PedidoService {
         return new PedidoOutputDTO(pedido);
     }
 
-    /*
-    marcarEnviado() {
-        const estadosValidos = [EstadoPedido.CONFIRMADO, EstadoPedido.EN_PREPARACION];
-        if (!estadosValidos.includes(this.estado)) {
-        throw new Error('El pedido no puede ser marcado como enviado');
-        }
-        this.cambioDeEstado(EstadoPedido.ENVIADO);
-        return console.log(`Pedido ${this.id} marcado como enviado`);
-    }
-*/
     modifToDB(pedido){
         return {
+            comprador: pedido.compradoid,
             estado: pedido.estado,
             historialEstados: pedido.historialEstados.map(ce => ({
                 estado: ce.estado,
@@ -251,23 +208,14 @@ export class PedidoService {
 
     creacionToDB(nuevoPedido){
         return {
-            comprador: nuevoPedido.comprador._id,
-            items: nuevoPedido.items.map(item => ({
-                producto: item.producto,
-                cantidad: item.cantidad,
-                precioUnitario: item.precioUnitario
-            })),
+            
+            comprador: nuevoPedido.compradorId,
+            items: [],
             moneda: nuevoPedido.moneda,
             direccionEntrega: { ...nuevoPedido.direccionEntrega },
-            estado: nuevoPedido.
-            estado,
+            estado: EstadoPedido.PENDIENTE,
             fechaCreacion: nuevoPedido.fechaCreacion,
-            historialEstados: nuevoPedido.historialEstados.map(ce => ({
-                estado: ce.estado,
-                usuario: ce.usuario._id || ce.usuario,
-                fecha: ce.fecha,
-                motivo: ce.motivo
-            })),
+            historialEstados: [],
             total: nuevoPedido.total
         };
     }

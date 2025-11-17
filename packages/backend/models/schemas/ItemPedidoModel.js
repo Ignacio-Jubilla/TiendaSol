@@ -20,6 +20,11 @@ const itemPedidoSchema = new mongoose.Schema({
     type: String, 
     enum: Object.values(EstadoPedido),
     default: EstadoPedido.PENDIENTE
+  },
+  idPedido: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Pedido',
+    required: true
   }
 })
 itemPedidoSchema.loadClass(ItemPedido)

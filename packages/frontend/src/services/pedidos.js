@@ -46,10 +46,19 @@ const obtenerPedidoPorId = async (id) => {
   return response.data;
 };
 
+const cancelarItemPedido = async (pedidoId, itemId) => {
+  const token = localStorage.getItem("accessToken");
+  const response = await axios.patch(`${baseUrl}/pedidos/${pedidoId}/items/${itemId}?estado=CANCELADO`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
 
 export default {
   obtenerPedidos,
   crearPedido,
   actualizarEstadoPedido,
   obtenerPedidoPorId,
+  cancelarItemPedido
 };

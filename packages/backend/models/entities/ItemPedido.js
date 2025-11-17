@@ -4,6 +4,7 @@ export class ItemPedido{
     this.cantidad = cantidad;
     this.precioUnitario = precioUnitario;
     this.estado;
+    this.idPedido;
   }
 
   getCantidad = () => this.cantidad

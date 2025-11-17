@@ -8,6 +8,7 @@ import { NotificacionService } from '../services/NotificacionService.js';
 import { FactoryNotificacion } from '../models/entities/FactoryNotificacion.js'
 import { TraductorManual } from '../models/entities/TraductorManual.js'
 import { NotificacionesRepository } from '../models/repositories/NotificacionesRepository.js'
+import { ItemPedidoRepository } from '../models/repositories/ItemPedidoRepository.js'
 
 /*
 import { PedidoDTO } from '../models/entities/dtos/input/PedidoDTO';
@@ -26,10 +27,11 @@ const usuarioRepo = new UsuarioRepository();
 const pedidoRepo = new PedidoRepository();
 const productoRepo = new ProductoRepository();
 const notificacionesRepository = new NotificacionesRepository()
+const itemPedidoRepository = new ItemPedidoRepository()
 const traductor = new TraductorManual()
 const factoryNotificacion = new FactoryNotificacion(traductor)
 const notificacionService = new NotificacionService(notificacionesRepository, usuarioRepo, factoryNotificacion, productoRepo)
-const pedidosService = new PedidoService(pedidoRepo, usuarioRepo, productoRepo, notificacionService);
+const pedidosService = new PedidoService(pedidoRepo,itemPedidoRepository, usuarioRepo, productoRepo, notificacionService);
 
 const pedidosController = new PedidosController(pedidosService);
 

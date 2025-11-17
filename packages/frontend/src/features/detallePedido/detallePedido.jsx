@@ -61,8 +61,9 @@ const DetallePedido = () => {
       
       setLoading(true);
     
-      await pedidoService.actualizarEstadoPedido(pedidoId, "CANCELADO", { motivo: "Cancelado por el usuario desde detalle" });
-      setPedido(prev => ({ ...prev, estado: "CANCELADO" }));
+      const pedidoActualizado = await pedidoService.actualizarEstadoPedido(pedidoId, "CANCELADO", { motivo: "Cancelado por el usuario desde detalle" });
+
+      setPedido(pedidoActualizado);
       showSuccess("Pedido cancelado correctamente.");
     } catch (error) {
       console.error(error);
@@ -90,6 +91,7 @@ const DetallePedido = () => {
       onPedidoCancelado={handleCancelarPedido} 
       ShowDetalleBtn={false}
       showItems={true}
+      showCancelarItemBtn={true}
       >
         <Badge bg={estadoColor(pedido.estado)}>{pedido.estado}</Badge>
       </CardPedido>

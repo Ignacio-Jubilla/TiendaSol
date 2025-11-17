@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class Pedido {
   constructor(usuario,items,moneda,direccionEntrega) {
     this.comprador = usuario
-    this.items = items.map(item => new ItemPedido(item.productoId,item.cantidad,item.precioUnitario));
+    this.items = items.map(item => item._id);
     this.total = this.calcularTotal();
     this.moneda = moneda;
     this.direccionEntrega = direccionEntrega

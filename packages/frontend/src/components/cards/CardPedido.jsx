@@ -3,14 +3,44 @@ import { Button } from "react-bootstrap";
 import './CardPedido.css';
 import { useNavigate } from 'react-router';
 import productosService from '../../services/productos.js'; // import default
+import  pedidoService  from '../../services/pedidos.js';
+import { confirmAction, showSuccess, showError } from '../../utils/confirmAction.js';
 
-const CardPedido = ({ pedido, onPedidoCancelado, children, ShowDetalleBtn = true, showItems = true }) => {
+const CardPedido = ({ pedido, onPedidoCancelado, onItemCancelado, ShowDetalleBtn = true,showCancelarItemBtn = false, showItems = true, children}) => {
   const navegar = useNavigate();
   const [productosNombres, setProductosNombres] = useState({}); // {id: nombre}
+  const [pedidoState, setPedido] = useState(pedido);
 
-  const handleCancelar = () => {
+  const handleCancelarPedido = () => {
     if (onPedidoCancelado) onPedidoCancelado(pedido._id);
   }
+
+const handleCancelarItem = async (itemId) => {
+  try {
+    const confirmacion = await confirmAction({
+      title: "Cancelar item?",
+      text: "¿Estás seguro que deseas cancelar este item del pedido?",
+      confirmText: "Sí, cancelar",
+    });
+    if (!confirmacion) return;
+
+    await pedidoService.cancelarItemPedido(pedidoState._id, itemId);
+
+    setPedido(prev => ({
+      ...prev,
+      items: prev.items.map(i =>
+        (i._id === itemId || i.productoId === itemId) 
+          ? { ...i, estado: "CANCELADO" } 
+          : i
+      )
+    }));
+
+    if(onItemCancelado) onItemCancelado(itemId);
+    showSuccess("Item cancelado con éxito");
+  } catch (error) {
+    console.error("Error al cancelar el item del pedido:", error);
+  }
+}
 
 useEffect(() => {
   if(!showItems) return;
@@ -35,6 +65,8 @@ useEffect(() => {
   if (pedido.items?.length > 0) fetchNombres();
 }, [pedido.items,showItems]);
 
+const pedidoCancelado = pedido.estado === "CANCELADO";
+
 
   return (
     <section className="card-pedido" key={pedido._id}>
@@ -48,12 +80,21 @@ useEffect(() => {
 
       {showItems && (
       <div className="pedido-items">
-        {pedido.items.map((item, index) => {
+        {pedidoState.items.map((item, index) => {
           const pid = item.productoId || item.producto?._id || `item-${index}`;
           return (
             <div key={pid} className="pedido-item">
               <span>{productosNombres[pid] || 'Cargando...'} x {item.cantidad}</span>
               <span>${(item.cantidad * item.precioUnitario).toFixed(2)}</span>
+            {showCancelarItemBtn && pedido.estado!=="CANCELADO" && item.estado !== "CANCELADO" && (
+              <Button 
+                className="btn-modern btn-modern-danger"
+                size="sm"
+                onClick={() => handleCancelarItem(item.productoId)}
+              >
+                Cancelar item
+              </Button>
+          )}
             </div>
           )
         })}
@@ -72,7 +113,7 @@ useEffect(() => {
         {["PENDIENTE", "CONFIRMADO", "EN_PREPARACION"].includes(pedido.estado) && (
           <Button 
             className="btn-modern btn-modern-danger"
-            onClick={handleCancelar}
+            onClick={handleCancelarPedido}
           >
             Cancelar
           </Button>
