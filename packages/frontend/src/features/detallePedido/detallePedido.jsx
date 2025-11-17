@@ -89,6 +89,7 @@ const DetallePedido = () => {
       pedido={pedido} 
       onPedidoCancelado={handleCancelarPedido} 
       ShowDetalleBtn={false}
+      showItems={true}
       >
         <Badge bg={estadoColor(pedido.estado)}>{pedido.estado}</Badge>
       </CardPedido>

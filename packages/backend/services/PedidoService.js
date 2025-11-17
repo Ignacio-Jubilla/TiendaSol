@@ -6,12 +6,15 @@ import { PedidoOutputDTO } from "../models/entities/dtos/output/PedidoOutputDTO.
 import { CancelationError, EntidadNotFoundError, NoPuedeEnviarseError } from "../errors/PedidosErrors.js";
 import mongoose from "mongoose";
 import { es } from "zod/v4/locales";
+
+
 export class PedidoService {
     constructor(PedidoRepository,UsuariosRepository,ProductosRepository,NotificacionService) {
         this.pedidoRepository = PedidoRepository,
         this.usuariosRepository=UsuariosRepository,
         this.productosRepository=ProductosRepository;
         this.notificacionService=NotificacionService;
+
     }
     async obtenerPedidosPaginados(page, limit, filtros) {
         const numeroPagina = Math.max(Number(page),1);
@@ -188,6 +191,31 @@ export class PedidoService {
         await this.notificacionService.crearNotificacion(updatePedido);
 
         return this.toOutputDTO(updatePedido);
+    }
+
+    async actualizarEstadoItemPedido(pedidoId, itemPedidoId, estado) {
+
+        const pedido = await this.pedidoRepository.findById(pedidoId);
+        if (!pedido) throw new EntidadNotFoundError(`Pedido ${pedidoId} no encontrado`);
+
+
+        const itemPedido = pedido.items.find(item => item.producto._id.toString() === itemPedidoId.toString());
+        if (!itemPedido) {
+            throw new EntidadNotFoundError(`El itemPedido con id ${itemPedidoId} no pertenece al pedido ${pedidoId}`);
+        }
+        itemPedido.estado = estado;
+
+        const estadosItems = pedido.items.map(i => i.estado);
+
+        if (estadosItems.every(e => e === EstadoPedido.ENVIADO)) pedido.estado = EstadoPedido.ENVIADO;
+        else if (estadosItems.every(e => e === EstadoPedido.CANCELADO)) pedido.estado = EstadoPedido.CANCELADO;
+        else if (estadosItems.every(e => e === EstadoPedido.PENDIENTE)) pedido.estado = EstadoPedido.PENDIENTE;
+        else pedido.estado = EstadoPedido.PARCIAL;
+
+
+        await pedido.save();
+        return pedido;
+
     }
 
     toOutputDTOs(pedidos){

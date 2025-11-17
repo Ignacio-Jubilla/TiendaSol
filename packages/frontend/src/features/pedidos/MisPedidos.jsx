@@ -121,6 +121,7 @@ useEffect(() => {
                     setLoading(false);
                   }
                 }}
+                showItems={true}
                 >
                     <Badge bg={estadoColor(pedido.estado)} className="ms-2">
                         {pedido.estado}

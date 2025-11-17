@@ -71,5 +71,19 @@ export class PedidoRepository {
         if(filtros.estado){ query.estado = filtros.estado; }
         if(filtros.usuarioId){ query.comprador = filtros.usuarioId; }
         return PedidoModel.countDocuments(query);
-  }
+    }
+
+    async cambiarEstadoItemPedido(pedidoId, itemPedidoId, nuevoEstado) {
+        const pedido = await PedidoModel.findById(pedidoId);
+        const itemPedido = pedido.items.id(itemPedidoId);
+
+        if (!itemPedido) {
+            throw new Error(`ItemPedido con id ${itemPedidoId} no encontrado en el pedido ${pedidoId}`);
+        }
+        itemPedido.estado = nuevoEstado;
+        await pedido.save();
+        return pedido;
+    }
+
+
 }

@@ -50,6 +50,10 @@ pedidosRouter.patch('/:id', asyncHandler(async (req, res) => {
   return await pedidosController.actualizarEstadoPedido(req, res);
 }))
 
+pedidosRouter.patch('/:id/items/:itemId', asyncHandler(async (req, res) => {
+  return await pedidosController.actualizarEstadoItemPedido(req, res);
+}))
+
 
 
 export default pedidosRouter

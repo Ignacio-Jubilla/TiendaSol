@@ -16,7 +16,7 @@ const CarditemResumen = ({item, handleAddItem}) => {
   return ( 
     <div className="carousel-card">
     <Card>
-      <Card.Img variant="top" src={getImageUrl()} style={{width: "10rem"}, {height: "10rem"}}/>
+      <Card.Img variant="top" src={getImageUrl()} style={{width: "10rem", height: "10rem"}}/>
       <Card.Body>
         <Card.Title>{item.titulo}</Card.Title>
         <Card.Text>

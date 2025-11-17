@@ -17,7 +17,7 @@ const CardProducto = ({ producto, handleAddCart }) => {
     <section className="card card-shadow-sm p-3 d-flex flex-row bg-dark-hover" key={producto.id}>
       <div className="product-img d-flex">
         <img src={getImageUrl()}  className="card-img-top" aria-label='Imagen de producto'
-        style={{height: "10rem"}, {width: "10rem"}}
+        style={{height: "10rem", width: "10rem"}}
         />
       </div>
       <div className="card-body">

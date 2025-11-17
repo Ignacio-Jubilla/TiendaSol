@@ -4,7 +4,7 @@ import './CardPedido.css';
 import { useNavigate } from 'react-router';
 import productosService from '../../services/productos.js'; // import default
 
-const CardPedido = ({ pedido, onPedidoCancelado, children, ShowDetalleBtn = true }) => {
+const CardPedido = ({ pedido, onPedidoCancelado, children, ShowDetalleBtn = true, showItems = true }) => {
   const navegar = useNavigate();
   const [productosNombres, setProductosNombres] = useState({}); // {id: nombre}
 
@@ -12,22 +12,28 @@ const CardPedido = ({ pedido, onPedidoCancelado, children, ShowDetalleBtn = true
     if (onPedidoCancelado) onPedidoCancelado(pedido._id);
   }
 
-  useEffect(() => {
+useEffect(() => {
+  if(!showItems) return;
+
   const fetchNombres = async () => {
-    const nombres = {};
-    for (const item of pedido.items) {
-      try {
-        const producto = item.producto || await productosService.getProducto(item.productoId);
-        nombres[item.productoId] = producto?.titulo || 'Nombre desconocido';
-      } catch (error) {
-        nombres[item.productoId] = '-Producto desconocido';
-      }
-    }
+    const nombres = {}; // objeto local, nuevo por cada render
+    await Promise.all(
+      pedido.items.map(async (item, index) => {
+        const pid = item.productoId || item.producto?._id || `item-${index}`;
+
+        try {
+          const producto = item.producto || await productosService.getProducto(item.productoId);
+          nombres[pid] = producto?.titulo || 'Nombre desconocido';
+        } catch {
+          nombres[pid] = '-Producto desconocido';
+        }
+      })
+    );
     setProductosNombres(nombres);
   };
 
-  fetchNombres();
-}, [pedido.items]);
+  if (pedido.items?.length > 0) fetchNombres();
+}, [pedido.items,showItems]);
 
 
   return (
@@ -40,14 +46,19 @@ const CardPedido = ({ pedido, onPedidoCancelado, children, ShowDetalleBtn = true
       <p><strong>Fecha:</strong> {new Date(pedido.fechaCreacion).toLocaleDateString()}</p>
       <p className="pedido-total">Total: ${pedido.total}</p>
 
+      {showItems && (
       <div className="pedido-items">
-        {pedido.items.map(item => (
-          <div key={item.productoId} className="pedido-item">
-            <span>{productosNombres[item.productoId] || 'Cargando...'} x {item.cantidad}</span>
-            <span>${(item.cantidad * item.precioUnitario).toFixed(2)}</span>
-          </div>
-        ))}
+        {pedido.items.map((item, index) => {
+          const pid = item.productoId || item.producto?._id || `item-${index}`;
+          return (
+            <div key={pid} className="pedido-item">
+              <span>{productosNombres[pid] || 'Cargando...'} x {item.cantidad}</span>
+              <span>${(item.cantidad * item.precioUnitario).toFixed(2)}</span>
+            </div>
+          )
+        })}
       </div>
+      )}
 
       <div className="d-flex gap-2 justify-content-end">
         {ShowDetalleBtn && (<Button 

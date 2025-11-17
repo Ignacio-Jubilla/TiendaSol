@@ -3,9 +3,9 @@ import { Pedido } from "../entities/Pedido.js";
 import { v4 as uuidv4 } from 'uuid';
 import { direccionEntregaSchema } from "./direccionEntregaSchema.js";
 import { cambioEstadoPedidoSchema } from "./cambioEstadoPedidoSchema.js"; 
-import { itemPedidoSchema } from "./ItemPedidoModel.js";
 import { EstadoPedido } from "../entities/enums/EstadoPedido.js";
 import { ca } from "zod/v4/locales";
+import { itemPedidoSchema } from "./ItemPedidoModel.js";
 
 const pedidoSchema = new mongoose.Schema({
   comprador: { 
