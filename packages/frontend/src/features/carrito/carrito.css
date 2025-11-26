@@ -8,3 +8,11 @@
   /* 2. Agrega el subrayado solo cuando pasas el mouse por encima */
   text-decoration: underline;
 }
+
+.margin-carrito.mt-5 {
+  margin-bottom: 3rem;
+}
+
+.cancelar-carrito.ms-5 {
+  height: 50px;
+}

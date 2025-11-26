@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Header.css';
 import { FaSearch, FaShoppingCart, FaUser } from 'react-icons/fa';
 import { HiBellAlert } from 'react-icons/hi2';
-import { Link, useNavigate } from 'react-router';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Button, Container, Form, Nav, Navbar, NavDropdown, Offcanvas, Dropdown, OverlayTrigger, Popover } from 'react-bootstrap';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/authContext';
@@ -124,6 +124,11 @@ const Header = () => {
     navigate('/');
   };
 
+  
+const truncateText = (titulo) => {
+  return titulo.length > 20 ? titulo.substring(0, 20) + "…" : titulo
+}
+
   const carritoPreview = (
     <Popover
       id="popover-carrito"
@@ -140,10 +145,10 @@ const Header = () => {
                 <li key={item.productoId} className="d-flex flex-direction-column mb-2">
                   <img src={item.foto} style={{ width: '4rem', height: '4rem' }} alt={item.nombre} />
                   <div className='d-flex flex-direction-row justify-content between  w-100'>
-                  <div className="ms-2">
-                    <a href={`/productos/${item.productoId}`} className='link-carrito-producto'>{item.nombre}</a> <br />x{item.cantidad} (${item.precioUnitario * item.cantidad})
+                  <div className="titulo-carrito ms-2">
+                    <a href={`/productos/${item.productoId}`} className='link-carrito-producto'>{truncateText(item.nombre)}</a> <br />x{item.cantidad} (${item.precioUnitario * item.cantidad})
                   </div>
-                  <Button variant='danger ms-5' onClick={async () => {
+                  <Button variant='danger' className='cancelar-carrito ms-5' onClick={async () => {
                     const confirmed = await confirmAction({
                       title: "Eliminar producto?",
                       text: "Se eliminará este producto del carrito.",
@@ -160,7 +165,7 @@ const Header = () => {
               ))}
             </ul>
             <strong>Total: ${totalValueCart}</strong>
-            <Button className='w-100 text-center' as={Link} to="/finalizar-compra">Completar Compra</Button></>
+            <Button className='w-100 text-center' as={NavLink} to="/finalizar-compra">Completar Compra</Button></>
         )}
       </Popover.Body>
     </Popover>
@@ -178,14 +183,14 @@ const Header = () => {
       }}
     >
       <div className="d-flex align-items-center position-relative">
-        <Link
+        <NavLink
           to="/"
           className="navbar-brand"
           aria-label="Boton homepage"
           aria-description="Boton para ir a homepage"
         >
           <h1 id="title">Tienda  Sol</h1>
-        </Link>
+        </NavLink>
         
         {((user && user.tipo === 'COMPRADOR') || !user) && (
           <div className="position-relative flex-grow-1 ms-5">
@@ -276,10 +281,10 @@ const Header = () => {
                     <Dropdown.Item onClick={handleLogout}>Cerrar sesión</Dropdown.Item>
                   ) : (
                     <>
-                      <Dropdown.Item as={Link} to={`/login`}>
+                      <Dropdown.Item as={NavLink} to={`/login`}>
                         Iniciar sesión
                       </Dropdown.Item>
-                      <Dropdown.Item as={Link} to={`/register`}>
+                      <Dropdown.Item as={NavLink} to={`/register`}>
                         Registrarse
                       </Dropdown.Item>
                     </>
@@ -287,14 +292,14 @@ const Header = () => {
                 </Dropdown.Menu>
               </Dropdown>
               {user ? (
-                <Link to="/pedidos" className="nav-link" onClick={handleClose}>
+                <NavLink to="/pedidos" className="nav-link" onClick={handleClose}>
                   Mis pedidos
-                </Link>
+                </NavLink>
               ) : null}
               {user && user.tipo === 'VENDEDOR' ? (
-                <Link to="/mis-productos" className="nav-link" onClick={handleClose}>
+                <NavLink to="/mis-productos" className="nav-link" onClick={handleClose}>
                   Mis productos
-                </Link>
+                </NavLink>
               ) : null}
             </Nav>
           </Offcanvas.Body>
@@ -310,10 +315,10 @@ const Header = () => {
               onClick={() => setShowPopover(false)}
               aria-label={`Ir a carrito de compras, actualmente tienes ${totalCart} items`}
             >
-              <Link to="/carrito">
+              <NavLink to="/carrito">
                 <FaShoppingCart size={30} />
                 {totalCart}
-              </Link>
+              </NavLink>
             </div>
           </OverlayTrigger> : null}
 
@@ -330,14 +335,14 @@ const Header = () => {
               onMouseLeave={() => setShowNotificacionPopover(false)}
               onClick={() => setShowNotificacionPopover(false)}
             >
-            <Link
+            <NavLink
               to="/notificaciones"
               className="icon-item position-relative"
               aria-label={`Ir a notificaciones, actualmente tienes ${notificaciones} notificaciones`}
             >
               <HiBellAlert size={30} />
               {notificaciones}
-            </Link>
+            </NavLink>
             </div>
           </OverlayTrigger>) : null}
         </div>
