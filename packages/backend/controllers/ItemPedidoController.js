@@ -32,9 +32,11 @@ export class ItemPedidoController {
     }
 
     async actualizarEstadoItemPedido(req, res) {
+
         try {
-            const { itemPedidoId } = req.params;
+            const { id } = req.params;
             const { estado } = req.query;
+            let itemPedidoId = id;
             console.log("Actualizar estado item pedido controller:");
             console.log(itemPedidoId)
             console.log(estado)

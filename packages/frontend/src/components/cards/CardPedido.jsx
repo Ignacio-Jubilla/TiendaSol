@@ -49,11 +49,10 @@ useEffect(() => {
     const nombres = {}; // objeto local, nuevo por cada render
     await Promise.all(
       pedido.items.map(async (item, index) => {
-        const pid = item.productoId || item.producto?._id || `item-${index}`;
-
+        const pid = item.producto || `item-${index}`;
         try {
-          const producto = item.producto || await productosService.getProducto(item.productoId);
-          nombres[pid] = producto?.titulo || 'Nombre desconocido';
+          const producto = await productosService.getProducto(pid);
+          nombres[pid] = producto.titulo;
         } catch {
           nombres[pid] = '-Producto desconocido';
         }
@@ -81,7 +80,7 @@ const pedidoCancelado = pedido.estado === "CANCELADO";
       {showItems && (
       <div className="pedido-items">
         {pedidoState.items.map((item, index) => {
-          const pid = item.productoId || item.producto?._id || `item-${index}`;
+          const pid = item.producto || `item-${index}`;
           return (
             <div key={pid} className="pedido-item">
               <span>{productosNombres[pid] || 'Cargando...'} x {item.cantidad}</span>
@@ -90,7 +89,7 @@ const pedidoCancelado = pedido.estado === "CANCELADO";
               <Button 
                 className="btn-modern btn-modern-danger"
                 size="sm"
-                onClick={() => handleCancelarItem(item.productoId)}
+                onClick={() => handleCancelarItem(item._id)}
               >
                 Cancelar item
               </Button>

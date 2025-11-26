@@ -123,7 +123,7 @@ const errorHandler = (err, req, res, next) => {
     }
     return res.status(400).json({ error: "Error procesando archivos: " + err.message });
   }
-  // Error genérico
+  // Error genérico)
   res.status(500).json({
     message: "Error inesperado",
   })

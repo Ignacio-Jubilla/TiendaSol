@@ -1,3 +1,4 @@
+import { PedidoNotFound } from "../errors/PedidosErrors.js";
 import { EstadoPedido } from "../models/entities/enums/EstadoPedido.js";
 
 export class ItemPedidoService {
@@ -44,11 +45,12 @@ export class ItemPedidoService {
 
   async cancelarItemPedido(itemPedidoId) {
     const itemPedido = await this.itemPedidoRepository.findById(itemPedidoId);
-    console.log("itemPedidoId")
-    console.log(itemPedidoId)
-    console.log(itemPedido)
+    console.log("item pedido id: " + itemPedidoId )
+    console.log("item pedido: " + itemPedido)
+    console.log("itemPedido nulo: ?" + (itemPedido == null || itemPedido == undefined));
+
     if (!itemPedido) {
-      throw new PedidoNotFound();
+      throw new PedidoNotFound("Pedido de item no encontrado");
     }
     const lista = [
       EstadoPedido.CANCELADO,
