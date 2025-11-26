@@ -19,13 +19,8 @@ const truncateText = (titulo) => {
   
   return ( 
     <div className="carousel-card">
-<<<<<<< HEAD
-    <Card>
-      <Card.Img variant="top" src={getImageUrl()} style={{width: "10rem", height: "10rem"}}/>
-=======
     <Card className="titulo-prod-resumen">
       <Card.Img variant="top" src={getImageUrl()} style={{width: "10rem"}, {height: "10rem"}}/>
->>>>>>> Entrega_4_Fixes_Varios
       <Card.Body>
         <Card.Title>{truncateText(item.titulo)}</Card.Title>
         <Card.Text>

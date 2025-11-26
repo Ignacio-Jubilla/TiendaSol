@@ -46,7 +46,6 @@ useEffect(() => {
   if(!showItems) return;
 
   const fetchNombres = async () => {
-<<<<<<< HEAD
     const nombres = {}; // objeto local, nuevo por cada render
     await Promise.all(
       pedido.items.map(async (item, index) => {
@@ -59,18 +58,6 @@ useEffect(() => {
         }
       })
     );
-=======
-    const nombres = {};
-    console.log(pedido)
-    for (const item of pedido.items) {
-      try {
-        const producto = item.producto || await productosService.getProducto(item.productoId);
-        nombres[item.productoId] = producto?.titulo || 'Nombre desconocido';
-      } catch (error) {
-        nombres[item.productoId] = '-Producto desconocido';
-      }
-    }
->>>>>>> Entrega_4_Fixes_Varios
     setProductosNombres(nombres);
   };
 
