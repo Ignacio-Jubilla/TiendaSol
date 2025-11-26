@@ -111,13 +111,8 @@ const pedidoCancelado = pedido.estado === "CANCELADO";
 
         {["PENDIENTE", "CONFIRMADO", "EN_PREPARACION"].includes(pedido.estado) && (
           <Button 
-<<<<<<< HEAD
-            className="btn-modern btn-modern-danger"
-            onClick={handleCancelarPedido}
-=======
             variant="danger"
             onClick={handleCancelar}
->>>>>>> Entrega_4_Fixes_Varios
           >
             Cancelar pedido
           </Button>

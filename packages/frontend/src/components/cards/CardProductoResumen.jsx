@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import productos from "../../services/productos";
 import { FaCartPlus } from "react-icons/fa";
 import './CardProductoResumen.css'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const CarditemResumen = ({item, handleAddItem}) => {
   const getImageUrl = () => {
@@ -14,15 +15,19 @@ const CarditemResumen = ({item, handleAddItem}) => {
   };
 
 const truncateText = (titulo) => {
-  return titulo.length > 45 ? titulo.substring(0, 45) + "…" : titulo
+  console.log(titulo)
+  console.log(titulo.length)
+  return titulo.length > 40 ? titulo.substring(0, 40) + "…" : titulo
 }
-  
+
   return ( 
     <div className="carousel-card">
     <Card className="titulo-prod-resumen">
       <Card.Img variant="top" src={getImageUrl()} style={{width: "10rem"}, {height: "10rem"}}/>
       <Card.Body>
-        <Card.Title>{truncateText(item.titulo)}</Card.Title>
+        <OverlayTrigger placement="top" overlay={<Tooltip>{item.titulo}</Tooltip>}>
+          <Card.Title>{truncateText(item.titulo)}</Card.Title>
+        </OverlayTrigger>
         <Card.Text>
           <p>  {item.precio} {item.moneda == "DOLAR_USA" ? "U$D" : item.moneda == "PESO_ARG" ? "$" : "BRL"}  </p>
         </Card.Text>
