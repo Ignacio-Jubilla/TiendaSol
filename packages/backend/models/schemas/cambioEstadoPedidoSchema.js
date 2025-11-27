@@ -6,7 +6,7 @@ const cambioEstadoPedidoSchema = new mongoose.Schema({
     fecha: { type: Date, default: Date.now },
     estado: { type: String, required: true },
     pedido: { type: String, ref: 'Pedido', required: false },
-    usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true },
+    usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: false},
     motivo: { type: String }
 },{_id: false});
 

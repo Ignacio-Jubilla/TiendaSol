@@ -43,6 +43,7 @@ const obtenerPedidoPorId = async (id) => {
   const response = await axios.get(`${baseUrl}/pedidos/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  console.log(response.data)
   return response.data;
 };
 

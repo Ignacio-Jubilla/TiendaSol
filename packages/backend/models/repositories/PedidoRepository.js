@@ -36,7 +36,7 @@ export class PedidoRepository {
             .limit(elemPorPagina)
             .sort({fechaCreacion:-1}) // del mas reciente para atrás
             .populate('comprador')
-            .populate('items.producto.titulo');
+            .populate('items');
         if(!pedidos || pedidos.length === 0){
             throw new NoPedidosYet();
         }
@@ -51,7 +51,7 @@ export class PedidoRepository {
     async findById(id) {
         return await PedidoModel.findById(id)
         .populate('comprador')
-        .populate('items.producto.titulo');
+        .populate('items');
     }
 
     async findByUserId(usuarioId){

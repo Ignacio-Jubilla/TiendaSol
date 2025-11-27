@@ -32,6 +32,10 @@ export class Producto{
     aumentarVentas(cantidad){ 
         this.ventas+=cantidad;
     }
+    reducirVentas(cantidad){
+        this.ventas-=cantidad;
+    }
+
     aumentarStock(cantidad){
         this.stock+=cantidad;
     }

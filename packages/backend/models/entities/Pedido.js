@@ -11,7 +11,6 @@ export class Pedido {
   constructor(usuario,items,moneda,direccionEntrega) {
     this.comprador = usuario
     this.items = items.map(item => item._id);
-    this.total = this.calcularTotal();
     this.moneda = moneda;
     this.direccionEntrega = direccionEntrega
     this.estado;
@@ -19,11 +18,11 @@ export class Pedido {
     this.historialEstados = [new CambioEstadoPedido(EstadoPedido.PENDIENTE, this, usuario, 'Pedido creado')];
   } 
   
-  calcularTotal() {
-    return this.items.reduce((acum, item) => acum + item.subtotal(), 0);
-  }
+  // calcularTotal() {
+  //   return this.items.reduce((acum, item) => acum + item.subtotal(), 0);
+  // }
 
-  actualizarEstado = (nuevoEstado, quien, motivo)  => {
+  actualizarEstado(nuevoEstado, quien, motivo) {
     let cambio = new CambioEstadoPedido(nuevoEstado, this, quien, motivo)
     this.historialEstados.push(cambio)
     this.estado = nuevoEstado
@@ -54,6 +53,4 @@ export class Pedido {
     pedido.total = doc.total;
     return pedido;
   }
-
-
 }

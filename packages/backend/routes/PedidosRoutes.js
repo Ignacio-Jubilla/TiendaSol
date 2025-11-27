@@ -20,6 +20,7 @@ const pedidoService = new PedidosServices(new ProductoService(), new UsuarioServ
 import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js';
 import { PedidoRepository } from '../models/repositories/PedidoRepository.js';
 import { ProductoRepository } from '../models/repositories/ProductosRepository.js';
+import { ItemPedidoService } from '../services/ItemPedidoService.js';
 import asyncHandler from 'express-async-handler'
 
 
@@ -28,6 +29,8 @@ const pedidoRepo = new PedidoRepository();
 const productoRepo = new ProductoRepository();
 const notificacionesRepository = new NotificacionesRepository()
 const itemPedidoRepository = new ItemPedidoRepository()
+
+const itemPedidoService = new ItemPedidoService(itemPedidoRepository, null, productoRepo)
 const traductor = new TraductorManual()
 const factoryNotificacion = new FactoryNotificacion(traductor)
 const notificacionService = new NotificacionService(notificacionesRepository, usuarioRepo, factoryNotificacion, productoRepo)

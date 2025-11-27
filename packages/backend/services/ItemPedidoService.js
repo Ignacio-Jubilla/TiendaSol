@@ -1,10 +1,12 @@
-import { PedidoNotFound } from "../errors/PedidosErrors.js";
+import { NoPuedeEnviarseError, PedidoNotFound } from "../errors/PedidosErrors.js";
+import { EntidadNotFoundError } from "../errors/ProductosErrors.js";
 import { EstadoPedido } from "../models/entities/enums/EstadoPedido.js";
 
 export class ItemPedidoService {
-  constructor(ItemPedidoRepository, PedidoService) {
+  constructor(ItemPedidoRepository, PedidoService, ProductosRepository) {
     this.itemPedidoRepository = ItemPedidoRepository;
     this.pedidoService = PedidoService;
+    this.ProductosRepository = ProductosRepository;
   }
   async getItemPedidosByVendedorId({vendedorId, page, perPage}) {
     const itemPedidos = await this.itemPedidoRepository.findByVendedorId(vendedorId, page, perPage);
@@ -34,7 +36,6 @@ export class ItemPedidoService {
       throw new NoPuedeEnviarseError();
     }
     
-    console.log("idPedido en servicio:", itemPedido.idPedido);
     await this.actualizarEstadoItemPedido(itemPedido.idPedido);
     return await this.itemPedidoRepository.updateEstado(itemPedidoId, EstadoPedido.ENVIADO);
   }
@@ -45,9 +46,6 @@ export class ItemPedidoService {
 
   async cancelarItemPedido(itemPedidoId) {
     const itemPedido = await this.itemPedidoRepository.findById(itemPedidoId);
-    console.log("item pedido id: " + itemPedidoId )
-    console.log("item pedido: " + itemPedido)
-    console.log("itemPedido nulo: ?" + (itemPedido == null || itemPedido == undefined));
 
     if (!itemPedido) {
       throw new PedidoNotFound("Pedido de item no encontrado");
@@ -60,15 +58,28 @@ export class ItemPedidoService {
       EstadoPedido.CONFIRMADO
     ];
 
-      console.log("itempedido")
-    console.log(itemPedido)
-
     if (lista.includes(itemPedido.estado)) {
       throw new NoPuedeEnviarseError();
     }
   
     //await this.actualizarEstadoItemPedido(itemPedido.idPedido);
-    return await this.itemPedidoRepository.updateEstado(itemPedidoId, EstadoPedido.CANCELADO);
+
+           const productoId = itemPedido.producto;
+            const producto = await this.ProductosRepository.findById(productoId);
+            if (!producto) {
+                throw new EntidadNotFoundError(`Producto con id ${productoId} no encontrado`);
+            }
+
+            producto.aumentarStock(itemPedido.cantidad);
+            await this.ProductosRepository.updateProducto(
+                productoId,
+                {
+                    stock: producto.stock
+                }
+            );
+    const itemPEdidoUpdate = await this.itemPedidoRepository.updateEstado(itemPedidoId, EstadoPedido.CANCELADO);
+    await this.actualizarEstadoItemPedido(itemPedido.idPedido);
+    return itemPEdidoUpdate;
   }
 
   async confirmarItemPedido(itemPedidoId) {
