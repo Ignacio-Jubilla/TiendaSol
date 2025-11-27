@@ -81,3 +81,7 @@ header #nav-icon{
   /* 2. Agrega el subrayado solo cuando pasas el mouse por encima */
   text-decoration: underline;
 }
+
+.titulo-carrito.ms-2 {
+  width: 76px;
+}
