@@ -12,7 +12,9 @@ const CardPedido = ({ pedido, onPedidoCancelado, onItemCancelado, ShowDetalleBtn
   const [pedidoState, setPedido] = useState(pedido);
 
   const handleCancelarPedido = () => {
-    if (onPedidoCancelado) onPedidoCancelado(pedido._id);
+    if (onPedidoCancelado) onPedidoCancelado(pedido._id); 
+  // CORRECCIÓN 1: Usar 'pedidoState' para mantener los datos actuales (incluidos los items)
+  setPedido(prev => ({ ...prev, estado: "CANCELADO" }));
   }
 
 const handleCancelarItem = async (itemId) => {
@@ -112,7 +114,7 @@ const pedidoCancelado = pedido.estado === "CANCELADO";
         {["PENDIENTE", "CONFIRMADO", "EN_PREPARACION"].includes(pedido.estado) && (
           <Button 
             variant="danger"
-            onClick={handleCancelar}
+            onClick={handleCancelarPedido}
           >
             Cancelar pedido
           </Button>

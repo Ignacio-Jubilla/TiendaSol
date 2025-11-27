@@ -60,10 +60,8 @@ const DetallePedido = () => {
       if (!confirmacion) return;
       
       setLoading(true);
-    
-      const pedidoActualizado = await pedidoService.actualizarEstadoPedido(pedidoId, "CANCELADO", { motivo: "Cancelado por el usuario desde detalle" });
-
-      setPedido(pedidoActualizado);
+      await pedidoService.actualizarEstadoPedido(pedidoId, "CANCELADO", { motivo: "Cancelado por el usuario desde detalle" });
+      setPedido(prev => ({...prev, estado: "CANCELADO"}));
       showSuccess("Pedido cancelado correctamente.");
     } catch (error) {
       console.error(error);
