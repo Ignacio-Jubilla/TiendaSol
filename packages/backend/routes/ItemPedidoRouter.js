@@ -12,6 +12,8 @@ import { NotificacionService } from '../services/NotificacionService.js';
 import { NotificacionesRepository } from '../models/repositories/NotificacionesRepository.js';
 import { FactoryNotificacion } from '../models/entities/FactoryNotificacion.js';
 import { TraductorManual } from '../models/entities/TraductorManual.js';
+import middleware from '../utils/middleware.js';
+
 
 const pedidoRepository = new PedidoRepository()
 const traductor = new TraductorManual()
@@ -27,15 +29,15 @@ const pedidoService = new PedidoService(pedidoRepository, itemPedidoRepository, 
 const itemPedidoService = new ItemPedidoService(itemPedidoRepository, pedidoService, productoRepository)
 const itemPedidoController = new ItemPedidoController(itemPedidoService)
 
-itemPedidoRouter.get('/:id', asyncHandler(async (req, res)=> {
+itemPedidoRouter.get('/:id', middleware.extractUser, asyncHandler(async (req, res)=> {
   return await itemPedidoController.getItemPedido(req, res);
 })) 
 
-itemPedidoRouter.get('/', asyncHandler(async (req,res) =>{
+itemPedidoRouter.get('/', middleware.extractUser, asyncHandler(async (req,res) =>{
     return await itemPedidoController.getItemsPorVendedorId(req,res);
 }))
 
-itemPedidoRouter.patch('/:id', asyncHandler(async (req, res) => {
+itemPedidoRouter.patch('/:id', middleware.extractUser, asyncHandler(async (req, res) => {
   return await itemPedidoController.actualizarEstadoItemPedido(req, res);
 }))
 

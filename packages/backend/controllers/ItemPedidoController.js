@@ -8,10 +8,9 @@ export class ItemPedidoController {
 
     async getItemPedido(req, res) {
         try {
-            const { itemPedidoId } = req.params;
-            
-            const itemPedido = await this.itemPedidoService.getItemPedidoById(itemPedidoId);
-            res.json(itemPedido);
+            const { id } = req.params;
+            const itemPedido = await this.itemPedidoService.getItemPedidoById(id);
+            return res.status(200).json(itemPedido);
         } catch (error) {
             res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
         }
@@ -24,36 +23,31 @@ export class ItemPedidoController {
             if(parsedQuery.error){
                 return res.status(400).json(parseItemPedidoId.error.issues);
             }
-            
-            return await this.itemPedidoService.getItemPedidosByVendedorId(parsedQuery.data);
+            const itemProductos = await this.itemPedidoService.getItemPedidosByVendedorId(parsedQuery.data);
+            res.status(200).json(itemProductos);
         }catch(error){
-            res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
+            res.status(error.statusCode || 500).json('Error interno del servidor');
         }
     }
 
     async actualizarEstadoItemPedido(req, res) {
-
-        try {
             const { id } = req.params;
             const { estado } = req.query;
+            const idUsuario = req.user.id;
+        
             let itemPedidoId = id;
             console.log("Actualizar estado item pedido controller:");
-            console.log(itemPedidoId)
-            console.log(estado)
 
             let itemPedidoActualizado;
             if(estado == 'ENVIADO'){
-                itemPedidoActualizado = this.itemPedidoService.marcarEnviado(itemPedidoId);
+                itemPedidoActualizado = await this.itemPedidoService.marcarEnviado(itemPedidoId, idUsuario);
             } else if (estado == 'CANCELADO'){
-                itemPedidoActualizado = this.itemPedidoService.cancelarItemPedido(itemPedidoId);
+                itemPedidoActualizado = await this.itemPedidoService.cancelarItemPedido(itemPedidoId, idUsuario);
             } else if(estado == "CONFIRMADO"){
-                itemPedidoActualizado = this.itemPedidoService.confirmarItemPedido(itemPedidoId);
+                itemPedidoActualizado = await this.itemPedidoService.confirmarItemPedido(itemPedidoId, idUsuario);
             }
             
-            res.json(itemPedidoActualizado);
-        } catch (error) {
-            res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
-        }
+            return res.json(itemPedidoActualizado);
     }
 }
 

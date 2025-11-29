@@ -15,8 +15,6 @@ const CarditemResumen = ({item, handleAddItem}) => {
   };
 
 const truncateText = (titulo) => {
-  console.log(titulo)
-  console.log(titulo.length)
   return titulo.length > 40 ? titulo.substring(0, 40) + "…" : titulo
 }
 

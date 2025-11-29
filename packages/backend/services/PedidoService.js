@@ -84,6 +84,7 @@ export class PedidoService {
                 precioUnitario: producto.precio,
                 estado: EstadoPedido.PENDIENTE,
                 idPedido: pedidoGuardado._id || pedidoGuardado.id,
+                vendedorId: producto.vendedor
             };
             const itemPedidoGuardado = await this.itemPedidoRepository.save(itemPedidoData);
             listaItemsId.push(itemPedidoGuardado._id);
@@ -161,6 +162,7 @@ export class PedidoService {
             throw new PedidoNotFound()
         }
 
+        console.log('existe pedido')
         const pedido = Pedido.fromDB(pedidoBase);
 
         const listaEstados = [];

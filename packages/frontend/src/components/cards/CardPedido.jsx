@@ -72,7 +72,7 @@ const pedidoCancelado = pedido.estado === "CANCELADO";
   return (
     <section className="card-pedido" key={pedido._id}>
       <div className="pedido-header d-flex justify-content-between align-items-center">
-        <span className="pedido-id">Pedido</span>
+        <span className="pedido-id">Pedido {pedido._id}</span>
         <span className="badge-modern">{children}</span>
       </div>
 

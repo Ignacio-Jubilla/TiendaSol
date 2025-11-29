@@ -14,6 +14,7 @@ const obtenerPedidos = async (filtros = {}) => {
       'Authorization': `Bearer ${token}`,
     },
   });
+
   return response.data;
 };
 

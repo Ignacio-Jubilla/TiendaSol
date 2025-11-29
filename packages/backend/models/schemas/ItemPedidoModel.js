@@ -25,9 +25,15 @@ const itemPedidoSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Pedido',
     required: true
+  },
+  vendedorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Usuario',
+    required: true
   }
 })
 itemPedidoSchema.loadClass(ItemPedido)
+
 
 const ItemProductoModel = mongoose.model('ItemPedido', itemPedidoSchema)
 export default ItemProductoModel;
