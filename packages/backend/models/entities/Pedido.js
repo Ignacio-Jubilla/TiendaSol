@@ -4,7 +4,7 @@ import { EstadoPedido } from "./enums/EstadoPedido.js";
 import { TipoUsuario } from "./enums/TipoUsuario.js";
 import { ItemPedido } from "./ItemPedido.js";
 import {Usuario} from "./Usuario.js";
-import { v4 as uuidv4 } from 'uuid';
+//import { v4 as uuidv4 } from 'uuid';
 
 
 export class Pedido {
