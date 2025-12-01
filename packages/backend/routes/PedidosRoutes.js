@@ -22,6 +22,7 @@ import { PedidoRepository } from '../models/repositories/PedidoRepository.js';
 import { ProductoRepository } from '../models/repositories/ProductosRepository.js';
 import { ItemPedidoService } from '../services/ItemPedidoService.js';
 import asyncHandler from 'express-async-handler'
+import middleware from '../utils/middleware.js';
 
 
 const usuarioRepo = new UsuarioRepository();
@@ -39,7 +40,7 @@ const pedidosService = new PedidoService(pedidoRepo,itemPedidoRepository, usuari
 const pedidosController = new PedidosController(pedidosService);
 
 
-pedidosRouter.get('/', asyncHandler(async (req, res) => {
+pedidosRouter.get('/', middleware.extractUser, asyncHandler(async (req, res) => {
   return await pedidosController.obtenerPedidos(req, res);
 }))
 

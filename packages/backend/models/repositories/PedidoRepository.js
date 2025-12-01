@@ -1,5 +1,6 @@
 import PedidoModel from "../schemas/pedidoSchema.js";
 import { NoPedidosYet } from "../../errors/PedidosErrors.js";
+import ProductoModel from "../schemas/ProductoModel.js";
 
 export class PedidoRepository {
     
@@ -19,15 +20,16 @@ export class PedidoRepository {
         /*if (filtro.vendedorId) {
               query.vendedor = new mongoose.Types.ObjectId(filtro.vendedorId)
             }*/
+        let esVendedor = false
         if(filtros.usuarioId){ query.comprador = filtros.usuarioId; }
-        if(filtros.vendedorId) query["items.producto.vendedor"] = filtros.vendedorId;
+        //if(filtros.vendedorId) query["items.producto.vendedor"] = filtros.vendedorId;
         if (filtros.vendedorId) {
             const productosDelVendedor = await ProductoModel.find({
-            vendedor: filtros.vendedorId
-        }).distinct('_id');
-
-    query['items.producto'] = { $in: productosDelVendedor };
-  }
+                vendedor: filtros.vendedorId
+            }).distinct('_id');
+            esVendedor = true
+            //query['items.producto'] = { $in: productosDelVendedor };
+        }
       
         const offset = (numeroPagina-1) *elemPorPagina;
 
@@ -36,10 +38,13 @@ export class PedidoRepository {
             .limit(elemPorPagina)
             .sort({fechaCreacion:-1}) // del mas reciente para atrás
             .populate('comprador')
-            .populate('items');
+            .populate({
+                 path: 'items',
+                 match: esVendedor ? { vendedorId: filtros.vendedorId } : {}});
         if(!pedidos || pedidos.length === 0){
             throw new NoPedidosYet();
         }
+
         return pedidos;
     }
 
