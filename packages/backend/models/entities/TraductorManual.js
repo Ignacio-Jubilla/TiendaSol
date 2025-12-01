@@ -2,7 +2,7 @@ import { EstadoPedido } from "./enums/EstadoPedido.js"
 
 export class TraductorManual {
   constructor() {
-    this.mensajes = {
+    this.mensajesComprador = {
       [EstadoPedido.ENVIADO]: {
         ES: "Tu pedido ha sido enviado",
         EN: "Your order has been shipped",
@@ -34,19 +34,43 @@ export class TraductorManual {
         BR: "Pedido entregue",
       }
     };
+
+    this.mensajesVendedor = {
+      [EstadoPedido.PENDIENTE]: {
+        ES: "Se ha creado un nuevo pedido",
+        EN: "Pending order",
+        BR: "Pedido pendente",
+      },
+      [EstadoPedido.CANCELADO]: {
+        ES: "Un pedido ha sido cancelado",
+        EN: "Your order has been cancelled",
+        BR: "Pedido cancelado",
+      }
+    };
   }
 
-  traducir = (estado, idioma) => {
-    const traducciones = this.mensajes[estado];
+  traducir = (estado, idioma, tipoUsuario) => {
+    let traducciones
+
+    if(tipoUsuario == "COMPRADOR"){
+      traducciones = this.mensajesComprador[estado];
+    } else {
+      traducciones = this.mensajesVendedor[estado];
+    }
+
     if (!traducciones) {
       throw new Error(`Estado no soportado: ${estado}`);
     }
+
     const mensaje = traducciones[idioma]
+
     if (!mensaje) {
       throw new Error(`Idioma no soportado: ${idioma}`)
     }
+
     return mensaje
   };
+  /*
 
   agregarTraduccion = (idioma, traducciones) => {
     const estados = Object.values(EstadoPedido);
@@ -57,6 +81,7 @@ export class TraductorManual {
     // agregar traducciones
     estados.forEach(e => {this.mensajes[e][idioma] = traducciones[e]})
   };
+  */
 }
 
 //ejemplo

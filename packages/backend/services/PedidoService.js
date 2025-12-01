@@ -87,15 +87,16 @@ export class PedidoService {
                 vendedorId: producto.vendedor
             };
             const itemPedidoGuardado = await this.itemPedidoRepository.save(itemPedidoData);
+
             listaItemsId.push(itemPedidoGuardado._id);
         }
 
         //add list of items id to pedido
         pedidoGuardado.items = listaItemsId;
 
-        await this.pedidoRepository.update(pedidoGuardado._id, { items: listaItemsId });
+        const pedidoActualizado = await this.pedidoRepository.update(pedidoGuardado._id, { items: listaItemsId });
 
-        //await this.notificacionService.crearNotificacion(pedidoGuardado);
+        await this.notificacionService.crearNotificacion(pedidoActualizado, usuario);
 
         return this.toOutputDTO(pedidoGuardado);
     }
@@ -151,7 +152,11 @@ export class PedidoService {
         const updateData = this.modifToDB(pedido);
         //change pedido estado to cancelado and update historial and save to repo
         pedido.actualizarEstado(EstadoPedido.CANCELADO, usuarioQueCancela._id, this.modifToDB(pedido));
-        await this.pedidoRepository.update(pedido._id, pedido);
+        
+        const pedidoActualizado = await this.pedidoRepository.update(pedido._id, pedido);
+
+        console.log(pedidoActualizado)
+        await this.notificacionService.crearNotificacion(pedidoActualizado, usuarioQueCancela);
 
         return this.toOutputDTO(updateData);
     }

@@ -61,7 +61,25 @@ export class PedidoRepository {
     }
 
     async update(id,updateData) {
-        return await PedidoModel.findByIdAndUpdate(id, updateData, { new: true });
+        return await PedidoModel.findByIdAndUpdate(id, updateData, { new: true })
+        .populate({
+            path: 'items',
+            populate: [
+                { 
+                    path: 'producto',
+                    select: 'titulo' 
+                },
+                
+                { 
+                    path: 'vendedorId',
+                    select: 'nombre' 
+                }
+            ]
+        })
+        .populate({
+            path: 'comprador',
+            select: 'nombre email'
+        });
     }
 
     async contarTodos(filtros) {

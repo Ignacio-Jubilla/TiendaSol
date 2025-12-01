@@ -8,20 +8,29 @@ export class FactoryNotificacion{
       this.traductor = traductor
     }
 
-    crearSegunEstadoPedido = (estadoPedido) => {
-      return this.traductor.traducir(estadoPedido, this.lenguaje)
+    crearSegunEstadoPedido = (estadoPedido, tipoUsuario) => {
+      return this.traductor.traducir(estadoPedido, this.lenguaje, tipoUsuario)
     }
 
     crearSegunPedido(pedido, usuarioDestino){
-      //const vendedor = pedido.items[0].producto.vendedor; // cada pedido tendria un mismo vendedor
-      /*
-      const productosEnString = pedido.items.map(item => {
-        item.producto.titulo
-      }).join(", ")*/
-      //const mensaje = `\nNuevo pedido de ${pedido.comprador.nombre}.\nProductos: ${productosEnString}\nTotal: ${pedido.total}\nDireccion de entrega: ${pedido.direccionEntrega}`
-      const mensaje = this.crearSegunEstadoPedido(pedido.estado)
+      let mensajeEstado = this.crearSegunEstadoPedido(pedido.items[0].estado, usuarioDestino.tipo)
+      let mensaje
 
-      const notificacion = new Notificacion(usuarioDestino,mensaje);
+      const productosEnString = pedido.items.map( item => `x${item.cantidad} ${item.producto.titulo}` ).join("; ")
+      
+      if(usuarioDestino.tipo == "COMPRADOR"){
+        let vendedor = ""
+        if(usuarioDestino.vendedor){
+          vendedor = `Vendedor: ${usuarioDestino.vendedor}`
+        }
+
+        mensaje = `${mensajeEstado}\nPedido: ${pedido._id} ${vendedor} Items: ${productosEnString}` 
+
+      } else {
+        mensaje = `${mensajeEstado}\nPedido: ${pedido._id} Comprador: ${usuarioDestino.comprador} Items: ${productosEnString}` 
+      }
+
+      const notificacion = new Notificacion(usuarioDestino.destino,mensaje);
       return notificacion
     }
 

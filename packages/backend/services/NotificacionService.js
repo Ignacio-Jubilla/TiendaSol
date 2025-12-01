@@ -12,9 +12,10 @@ export class NotificacionService {
         this.productosRepository = productosRepository
     }
 
-    async crearNotificacion(pedido){
-        const usuarioDestino = await this.getDestinatario(pedido)
+    async crearNotificacionVersionUno(pedido){
+        //const usuarioDestino = await this.getDestinatario(pedido)
 
+        const usuarioDestino = {destino: pedido.comprador, tipo: "COMPRADOR"}
         const notificacion = this.factoryNotificacion.crearSegunPedido(pedido, usuarioDestino)
         await this.notificacionesRepository.save(notificacion)
     }
@@ -77,6 +78,68 @@ export class NotificacionService {
         const cantidadNoLeidas = await this.notificacionesRepository.contarNotificacionesDeUnUsuario(idUsuario, false);
         
         return cantidadNoLeidas
+    }
+
+
+
+    async crearNotificacion(pedido, usuario){
+        console.log(usuario)
+
+        if(pedido.estado == EstadoPedido.PENDIENTE){
+            const usuarioDestino = {destino: pedido.comprador, tipo: "COMPRADOR"}
+            const notificacionComprador = this.factoryNotificacion.crearSegunPedido(pedido, usuarioDestino)
+
+            await this.notificacionesRepository.save(notificacionComprador)
+        }
+        
+        if(usuario.tipo = "COMPRADOR"){
+
+            const itemsPorVendedor = this.obtenerItemsPorVendedor(pedido);
+
+            for (const vendedorId in itemsPorVendedor) {
+                const itemsVendedor = itemsPorVendedor[vendedorId]
+                const pedidoVendedor = {
+                    ...pedido.toObject(),
+                    items: itemsVendedor
+                }
+
+                const usuarioDestino = {comprador: pedido.comprador.nombre, destino: vendedorId, tipo: "VENDEDOR"}
+                const notificacion = this.factoryNotificacion.crearSegunPedido(pedidoVendedor, usuarioDestino)
+
+                await this.notificacionesRepository.save(notificacion)
+            }
+
+        } else {
+            const itemsVendedor = this.obtenerItemsPorVendedor(pedido, usuario.id)
+            const pedidoVendedor = {
+                ...pedido,
+                items: itemsVendedor
+            }
+
+            const usuarioDestino = {destino: pedido.comprador, vendedor: usuario.nombre, tipo: "VENDEDOR"}
+
+            const notificacion = this.factoryNotificacion.crearSegunPedido(pedidoVendedor, usuarioDestino)
+            await this.notificacionesRepository.save(notificacion)
+        }
+    }
+
+    obtenerItemsPorVendedor(pedido, vendedor) {
+        const itemsPorVendedor = {};
+        pedido.items.forEach(item => {
+            const vendedorId = item.vendedorId._id.toString();
+
+            if (!itemsPorVendedor[vendedorId]) {
+                itemsPorVendedor[vendedorId] = [];
+            }
+
+            itemsPorVendedor[vendedorId].push(item);
+        });
+        
+        if(vendedor){
+            return itemsPorVendedor[vendedor]
+        } else {
+            return itemsPorVendedor
+        }
     }
 
 }
