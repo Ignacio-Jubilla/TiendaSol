@@ -9,7 +9,7 @@ const obtenerPedidos = async (filtros = {}) => {
 
   const response = await axios.get(`${baseUrl}/pedidos`,
     {
-    params: {usuarioId,page,limit, ...otrosFiltros} ,
+    params: {page,limit, ...otrosFiltros} ,
     headers: {
       'Authorization': `Bearer ${token}`,
     },
