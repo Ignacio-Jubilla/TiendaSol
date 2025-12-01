@@ -33,18 +33,18 @@ export class ItemPedidoController {
     async actualizarEstadoItemPedido(req, res) {
             const { id } = req.params;
             const { estado } = req.query;
-            const idUsuario = req.user.id;
+            const usuario = req.user;
         
             let itemPedidoId = id;
             console.log("Actualizar estado item pedido controller:");
 
             let itemPedidoActualizado;
             if(estado == 'ENVIADO'){
-                itemPedidoActualizado = await this.itemPedidoService.marcarEnviado(itemPedidoId, idUsuario);
+                itemPedidoActualizado = await this.itemPedidoService.marcarEnviado(itemPedidoId, usuario.id);
             } else if (estado == 'CANCELADO'){
-                itemPedidoActualizado = await this.itemPedidoService.cancelarItemPedido(itemPedidoId, idUsuario);
+                itemPedidoActualizado = await this.itemPedidoService.cancelarItemPedido(itemPedidoId, usuario);
             } else if(estado == "CONFIRMADO"){
-                itemPedidoActualizado = await this.itemPedidoService.confirmarItemPedido(itemPedidoId, idUsuario);
+                itemPedidoActualizado = await this.itemPedidoService.confirmarItemPedido(itemPedidoId, usuario.id);
             }
             
             return res.json(itemPedidoActualizado);

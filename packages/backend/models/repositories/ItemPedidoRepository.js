@@ -10,7 +10,14 @@ export class ItemPedidoRepository {
     }
 
     async updateEstado(itemId, nuevoEstado) {
-        return await ItemPedidoModel.findByIdAndUpdate(itemId, { estado: nuevoEstado }, { new: true });
+        return await ItemPedidoModel.findByIdAndUpdate(itemId, { estado: nuevoEstado }, { new: true })
+            .populate({
+                path: 'idPedido',
+                select: '_id comprador items'
+            })
+            .populate({
+                path: 'producto'
+            });
     }
 
     async findById(id) {

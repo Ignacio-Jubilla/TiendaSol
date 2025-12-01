@@ -96,7 +96,7 @@ export class PedidoService {
 
         const pedidoActualizado = await this.pedidoRepository.update(pedidoGuardado._id, { items: listaItemsId });
 
-        await this.notificacionService.crearNotificacion(pedidoActualizado, usuario);
+        await this.notificacionService.crearNotificacionPedido(pedidoActualizado, usuario);
 
         return this.toOutputDTO(pedidoGuardado);
     }
@@ -104,7 +104,7 @@ export class PedidoService {
     // tema a consultar, 
     // si conviene instanciar el pedido para poder usar sus metodos, 
     // o agregar los metodos al documento mongoose
-    async cancelarPedido(pedidoId, motivo) {
+    async cancelarPedido(pedidoId, motivo, user) {
         const lista = [EstadoPedido.CANCELADO, EstadoPedido.ENTREGADO, EstadoPedido.ENVIADO];
         const pedidoBase = await this.pedidoRepository.findById(pedidoId);
         if (!pedidoBase) {
@@ -155,8 +155,7 @@ export class PedidoService {
         
         const pedidoActualizado = await this.pedidoRepository.update(pedido._id, pedido);
 
-        console.log(pedidoActualizado)
-        await this.notificacionService.crearNotificacion(pedidoActualizado, usuarioQueCancela);
+        await this.notificacionService.crearNotificacionPedido(pedidoActualizado, user);
 
         return this.toOutputDTO(updateData);
     }

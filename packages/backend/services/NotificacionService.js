@@ -12,26 +12,6 @@ export class NotificacionService {
         this.productosRepository = productosRepository
     }
 
-    async crearNotificacionVersionUno(pedido){
-        //const usuarioDestino = await this.getDestinatario(pedido)
-
-        const usuarioDestino = {destino: pedido.comprador, tipo: "COMPRADOR"}
-        const notificacion = this.factoryNotificacion.crearSegunPedido(pedido, usuarioDestino)
-        await this.notificacionesRepository.save(notificacion)
-    }
-
-    async getDestinatario(pedido){
-        var usuarioDestino
-        if(pedido.estado === EstadoPedido.ENVIADO){
-            usuarioDestino = pedido.comprador
-        } else {
-            const producto = await this.productosRepository.findById(pedido.items[0].producto)
-            usuarioDestino = producto.vendedor
-        }
-
-        return usuarioDestino
-    }
-
     async obtenerNotificaciones(idUsuario, leidas, pagina, limite){
         const usuario = await this.usuariosRepository.findById(idUsuario)
         
@@ -80,20 +60,39 @@ export class NotificacionService {
         return cantidadNoLeidas
     }
 
+    async crearNotificacionItemPedido(itemPedido, usuario){
+        let userNotif
+
+        const item = {cantidad: itemPedido.cantidad, producto: itemPedido.producto}
+
+        const pedidoNoti = {
+            ...itemPedido.idPedido.toObject(),
+            estado: itemPedido.estado,
+            items: [item]
+        };
+        
+        if(usuario.tipo == "COMPRADOR"){
+            userNotif = {destino: itemPedido.vendedorId, comprador: usuario.nombre, tipo: usuario.tipo}
+            
+        } else {
+            userNotif = {destino: pedidoNoti.comprador, vendedor: usuario.nombre, tipo: usuario.tipo}
+        }
+
+        const notificacion = this.factoryNotificacion.crearSegunPedido(pedidoNoti, userNotif)
+        await this.notificacionesRepository.save(notificacion)
+    }
 
 
-    async crearNotificacion(pedido, usuario){
-        console.log(usuario)
+    async crearNotificacionPedido(pedido, usuario){
 
         if(pedido.estado == EstadoPedido.PENDIENTE){
-            const usuarioDestino = {destino: pedido.comprador, tipo: "COMPRADOR"}
+            const usuarioDestino = {destino: pedido.comprador, tipo: usuario.tipo}
             const notificacionComprador = this.factoryNotificacion.crearSegunPedido(pedido, usuarioDestino)
 
             await this.notificacionesRepository.save(notificacionComprador)
         }
         
-        if(usuario.tipo = "COMPRADOR"){
-
+        if(usuario.tipo == "COMPRADOR"){
             const itemsPorVendedor = this.obtenerItemsPorVendedor(pedido);
 
             for (const vendedorId in itemsPorVendedor) {
@@ -103,8 +102,8 @@ export class NotificacionService {
                     items: itemsVendedor
                 }
 
-                const usuarioDestino = {comprador: pedido.comprador.nombre, destino: vendedorId, tipo: "VENDEDOR"}
-                const notificacion = this.factoryNotificacion.crearSegunPedido(pedidoVendedor, usuarioDestino)
+                const userNotif = {destino: vendedorId, comprador: pedido.comprador.nombre, tipo: usuario.tipo}
+                const notificacion = this.factoryNotificacion.crearSegunPedido(pedidoVendedor, userNotif)
 
                 await this.notificacionesRepository.save(notificacion)
             }
@@ -112,13 +111,12 @@ export class NotificacionService {
         } else {
             const itemsVendedor = this.obtenerItemsPorVendedor(pedido, usuario.id)
             const pedidoVendedor = {
-                ...pedido,
+                ...pedido.toObject(),
                 items: itemsVendedor
             }
-
-            const usuarioDestino = {destino: pedido.comprador, vendedor: usuario.nombre, tipo: "VENDEDOR"}
-
-            const notificacion = this.factoryNotificacion.crearSegunPedido(pedidoVendedor, usuarioDestino)
+            const userNotif = {destino: pedido.comprador, vendedor: usuario.nombre, tipo: usuario.tipo}
+ 
+            const notificacion = this.factoryNotificacion.crearSegunPedido(pedidoVendedor, userNotif)
             await this.notificacionesRepository.save(notificacion)
         }
     }

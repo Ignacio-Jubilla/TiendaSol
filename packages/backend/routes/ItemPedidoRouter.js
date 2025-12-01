@@ -26,7 +26,7 @@ const itemPedidoRepository = new ItemPedidoRepository()
 
 const notificacionService = new NotificacionService(notificacionesRepository, usuarioRepository, factoryNotificacion, productoRepository)
 const pedidoService = new PedidoService(pedidoRepository, itemPedidoRepository, userRepository, productoRepository, notificacionService)
-const itemPedidoService = new ItemPedidoService(itemPedidoRepository, pedidoService, productoRepository)
+const itemPedidoService = new ItemPedidoService(itemPedidoRepository, pedidoService, productoRepository, notificacionService)
 const itemPedidoController = new ItemPedidoController(itemPedidoService)
 
 itemPedidoRouter.get('/:id', middleware.extractUser, asyncHandler(async (req, res)=> {

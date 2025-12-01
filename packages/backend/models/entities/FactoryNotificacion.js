@@ -12,25 +12,23 @@ export class FactoryNotificacion{
       return this.traductor.traducir(estadoPedido, this.lenguaje, tipoUsuario)
     }
 
-    crearSegunPedido(pedido, usuarioDestino){
-      let mensajeEstado = this.crearSegunEstadoPedido(pedido.items[0].estado, usuarioDestino.tipo)
+    crearSegunPedido(pedido, usuario){
+      let mensajeEstado = this.crearSegunEstadoPedido(pedido.estado, usuario.tipo)
       let mensaje
 
       const productosEnString = pedido.items.map( item => `x${item.cantidad} ${item.producto.titulo}` ).join("; ")
       
-      if(usuarioDestino.tipo == "COMPRADOR"){
-        let vendedor = ""
-        if(usuarioDestino.vendedor){
-          vendedor = `Vendedor: ${usuarioDestino.vendedor}`
-        }
+      let compradorVendedor = "";
 
-        mensaje = `${mensajeEstado}\nPedido: ${pedido._id} ${vendedor} Items: ${productosEnString}` 
-
-      } else {
-        mensaje = `${mensajeEstado}\nPedido: ${pedido._id} Comprador: ${usuarioDestino.comprador} Items: ${productosEnString}` 
+      if(usuario.vendedor) {
+          compradorVendedor = `Vendedor: ${usuario.vendedor}`
+      } else if (usuario.comprador) {
+        compradorVendedor = `Comprador: ${usuario.comprador}`
       }
 
-      const notificacion = new Notificacion(usuarioDestino.destino,mensaje);
+      mensaje = `${mensajeEstado}\nPedido: ${pedido._id} ${compradorVendedor} Items: ${productosEnString}` 
+
+      const notificacion = new Notificacion(usuario.destino,mensaje);
       return notificacion
     }
 

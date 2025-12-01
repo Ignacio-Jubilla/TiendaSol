@@ -106,7 +106,7 @@ export class PedidosController {
 
       const {motivo} = parseBody.data
 
-      const resultado = await this.pedidoService.cancelarPedido(pedidoId, motivo);
+      const resultado = await this.pedidoService.cancelarPedido(pedidoId, motivo, req.user);
       if(!resultado) {
         return res.status(500).json({ error: 'error de cancelacion' });
       }

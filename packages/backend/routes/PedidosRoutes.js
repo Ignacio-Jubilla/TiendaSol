@@ -52,7 +52,7 @@ pedidosRouter.post('/', asyncHandler(async (req, res) => {
   return await pedidosController.crearPedido(req, res);
 }))
 //patch 
-pedidosRouter.patch('/:id', asyncHandler(async (req, res) => {
+pedidosRouter.patch('/:id', middleware.extractUser, asyncHandler(async (req, res) => {
   return await pedidosController.actualizarEstadoPedido(req, res);
 }))
 

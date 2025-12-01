@@ -4,10 +4,11 @@ import { EntidadNotFoundError } from "../errors/ProductosErrors.js";
 import { EstadoPedido } from "../models/entities/enums/EstadoPedido.js";
 
 export class ItemPedidoService {
-  constructor(ItemPedidoRepository, PedidoService, ProductosRepository) {
+  constructor(ItemPedidoRepository, PedidoService, ProductosRepository, notificacionesService) {
     this.itemPedidoRepository = ItemPedidoRepository;
     this.pedidoService = PedidoService;
     this.ProductosRepository = ProductosRepository;
+    this.notificacionesService = notificacionesService;
   }
   async getItemPedidosByVendedorId({vendedorId, page, perPage}) {
     const itemPedidos = await this.itemPedidoRepository.findByVendedorId(vendedorId, page, perPage);
@@ -51,7 +52,7 @@ export class ItemPedidoService {
     await this.pedidoService.verificarEstado(idPedido);
   }
 
-  async cancelarItemPedido(itemPedidoId, idUsuario) {
+  async cancelarItemPedido(itemPedidoId, usuario) {
     const itemPedido = await this.itemPedidoRepository.findById(itemPedidoId)
     
     if (!itemPedido) {
@@ -61,8 +62,8 @@ export class ItemPedidoService {
     const itemPedidoCompradorId = itemPedido.idPedido.comprador.toString();
     const itemPedidoVendedorId = itemPedido.vendedorId.toString();
 
-    const esComprador  = (idUsuario === itemPedidoCompradorId);
-    const esVendedor = (idUsuario === itemPedidoVendedorId)
+    const esComprador  = (usuario.id === itemPedidoCompradorId);
+    const esVendedor = (usuario.id === itemPedidoVendedorId)
     if (!esComprador && !esVendedor) {
       throw new NotAuthorizedError("El usuario no tiene permiso para actualizar este item de pedido");
     }
@@ -96,6 +97,9 @@ export class ItemPedidoService {
             )
     const itemPEdidoUpdate = await this.itemPedidoRepository.updateEstado(itemPedidoId, EstadoPedido.CANCELADO)
     await this.actualizarEstadoItemPedido(itemPedido.idPedido._id)
+
+    await this.notificacionesService.crearNotificacionItemPedido(itemPEdidoUpdate, usuario)
+    
     return itemPEdidoUpdate;
   }
 
