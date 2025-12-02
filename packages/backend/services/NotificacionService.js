@@ -102,7 +102,7 @@ export class NotificacionService {
                     items: itemsVendedor
                 }
 
-                const userNotif = {destino: vendedorId, comprador: pedido.comprador.nombre, tipo: usuario.tipo}
+                const userNotif = {destino: vendedorId, comprador: pedido.comprador.nombre, tipo: "VENDEDOR"}
                 const notificacion = this.factoryNotificacion.crearSegunPedido(pedidoVendedor, userNotif)
 
                 await this.notificacionesRepository.save(notificacion)
@@ -114,7 +114,7 @@ export class NotificacionService {
                 ...pedido.toObject(),
                 items: itemsVendedor
             }
-            const userNotif = {destino: pedido.comprador, vendedor: usuario.nombre, tipo: usuario.tipo}
+            const userNotif = {destino: pedido.comprador, vendedor: usuario.nombre, tipo: "COMPRADOR"}
  
             const notificacion = this.factoryNotificacion.crearSegunPedido(pedidoVendedor, userNotif)
             await this.notificacionesRepository.save(notificacion)
