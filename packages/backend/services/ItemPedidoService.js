@@ -11,8 +11,23 @@ export class ItemPedidoService {
     this.notificacionesService = notificacionesService;
   }
   async getItemPedidosByVendedorId({vendedorId, page, perPage}) {
+    const numeroPagina = Math.max(Number(page), 1);
+    const elemPorPagina = Math.min(Math.max(Number(perPage), 1), 100)
+
     const itemPedidos = await this.itemPedidoRepository.findByVendedorId(vendedorId, page, perPage);
-    return itemPedidos;
+
+    const total = await this.itemPedidoRepository.contarTodos(vendedorId);
+    const totalPaginas = Math.ceil(total / elemPorPagina);
+
+    return {
+      pagina: numeroPagina,
+      PorPagina: elemPorPagina,
+      total: total,
+      totalPaginas: totalPaginas,
+      data: itemPedidos
+    }
+
+    //return itemPedidos;
   }
   async getItemPedidoById(idItem) {
     const itemPedido = await this.itemPedidoRepository.findById(idItem);
@@ -22,14 +37,14 @@ export class ItemPedidoService {
     return this.itemPedidoToDto(itemPedido)
   }
 
-  async marcarEnviado(itemPedidoId, idVendedor) {
+  async marcarEnviado(itemPedidoId, vendedor) {
     const itemPedido = await this.itemPedidoRepository.findById(itemPedidoId);
 
     if (!itemPedido) {
       throw new PedidoNotFound();
     }
 
-    if (itemPedido.vendedorId.toString() !== idVendedor) {
+    if (itemPedido.vendedorId.toString() !== vendedor.id) {
       throw new NotAuthorizedError("El vendedor no tiene permiso para actualizar este item de pedido");
     }
 
@@ -45,6 +60,9 @@ export class ItemPedidoService {
     
     const itemPEdidoUpdate = await this.itemPedidoRepository.updateEstado(itemPedidoId, EstadoPedido.ENVIADO)
     await this.actualizarEstadoItemPedido(itemPedido.idPedido._id)
+
+    await this.notificacionesService.crearNotificacionItemPedido(itemPEdidoUpdate, vendedor)
+
     return itemPEdidoUpdate;
   }
 

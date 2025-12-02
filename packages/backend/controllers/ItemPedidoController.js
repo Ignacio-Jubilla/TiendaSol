@@ -18,8 +18,11 @@ export class ItemPedidoController {
 
     async getItemsPorVendedorId(req,res) {
         try{
+            const {page = 1, limit = 10} =req.query;
             const query = req.query;
+
             const parsedQuery = getItemsPedidoByVendedor.safeParse(query);
+
             if(parsedQuery.error){
                 return res.status(400).json(parseItemPedidoId.error.issues);
             }
@@ -40,7 +43,7 @@ export class ItemPedidoController {
 
             let itemPedidoActualizado;
             if(estado == 'ENVIADO'){
-                itemPedidoActualizado = await this.itemPedidoService.marcarEnviado(itemPedidoId, usuario.id);
+                itemPedidoActualizado = await this.itemPedidoService.marcarEnviado(itemPedidoId, usuario);
             } else if (estado == 'CANCELADO'){
                 itemPedidoActualizado = await this.itemPedidoService.cancelarItemPedido(itemPedidoId, usuario);
             } else if(estado == "CONFIRMADO"){

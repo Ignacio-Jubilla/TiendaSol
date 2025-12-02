@@ -72,10 +72,10 @@ export class NotificacionService {
         };
         
         if(usuario.tipo == "COMPRADOR"){
-            userNotif = {destino: itemPedido.vendedorId, comprador: usuario.nombre, tipo: usuario.tipo}
+            userNotif = {destino: itemPedido.vendedorId, comprador: usuario.nombre, tipo: "VENDEDOR"}
             
         } else {
-            userNotif = {destino: pedidoNoti.comprador, vendedor: usuario.nombre, tipo: usuario.tipo}
+            userNotif = {destino: pedidoNoti.comprador, vendedor: usuario.nombre, tipo: "COMPRADOR"}
         }
 
         const notificacion = this.factoryNotificacion.crearSegunPedido(pedidoNoti, userNotif)

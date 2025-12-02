@@ -4,7 +4,7 @@ export class TraductorManual {
   constructor() {
     this.mensajesComprador = {
       [EstadoPedido.ENVIADO]: {
-        ES: "Tu pedido ha sido enviado",
+        ES: "Un item ha sido enviado",
         EN: "Your order has been shipped",
         BR: "Pedido enviado",
       },
@@ -14,7 +14,7 @@ export class TraductorManual {
         BR: "Pedido pendente",
       },
       [EstadoPedido.CANCELADO]: {
-        ES: "Tu pedido ha sido cancelado",
+        ES: "Un item ha sido cancelado",
         EN: "Your order has been cancelled",
         BR: "Pedido cancelado",
       },

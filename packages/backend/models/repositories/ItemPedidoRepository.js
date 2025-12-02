@@ -43,12 +43,15 @@ export class ItemPedidoRepository {
         const itemPedidos = await ItemPedidoModel.find(query)
             .skip(skip)
             .limit(perPage)
+            .sort({_id: -1})
             .populate({
             path: 'producto',
-            select: 'titulo' // <--- Campos específicos del producto
+            select: 'titulo'
         })
 
-            
+        
+        return itemPedidos;
+        /*
         return {
             data: itemPedidos,
             pagination: {
@@ -56,6 +59,12 @@ export class ItemPedidoRepository {
                 total_pages
             }
         }
+            */
+    }
+
+    async contarTodos(vendedorId) {
+        const query = { vendedorId: new mongoose.Types.ObjectId(vendedorId) };
+        return ItemPedidoModel.countDocuments(query);
     }
 
 }

@@ -2,10 +2,14 @@ import axios from 'axios'
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL
 
-const obtenerItemsVendedor = async ({ vendedorId }) => {
+const obtenerItemsVendedor = async (filtros = {}) => {
   const token = localStorage.getItem("accessToken");
 
-  const response = await axios.get(`${baseUrl}/itemPedidos?vendedorId=${vendedorId}`, {
+  const { vendedorId, page = 1, limit = 10 } = filtros;
+
+  const response = await axios.get(`${baseUrl}/itemPedidos?vendedorId=${vendedorId}`,
+    {
+    params: {page, limit},
     headers: {
       Authorization: `Bearer ${token}`,
     },
