@@ -50,7 +50,7 @@ const DetallePedido = () => {
   }, [pedidoId]);
   
   const handleCancelarPedido = async () => {
-      try {
+    try {
      if (!pedido) return;
       const confirmacion = await confirmAction({
         title: "Cancelar pedido?",
@@ -71,6 +71,28 @@ const DetallePedido = () => {
       setLoading(false);
     }
   };
+
+  const handleItemCancelado = (itemId) => {
+    setPedido(prev => ({
+      ...prev,
+      items: prev.items.map(i =>
+        i._id === itemId ? { ...i, estado: "CANCELADO" } : i
+      )
+    }));
+  };
+
+  useEffect(() => {
+    if (!pedido?.items) return;
+
+    const todosCancelados = pedido.items.every(i => i.estado === "CANCELADO");
+
+    if (todosCancelados && pedido.estado !== "CANCELADO") {
+      setPedido(prev => ({ ...prev, estado: "CANCELADO" }));
+      showSuccess("Todos los ítems fueron cancelados. Pedido cancelado.");
+    }
+  }, [pedido?.items]);
+
+
   
   if (loading) return <LoadingSpinner message="Cargando detalle..." />;
   if (!pedido) return <ErrorMessage msg={errorMessage || "Pedido no encontrado"} />;
@@ -87,6 +109,7 @@ const DetallePedido = () => {
       <CardPedido 
       pedido={pedido} 
       onPedidoCancelado={handleCancelarPedido} 
+      onItemCancelado={handleItemCancelado}
       ShowDetalleBtn={false}
       showItems={true}
       showCancelarItemBtn={true}

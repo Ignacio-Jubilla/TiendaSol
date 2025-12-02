@@ -291,9 +291,14 @@ const truncateText = (titulo) => {
                   )}
                 </Dropdown.Menu>
               </Dropdown>
-              {user ? (
+              {user && user.tipo === 'COMPRADOR' ? (
                 <NavLink to="/pedidos" className="nav-link" onClick={handleClose}>
                   Mis pedidos
+                </NavLink>
+              ) : null}
+              {user && user.tipo === 'VENDEDOR' ? (
+                <NavLink to="/itemPedidos" className="nav-link" onClick={handleClose}>
+                  Mis Items
                 </NavLink>
               ) : null}
               {user && user.tipo === 'VENDEDOR' ? (

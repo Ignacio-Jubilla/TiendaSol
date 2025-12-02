@@ -24,6 +24,7 @@ import { NotificacionProvider } from "./context/NotificacionContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MainRouteRedirect from "./components/PublicRoute.jsx";
 import FinalizarCompra from "./features/finalizarCompra/FinalizarCompra.jsx";
+import MisItems from "./features/pedidos/MisItems.jsx";
 
 function App() {
   const ROLES = {
@@ -64,6 +65,7 @@ function App() {
           <Route path="/pedidos" element={<MisPedidos/>}/>
           <Route path="/pedidos/:pedidoId" element={<DetallePedido/>}/>
           <Route path="/notificaciones" element={<Notificaciones />} />
+          <Route path="/itemPedidos" element={<MisItems />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>

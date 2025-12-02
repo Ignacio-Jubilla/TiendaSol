@@ -12,10 +12,14 @@ const CardPedido = ({ pedido, onPedidoCancelado, onItemCancelado, ShowDetalleBtn
   const [pedidoState, setPedido] = useState(pedido);
 
   const handleCancelarPedido = () => {
-    if (onPedidoCancelado) onPedidoCancelado(pedido._id); 
+    if (onPedidoCancelado) onPedidoCancelado(pedidoState._id); 
   // CORRECCIÓN 1: Usar 'pedidoState' para mantener los datos actuales (incluidos los items)
   setPedido(prev => ({ ...prev, estado: "CANCELADO" }));
   }
+
+  useEffect(() => {
+  setPedido(pedido);
+}, [pedido]);
 
 const handleCancelarItem = async (itemId) => {
   try {
@@ -45,12 +49,28 @@ const handleCancelarItem = async (itemId) => {
 }
 
 useEffect(() => {
+    if (!pedidoState?.items) return;
+
+    const todosCancelados = pedidoState.items.every(i => i.estado === "CANCELADO");
+
+    if (todosCancelados && pedidoState.estado !== "CANCELADO") {
+      setPedido(prev => ({ ...prev, estado: "CANCELADO" }));
+
+      if (onPedidoCancelado) {
+        onPedidoCancelado(pedidoState._id);
+      }
+
+      showSuccess("Todos los ítems fueron cancelados. Pedido cancelado.");
+    }
+  }, [pedidoState.items]);
+
+useEffect(() => {
   if(!showItems) return;
 
   const fetchNombres = async () => {
     const nombres = {}; // objeto local, nuevo por cada render
     await Promise.all(
-      pedido.items.map(async (item, index) => {
+      pedidoState.items.map(async (item, index) => {
         const pid = item.producto || `item-${index}`;
         try {
           const producto = await productosService.getProducto(pid);
@@ -63,21 +83,21 @@ useEffect(() => {
     setProductosNombres(nombres);
   };
 
-  if (pedido.items?.length > 0) fetchNombres();
-}, [pedido.items,showItems]);
+  if (pedidoState.items?.length > 0) fetchNombres();
+}, [pedidoState.items,showItems]);
 
-const pedidoCancelado = pedido.estado === "CANCELADO";
-
+//const pedidoCancelado = pedidoState.estado === "CANCELADO";
+const todosCancelados = pedidoState.items?.every(i => i.estado === "CANCELADO");
 
   return (
-    <section className="card-pedido" key={pedido._id}>
+    <section className="card-pedido" key={pedidoState._id}>
       <div className="pedido-header d-flex justify-content-between align-items-center">
-        <span className="pedido-id">Pedido {pedido._id}</span>
+        <span className="pedido-id">Pedido {pedidoState._id}</span>
         <span className="badge-modern">{children}</span>
       </div>
 
-      <p><strong>Fecha:</strong> {new Date(pedido.fechaCreacion).toLocaleDateString()}</p>
-      <p className="pedido-total">Total: ${pedido.total}</p>
+      <p><strong>Fecha:</strong> {new Date(pedidoState.fechaCreacion).toLocaleDateString()}</p>
+      <p className="pedido-total">Total: ${pedidoState.total}</p>
 
       {showItems && (
       <div className="pedido-items">
@@ -87,7 +107,7 @@ const pedidoCancelado = pedido.estado === "CANCELADO";
             <div key={pid} className="pedido-item">
               <span>{productosNombres[pid] || 'Cargando...'} x {item.cantidad}</span>
               <span>${(item.cantidad * item.precioUnitario).toFixed(2)}</span>
-            {showCancelarItemBtn && pedido.estado!=="CANCELADO" && item.estado !== "CANCELADO" && (
+            {showCancelarItemBtn && pedidoState.estado!=="CANCELADO" && item.estado !== "CANCELADO" && (
               <Button 
                 className="btn-modern btn-modern-danger"
                 size="sm"
@@ -105,13 +125,14 @@ const pedidoCancelado = pedido.estado === "CANCELADO";
       <div className="d-flex gap-2 justify-content-end">
         {ShowDetalleBtn && (<Button 
           variant="primary"
-          onClick={()=> navegar(`/pedidos/${pedido._id}`)}
+          onClick={()=> navegar(`/pedidos/${pedidoState._id}`)}
         >
           Ver detalle
         </Button>
         )}
 
-        {["PENDIENTE", "CONFIRMADO", "EN_PREPARACION"].includes(pedido.estado) && (
+        {["PENDIENTE", "CONFIRMADO", "EN_PREPARACION"].includes(pedidoState.estado) 
+        && !todosCancelados && (
           <Button 
             variant="danger"
             onClick={handleCancelarPedido}
