@@ -47,9 +47,13 @@ app.use('/api/pedidos', pedidosRouter)
 app.use('/api/productos', productosRouter)
 
 app.use('/api/notificaciones', notificacionesRouter)
+
 app.use('/api/usuarios', usuariosRouter)
+
 app.use('/api/auth', authRouter)
+
 app.use('/api/itemPedidos', itemPedidoRouter)
+
 //expone imagenes de productos
 app.use('/uploads', express.static('uploads'))
 app.use(middleware.errorHandler)
