@@ -107,7 +107,8 @@ const todosCancelados = pedidoState.items?.every(i => i.estado === "CANCELADO");
             <div key={pid} className="pedido-item">
               <span>{productosNombres[pid] || 'Cargando...'} x {item.cantidad}</span>
               <span>${(item.cantidad * item.precioUnitario).toFixed(2)}</span>
-            {showCancelarItemBtn && pedidoState.estado!=="CANCELADO" && item.estado !== "ENVIADO" && (
+            {showCancelarItemBtn && !["ENVIADO", "CANCELADO"].includes(pedidoState.estado) &&
+                                    !["ENVIADO", "CANCELADO"].includes(item.estado) &&  (
               <Button 
                 className="btn-modern btn-modern-danger"
                 size="sm"
@@ -131,7 +132,7 @@ const todosCancelados = pedidoState.items?.every(i => i.estado === "CANCELADO");
         </Button>
         )}
 
-        {["PENDIENTE", "CONFIRMADO", "EN_PREPARACION"].includes(pedidoState.estado) 
+        {["PENDIENTE", "CONFIRMADO", "EN_PREPARACION"].includes(pedidoState.estado) && !["ENVIADO", "CANCELADO"].includes(pedidoState.estado)
         && !todosCancelados && (
           <Button 
             variant="danger"
