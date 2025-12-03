@@ -77,15 +77,9 @@ const Notificaciones = () => {
     <div className="notificaciones container">
       <h1>Tus notificaciones</h1>
       <Form>
-  {/* 1. 'align-items-center' alinea verticalmente el label y el input.
-    2. Eliminé 'grow-0' ya que no es una clase estándar de Bootstrap
-       y no estaba logrando el efecto deseado.
-  */}
+
   <Form.Group className='d-flex flex-row align-items-center'>
     
-    {/* 1. 'mb-0' quita el margen inferior del label.
-      2. 'me-2' añade un espacio entre el label y el input.
-    */}
     <Form.Label className="mb-0 me-2">Mostrar por pagina</Form.Label>
     
     <Form.Control
