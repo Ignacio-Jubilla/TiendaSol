@@ -11,7 +11,6 @@ import multer from "multer"
 import fs from "fs"
 import path from 'path';
 import { InputValidationError } from '../errors/ProductosErrors.js';
-import { v4 as uuidv4 } from "uuid";
 import middleware from '../utils/middleware.js';
 
 //configuracion multer
