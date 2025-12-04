@@ -6,7 +6,6 @@ import { DireccionEntregaBuilder } from '../models/entities/DireccionEntrega.js'
 import { PedidoInputDTO } from '../models/entities/dtos/input/PedidoInputDTO.js';
 import { PedidoOutputDTO } from '../models/entities/dtos/output/PedidoOutputDTO.js';
 import express from 'express';
-import { itemPedidoSchema } from '../models/schemas/ItemPedidoModel.js';
 import { id } from 'zod/v4/locales';
 const direccionEntregaBuilder = new DireccionEntregaBuilder();
 
@@ -107,7 +106,7 @@ export class PedidosController {
 
       const {motivo} = parseBody.data
 
-      const resultado = await this.pedidoService.cancelarPedido(pedidoId, motivo);
+      const resultado = await this.pedidoService.cancelarPedido(pedidoId, motivo, req.user);
       if(!resultado) {
         return res.status(500).json({ error: 'error de cancelacion' });
       }
@@ -122,6 +121,34 @@ export class PedidosController {
   } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
   }
+  }
+
+  actualizarEstadoItemPedido = async (req, res) => {
+    try {
+      let itemPedidoId = req.params.itemId;
+      let pedidoId = req.params.id;
+      
+      const parseItemPedidoId = idSchema.safeParse(itemPedidoId);
+      if (parseItemPedidoId.error) {
+        return res.status(400).json(parseItemPedidoId.error.issues);
+      }
+      const parsePedidoId = idSchema.safeParse(pedidoId);
+      if (parsePedidoId.error) {
+        return res.status(400).json(parsePedidoId.error.issues);
+      }
+      itemPedidoId = parseItemPedidoId.data;
+      pedidoId = parsePedidoId.data;
+
+      const { estado } = req.query;
+      if (!estado) {
+          return res.status(400).json({ error: 'Falta el parámetro "estado" en query.' });
+      }
+      const itemPedidoActualizado = await this.pedidoService.actualizarEstadoItemPedido(pedidoId, itemPedidoId, estado);
+      res.status(200).json(itemPedidoActualizado);
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message || 'Error interno del servidor' });
+    }
+
   }
 
 

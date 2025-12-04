@@ -4,14 +4,13 @@ import { EstadoPedido } from "./enums/EstadoPedido.js";
 import { TipoUsuario } from "./enums/TipoUsuario.js";
 import { ItemPedido } from "./ItemPedido.js";
 import {Usuario} from "./Usuario.js";
-import { v4 as uuidv4 } from 'uuid';
+//import { v4 as uuidv4 } from 'uuid';
 
 
 export class Pedido {
   constructor(usuario,items,moneda,direccionEntrega) {
     this.comprador = usuario
-    this.items = items.map(item => new ItemPedido(item.productoId,item.cantidad,item.precioUnitario));
-    this.total = this.calcularTotal();
+    this.items = items.map(item => item._id);
     this.moneda = moneda;
     this.direccionEntrega = direccionEntrega
     this.estado;
@@ -19,11 +18,11 @@ export class Pedido {
     this.historialEstados = [new CambioEstadoPedido(EstadoPedido.PENDIENTE, this, usuario, 'Pedido creado')];
   } 
   
-  calcularTotal() {
-    return this.items.reduce((acum, item) => acum + item.subtotal(), 0);
-  }
+  // calcularTotal() {
+  //   return this.items.reduce((acum, item) => acum + item.subtotal(), 0);
+  // }
 
-  actualizarEstado = (nuevoEstado, quien, motivo)  => {
+  actualizarEstado(nuevoEstado, quien, motivo) {
     let cambio = new CambioEstadoPedido(nuevoEstado, this, quien, motivo)
     this.historialEstados.push(cambio)
     this.estado = nuevoEstado
@@ -54,6 +53,4 @@ export class Pedido {
     pedido.total = doc.total;
     return pedido;
   }
-
-
 }

@@ -9,11 +9,13 @@ import ControlPaginado from '../../components/controlPaginado/ControlPaginado';
 import { useSearchParams } from 'react-router';
 import { Button, Form } from 'react-bootstrap';
 import { useAuth } from '../../context/authContext';
+import { useNotificacion } from '../../context/NotificacionContext';
 import notificacionesMocked from './../../mocks/notificaciones.json'
 import { FaSearch } from 'react-icons/fa';
 
 const Notificaciones = () => {
-  const { user } = useAuth()
+  const { getToken } = useAuth()
+  const { restarNotificacion } = useNotificacion()
   const [notificaciones, setNotificaciones] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -25,11 +27,10 @@ const Notificaciones = () => {
   const cargarNotificaciones = async ({pagina = 1, limit= 10, leidas= false}) => {
     try {
       setLoading(true)
-      const usuario = user.id
 
-      const notificacionesPage = await notificacionesService.getNotificaciones(usuario, leidas, pagina, limit)
+      const notificacionesPage = await notificacionesService.getNotificaciones(leidas, pagina, limit, getToken())
       setNotificaciones(notificacionesPage.data)
-      setSearchParams({usuario: usuario, page: notificacionesPage.pagina, leidas: notificacionesLeidas})
+      setSearchParams({page: notificacionesPage.pagina, leidas: notificacionesLeidas})
       setPagination({
         page: notificacionesPage.pagina,
         total_pages: notificacionesPage.totalPaginas
@@ -46,13 +47,14 @@ const Notificaciones = () => {
   }, [])
   
   const marcarLeida = async (id) => {
-    await notificacionesService.marcarNotificacionLeida(id)
+    await notificacionesService.marcarNotificacionLeida(id, getToken())
+    restarNotificacion()
 
-    cargarNotificaciones({})
+    cargarNotificaciones({pagina: pagination.page, limit: perPage})
     }
 
   const handleChangePage = (pag) => {
-    cargarNotificaciones({pagina: pag, leidas: notificacionesLeidas})
+    cargarNotificaciones({pagina: pag, limit: perPage, leidas: notificacionesLeidas})
   }
 
   const handleLeidasChange = (notiLeidas) => {
@@ -63,19 +65,21 @@ const Notificaciones = () => {
   cargarNotificaciones({ leidas: notificacionesLeidas });
   }, [notificacionesLeidas]);
 
+  const validPerPage = (num) => {
+    if( num >= 10 && num <= 30){
+      setPerPage(num)
+    } else {
+      setPerPage(10)
+    }
+  }
+
   return (
     <div className="notificaciones container">
       <h1>Tus notificaciones</h1>
       <Form>
-  {/* 1. 'align-items-center' alinea verticalmente el label y el input.
-    2. Eliminé 'grow-0' ya que no es una clase estándar de Bootstrap
-       y no estaba logrando el efecto deseado.
-  */}
+
   <Form.Group className='d-flex flex-row align-items-center'>
     
-    {/* 1. 'mb-0' quita el margen inferior del label.
-      2. 'me-2' añade un espacio entre el label y el input.
-    */}
     <Form.Label className="mb-0 me-2">Mostrar por pagina</Form.Label>
     
     <Form.Control
@@ -84,9 +88,13 @@ const Notificaciones = () => {
       value={perPage}
       min={10}
       max={30}
-      onChange={(e) => setPerPage(e.target.value)}
+      onChange={(e) => { setPerPage(e.target.value) }}
+      onBlur={(e) => validPerPage(e.target.value)}
     />
-    <Button className='ms-2'>
+    <Form.Control.Feedback type="invalid" tooltip>
+                {'tiene que ser numerico'}
+              </Form.Control.Feedback>
+    <Button className='ms-2' onClick={() => cargarNotificaciones({pagina: pagination.page, limit: perPage, leidas: notificacionesLeidas})}>
     <FaSearch aria-hidden="true" />
     </Button>
   </Form.Group>

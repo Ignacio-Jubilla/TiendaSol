@@ -9,6 +9,7 @@ import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js'
 import { FactoryNotificacion } from '../models/entities/FactoryNotificacion.js'
 import { TraductorManual } from '../models/entities/TraductorManual.js'
 import { ProductoRepository } from '../models/repositories/ProductosRepository.js'
+import middleware from '../utils/middleware.js';
 
 const usuarioRepository = new UsuarioRepository()
 const notificacionesRepository = new NotificacionesRepository()
@@ -18,12 +19,16 @@ const factoryNotificacion = new FactoryNotificacion(traductor)
 const notificacionService = new NotificacionService(notificacionesRepository, usuarioRepository, factoryNotificacion, productoRepository)
 const notificacionesController = new NotificacionesController(notificacionService)
 
-notificacionesRouter.get('/', asyncHandler(async (req, res) => {
+notificacionesRouter.get('/', middleware.extractUser,asyncHandler(async (req, res) => {
     return await notificacionesController.obtenerNotificaciones(req, res)
 }))
 
-notificacionesRouter.patch('/:id/leida', asyncHandler(async (req, res) => {
+notificacionesRouter.patch('/:id', middleware.extractUser, asyncHandler(async (req, res) => {
     return await notificacionesController.marcarNotificacionLeida(req, res)
+}))
+
+notificacionesRouter.get('/no-leidas/cantidad', middleware.extractUser, asyncHandler(async (req, res) => {
+    return await notificacionesController.contarNotificacionesNoLeidas(req, res)
 }))
 
 export default notificacionesRouter

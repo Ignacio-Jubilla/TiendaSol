@@ -8,6 +8,7 @@ import { NotificacionService } from '../services/NotificacionService.js';
 import { FactoryNotificacion } from '../models/entities/FactoryNotificacion.js'
 import { TraductorManual } from '../models/entities/TraductorManual.js'
 import { NotificacionesRepository } from '../models/repositories/NotificacionesRepository.js'
+import { ItemPedidoRepository } from '../models/repositories/ItemPedidoRepository.js'
 
 /*
 import { PedidoDTO } from '../models/entities/dtos/input/PedidoDTO';
@@ -19,22 +20,27 @@ const pedidoService = new PedidosServices(new ProductoService(), new UsuarioServ
 import { UsuarioRepository } from '../models/repositories/UsuariosRepository.js';
 import { PedidoRepository } from '../models/repositories/PedidoRepository.js';
 import { ProductoRepository } from '../models/repositories/ProductosRepository.js';
+import { ItemPedidoService } from '../services/ItemPedidoService.js';
 import asyncHandler from 'express-async-handler'
+import middleware from '../utils/middleware.js';
 
 
 const usuarioRepo = new UsuarioRepository();
 const pedidoRepo = new PedidoRepository();
 const productoRepo = new ProductoRepository();
 const notificacionesRepository = new NotificacionesRepository()
+const itemPedidoRepository = new ItemPedidoRepository()
+
+const itemPedidoService = new ItemPedidoService(itemPedidoRepository, null, productoRepo)
 const traductor = new TraductorManual()
 const factoryNotificacion = new FactoryNotificacion(traductor)
 const notificacionService = new NotificacionService(notificacionesRepository, usuarioRepo, factoryNotificacion, productoRepo)
-const pedidosService = new PedidoService(pedidoRepo, usuarioRepo, productoRepo, notificacionService);
+const pedidosService = new PedidoService(pedidoRepo,itemPedidoRepository, usuarioRepo, productoRepo, notificacionService);
 
 const pedidosController = new PedidosController(pedidosService);
 
 
-pedidosRouter.get('/', asyncHandler(async (req, res) => {
+pedidosRouter.get('/', middleware.extractUser, asyncHandler(async (req, res) => {
   return await pedidosController.obtenerPedidos(req, res);
 }))
 
@@ -46,8 +52,12 @@ pedidosRouter.post('/', asyncHandler(async (req, res) => {
   return await pedidosController.crearPedido(req, res);
 }))
 //patch 
-pedidosRouter.patch('/:id', asyncHandler(async (req, res) => {
+pedidosRouter.patch('/:id', middleware.extractUser, asyncHandler(async (req, res) => {
   return await pedidosController.actualizarEstadoPedido(req, res);
+}))
+
+pedidosRouter.patch('/:id/items/:itemId', asyncHandler(async (req, res) => {
+  return await pedidosController.actualizarEstadoItemPedido(req, res);
 }))
 
 

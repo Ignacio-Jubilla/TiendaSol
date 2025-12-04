@@ -44,10 +44,10 @@ const Carrito =  () => {
   };
 
   return (
-    <Container className="mt-5 d-flex flex-column align-items-center">
+    <Container className="margin-carrito mt-5 d-flex flex-column align-items-center">
       
       <div style={{ alignSelf: 'flex-start', marginBottom: '1rem' }}>
-        <Button variant="outline-secondary" onClick={() => navegar(-1)}>
+        <Button variant="primary" onClick={() => navegar(-1)}>
           &larr; Volver
         </Button>
       </div>

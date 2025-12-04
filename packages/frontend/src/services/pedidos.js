@@ -9,11 +9,12 @@ const obtenerPedidos = async (filtros = {}) => {
 
   const response = await axios.get(`${baseUrl}/pedidos`,
     {
-    params: {usuarioId,page,limit, ...otrosFiltros} ,
+    params: {page,limit, ...otrosFiltros} ,
     headers: {
       'Authorization': `Bearer ${token}`,
     },
   });
+
   return response.data;
 };
 
@@ -43,6 +44,15 @@ const obtenerPedidoPorId = async (id) => {
   const response = await axios.get(`${baseUrl}/pedidos/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  console.log(response.data)
+  return response.data;
+};
+
+const cancelarItemPedido = async (pedidoId, itemId) => {
+  const token = localStorage.getItem("accessToken");
+  const response = await axios.patch(`${baseUrl}/itemPedidos/${itemId}?estado=CANCELADO`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return response.data;
 };
 
@@ -52,4 +62,5 @@ export default {
   crearPedido,
   actualizarEstadoPedido,
   obtenerPedidoPorId,
+  cancelarItemPedido
 };

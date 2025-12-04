@@ -1,5 +1,5 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { v4 as uuidv4 } from "uuid";
+//import { v4 as uuidv4 } from "uuid";
 import path from 'path';
 import config from "../utils/config.js";
 import { ImageUploadError } from "../errors/ProductosErrors.js";

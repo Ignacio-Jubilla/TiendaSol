@@ -6,15 +6,11 @@ export class NotificacionesController {
         this.notificacionService = notificacionService;
     }
 
-    /*
-        De momento pasamos el USER como query param, explicacion de eze:
-        
-        "Respecto al user, no va a ser necesario pasarlo por parámetro pues lo tomaremos de otra forma;
-        aunque por el momento lo pueden establecer así. Luego los ayudaremos a modificarlo."
-    */
     async obtenerNotificaciones(req, res){
         try{
-            const { usuario, leidas = true, page = 1, limit = 10 } = req.query;
+            const { leidas = true, page = 1, limit = 10 } = req.query;
+
+            const usuario = req.user.id
 
             if(!usuario){
                 throw new NotificacionUsuarioError()
@@ -30,12 +26,29 @@ export class NotificacionesController {
 
     async marcarNotificacionLeida(req, res){
         try {
-            const notificacion = await this.notificacionService.marcarNotificacionLeida(req.params.id, req.query.usuario)
+            const usuario = req.user.id
+
+            if(!usuario){
+                throw new NotificacionUsuarioError()
+            }
+
+            const notificacion = await this.notificacionService.marcarNotificacionLeida(req.params.id, usuario)
 
             res.status(201).json(notificacion)
 
             return
         } catch (error){
+            res.status(error.statusCode).json({ error: error.message });
+        }
+    }
+
+    async contarNotificacionesNoLeidas(req, res){
+        try {
+            const usuario = req.user.id
+            const cantidad = await this.notificacionService.contarNotificacionesNoLeidas(usuario)
+            res.status(200).json({ cantidad })
+        } catch (error){
+            console.log(error)
             res.status(error.statusCode).json({ error: error.message });
         }
     }

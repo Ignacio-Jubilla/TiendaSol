@@ -9,7 +9,7 @@ const CardNotificaciones = ({notificacion, marcarLeida}) => {
     <Card>
       <Card.Body>
         <Row>
-          <Col>
+          <Col className="saltoLinea" xs={12} md={ !notificacion.leida ? 8 : 12 }>
             <p className='text-muted' style={{fontSize: "0.9rem"}}>
               {new Date(notificacion.fechaAlta).toLocaleDateString('es-ES', {
                   day: '2-digit',

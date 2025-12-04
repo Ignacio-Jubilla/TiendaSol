@@ -1,5 +1,6 @@
 import PedidoModel from "../schemas/pedidoSchema.js";
 import { NoPedidosYet } from "../../errors/PedidosErrors.js";
+import ProductoModel from "../schemas/ProductoModel.js";
 
 export class PedidoRepository {
     
@@ -19,15 +20,16 @@ export class PedidoRepository {
         /*if (filtro.vendedorId) {
               query.vendedor = new mongoose.Types.ObjectId(filtro.vendedorId)
             }*/
+        let esVendedor = false
         if(filtros.usuarioId){ query.comprador = filtros.usuarioId; }
-        if(filtros.vendedorId) query["items.producto.vendedor"] = filtros.vendedorId;
+        //if(filtros.vendedorId) query["items.producto.vendedor"] = filtros.vendedorId;
         if (filtros.vendedorId) {
             const productosDelVendedor = await ProductoModel.find({
-            vendedor: filtros.vendedorId
-        }).distinct('_id');
-
-    query['items.producto'] = { $in: productosDelVendedor };
-  }
+                vendedor: filtros.vendedorId
+            }).distinct('_id');
+            esVendedor = true
+            //query['items.producto'] = { $in: productosDelVendedor };
+        }
       
         const offset = (numeroPagina-1) *elemPorPagina;
 
@@ -36,10 +38,13 @@ export class PedidoRepository {
             .limit(elemPorPagina)
             .sort({fechaCreacion:-1}) // del mas reciente para atrás
             .populate('comprador')
-            .populate('items.producto');
+            .populate({
+                 path: 'items',
+                 match: esVendedor ? { vendedorId: filtros.vendedorId } : {}});
         if(!pedidos || pedidos.length === 0){
             throw new NoPedidosYet();
         }
+
         return pedidos;
     }
 
@@ -51,7 +56,7 @@ export class PedidoRepository {
     async findById(id) {
         return await PedidoModel.findById(id)
         .populate('comprador')
-        .populate('items.producto');
+        .populate('items');
     }
 
     async findByUserId(usuarioId){
@@ -61,7 +66,25 @@ export class PedidoRepository {
     }
 
     async update(id,updateData) {
-        return await PedidoModel.findByIdAndUpdate(id, updateData, { new: true });
+        return await PedidoModel.findByIdAndUpdate(id, updateData, { new: true })
+        .populate({
+            path: 'items',
+            populate: [
+                { 
+                    path: 'producto',
+                    select: 'titulo' 
+                },
+                
+                { 
+                    path: 'vendedorId',
+                    select: 'nombre' 
+                }
+            ]
+        })
+        .populate({
+            path: 'comprador',
+            select: 'nombre email'
+        });
     }
 
     async contarTodos(filtros) {
@@ -71,5 +94,19 @@ export class PedidoRepository {
         if(filtros.estado){ query.estado = filtros.estado; }
         if(filtros.usuarioId){ query.comprador = filtros.usuarioId; }
         return PedidoModel.countDocuments(query);
-  }
+    }
+
+    async cambiarEstadoItemPedido(pedidoId, itemPedidoId, nuevoEstado) {
+        const pedido = await PedidoModel.findById(pedidoId);
+        const itemPedido = pedido.items.id(itemPedidoId);
+
+        if (!itemPedido) {
+            throw new Error(`ItemPedido con id ${itemPedidoId} no encontrado en el pedido ${pedidoId}`);
+        }
+        itemPedido.estado = nuevoEstado;
+        await pedido.save();
+        return pedido;
+    }
+
+
 }

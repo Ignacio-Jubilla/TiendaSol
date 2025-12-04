@@ -3,3 +3,7 @@
 	justify-content: end;
 	display: flex;
 }
+
+.saltoLinea {
+	white-space: pre-line
+}

@@ -7,6 +7,7 @@ import ToastMessage from "../../components/toastMessage/ToastMessage";
 import { FaCheckCircle } from "react-icons/fa";
 import pedidoService from "../../services/pedidos.js";
 import Swal from "sweetalert2";
+import {useNavigate} from "react-router-dom";
 
 const FinalizarCompra = () => {
   const { groupItemsByVendedor, cleanCart, cartItems } = useCart();
@@ -24,6 +25,8 @@ const FinalizarCompra = () => {
     lat: 0,
     lng: 0,
   });
+
+  const navegar = useNavigate();
 
   const [sugerencias, setSugerencias] = useState([]);
   const [isLoadingSugerencias, setIsLoadingSugerencias] = useState(false);
@@ -186,7 +189,7 @@ const FinalizarCompra = () => {
   setDisableSubmit(true)
   setShowNotification(true);
   setTimeout(() => {
-    window.location.href = "/pedidos";
+    navegar("/pedidos");
   }, 2500);
 
   }catch(error){

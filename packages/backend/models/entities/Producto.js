@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+//import { v4 as uuidv4 } from 'uuid';
 import { NotEnoughStockError } from '../../errors/ProductosErrors.js';
 
 export class Producto{
@@ -32,6 +32,10 @@ export class Producto{
     aumentarVentas(cantidad){ 
         this.ventas+=cantidad;
     }
+    reducirVentas(cantidad){
+        this.ventas-=cantidad;
+    }
+
     aumentarStock(cantidad){
         this.stock+=cantidad;
     }

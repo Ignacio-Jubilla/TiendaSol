@@ -20,9 +20,11 @@ import { CartProvider } from "./context/CartContext.jsx";
 import Notificaciones from "./features/notificaciones/Notificaciones.jsx";
 import NotFound from "./features/notFound/NotFound.jsx";
 import { AuthProvider } from "./context/authContext.jsx";
+import { NotificacionProvider } from "./context/NotificacionContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MainRouteRedirect from "./components/PublicRoute.jsx";
 import FinalizarCompra from "./features/finalizarCompra/FinalizarCompra.jsx";
+import MisItems from "./features/pedidos/MisItems.jsx";
 
 function App() {
   const ROLES = {
@@ -35,6 +37,7 @@ function App() {
     <BrowserRouter>
     <CartProvider>
       <AuthProvider>
+      <NotificacionProvider>
       <Routes>
         <Route path="/" element={<Layout  />} >
         <Route path="/" element={<MainRouteRedirect/>}>
@@ -62,10 +65,12 @@ function App() {
           <Route path="/pedidos" element={<MisPedidos/>}/>
           <Route path="/pedidos/:pedidoId" element={<DetallePedido/>}/>
           <Route path="/notificaciones" element={<Notificaciones />} />
+          <Route path="/itemPedidos" element={<MisItems />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      </NotificacionProvider>
       </AuthProvider>
       </CartProvider>
     </BrowserRouter>

@@ -8,7 +8,7 @@
 
 .notificaciones .card {
     margin-top: 10px;
-    min-width: 500px;
+    width: 1000px;
 }
 
 .cartelError {
@@ -18,16 +18,16 @@
 }
 
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
 
 
     .notificaciones ul {
         list-style: none;
         padding: 10px;
-        width: 100vw;
+        /*width: 95vw;*/
     }
 
     .notificaciones .card {
-        min-width: 100%;
+        width: 100%;
     }
 }

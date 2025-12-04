@@ -1,69 +1,145 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from "react-bootstrap";
+import { Button, Badge } from "react-bootstrap";
 import './CardPedido.css';
 import { useNavigate } from 'react-router';
 import productosService from '../../services/productos.js'; // import default
+import  pedidoService  from '../../services/pedidos.js';
+import { confirmAction, showSuccess, showError } from '../../utils/confirmAction.js';
 
-const CardPedido = ({ pedido, onPedidoCancelado, children, ShowDetalleBtn = true }) => {
+const CardPedido = ({ pedido, onPedidoCancelado, onItemCancelado, ShowDetalleBtn = true,showCancelarItemBtn = false, showItems = true, children}) => {
   const navegar = useNavigate();
   const [productosNombres, setProductosNombres] = useState({}); // {id: nombre}
+  const [pedidoState, setPedido] = useState(pedido);
 
-  const handleCancelar = () => {
-    if (onPedidoCancelado) onPedidoCancelado(pedido._id);
+  const handleCancelarPedido = () => {
+    if (onPedidoCancelado) onPedidoCancelado(pedidoState._id); 
+  // CORRECCIÓN 1: Usar 'pedidoState' para mantener los datos actuales (incluidos los items)
+  setPedido(prev => ({ ...prev, estado: "CANCELADO" }));
   }
 
   useEffect(() => {
-  const fetchNombres = async () => {
-    const nombres = {};
-    for (const item of pedido.items) {
-      try {
-        const producto = item.producto || await productosService.getProducto(item.productoId);
-        nombres[item.productoId] = producto?.titulo || 'Nombre desconocido';
-      } catch (error) {
-        nombres[item.productoId] = '-Producto desconocido';
+  setPedido(pedido);
+}, [pedido]);
+
+const handleCancelarItem = async (itemId) => {
+  try {
+    const confirmacion = await confirmAction({
+      title: "Cancelar item?",
+      text: "¿Estás seguro que deseas cancelar este item del pedido?",
+      confirmText: "Sí, cancelar",
+    });
+    if (!confirmacion) return;
+
+    await pedidoService.cancelarItemPedido(pedidoState._id, itemId);
+
+    setPedido(prev => ({
+      ...prev,
+      items: prev.items.map(i =>
+        (i._id === itemId || i.productoId === itemId) 
+          ? { ...i, estado: "CANCELADO" } 
+          : i
+      )
+    }));
+
+    if(onItemCancelado) onItemCancelado(itemId);
+    showSuccess("Item cancelado con éxito");
+  } catch (error) {
+    console.error("Error al cancelar el item del pedido:", error);
+  }
+}
+
+useEffect(() => {
+    if (!pedidoState?.items) return;
+
+    const todosCancelados = pedidoState.items.every(i => i.estado === "CANCELADO");
+
+    if (todosCancelados && pedidoState.estado !== "CANCELADO") {
+      setPedido(prev => ({ ...prev, estado: "CANCELADO" }));
+
+      if (onPedidoCancelado) {
+        onPedidoCancelado(pedidoState._id);
       }
+
+      showSuccess("Todos los ítems fueron cancelados. Pedido cancelado.");
     }
+  }, [pedidoState.items]);
+
+useEffect(() => {
+  if(!showItems) return;
+
+  const fetchNombres = async () => {
+    const nombres = {}; // objeto local, nuevo por cada render
+    await Promise.all(
+      pedidoState.items.map(async (item, index) => {
+        const pid = item.producto || `item-${index}`;
+        try {
+          const producto = await productosService.getProducto(pid);
+          nombres[pid] = producto.titulo;
+        } catch {
+          nombres[pid] = '-Producto desconocido';
+        }
+      })
+    );
     setProductosNombres(nombres);
   };
 
-  fetchNombres();
-}, [pedido.items]);
+  if (pedidoState.items?.length > 0) fetchNombres();
+}, [pedidoState.items,showItems]);
 
+//const pedidoCancelado = pedidoState.estado === "CANCELADO";
+const todosCancelados = pedidoState.items?.every(i => i.estado === "CANCELADO");
 
   return (
-    <section className="card-pedido" key={pedido._id}>
+    <section className="card-pedido" key={pedidoState._id}>
       <div className="pedido-header d-flex justify-content-between align-items-center">
-        <span className="pedido-id">Pedido #{pedido._id}</span>
+        <span className="pedido-id">Pedido {pedidoState._id}</span>
         <span className="badge-modern">{children}</span>
       </div>
 
-      <p><strong>Fecha:</strong> {new Date(pedido.fechaCreacion).toLocaleDateString()}</p>
-      <p className="pedido-total">Total: ${pedido.total}</p>
+      <p><strong>Fecha:</strong> {new Date(pedidoState.fechaCreacion).toLocaleDateString()}</p>
+      <p className="pedido-total">Total: ${pedidoState.total}</p>
 
+      {showItems && (
       <div className="pedido-items">
-        {pedido.items.map(item => (
-          <div key={item.productoId} className="pedido-item">
-            <span>{productosNombres[item.productoId] || 'Cargando...'} x {item.cantidad}</span>
-            <span>${(item.cantidad * item.precioUnitario).toFixed(2)}</span>
-          </div>
-        ))}
+        {pedidoState.items.map((item, index) => {
+          const pid = item.producto || `item-${index}`;
+          return (
+            <div key={pid} className="pedido-item">
+              <Badge>{item.estado}</Badge>
+              <span className='ms-4 me-4'>{productosNombres[pid] || 'Cargando...'} x {item.cantidad}</span>
+              <span>${(item.cantidad * item.precioUnitario).toFixed(2)}</span>
+            {showCancelarItemBtn && !["ENVIADO", "CANCELADO"].includes(pedidoState.estado) &&
+                                    !["ENVIADO", "CANCELADO"].includes(item.estado) &&  (
+              <Button 
+                className="btn-modern btn-modern-danger"
+                size="sm"
+                onClick={() => handleCancelarItem(item._id)}
+              >
+                Cancelar item
+              </Button>
+          )}
+            </div>
+          )
+        })}
       </div>
+      )}
 
       <div className="d-flex gap-2 justify-content-end">
         {ShowDetalleBtn && (<Button 
-          className="btn-modern btn-modern-primary"
-          onClick={()=> navegar(`/pedidos/${pedido._id}`)}
+          variant="primary"
+          onClick={()=> navegar(`/pedidos/${pedidoState._id}`)}
         >
           Ver detalle
         </Button>
         )}
 
-        {["PENDIENTE", "CONFIRMADO", "EN_PREPARACION"].includes(pedido.estado) && (
+        {["PENDIENTE", "CONFIRMADO", "EN_PREPARACION"].includes(pedidoState.estado) && !["ENVIADO", "CANCELADO"].includes(pedidoState.estado)
+        && !todosCancelados && (
           <Button 
-            className="btn-modern btn-modern-danger"
-            onClick={handleCancelar}
+            variant="danger"
+            onClick={handleCancelarPedido}
           >
-            Cancelar
+            Cancelar pedido
           </Button>
         )}
       </div>

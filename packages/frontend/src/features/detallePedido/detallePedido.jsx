@@ -50,7 +50,7 @@ const DetallePedido = () => {
   }, [pedidoId]);
   
   const handleCancelarPedido = async () => {
-      try {
+    try {
      if (!pedido) return;
       const confirmacion = await confirmAction({
         title: "Cancelar pedido?",
@@ -60,9 +60,8 @@ const DetallePedido = () => {
       if (!confirmacion) return;
       
       setLoading(true);
-    
       await pedidoService.actualizarEstadoPedido(pedidoId, "CANCELADO", { motivo: "Cancelado por el usuario desde detalle" });
-      setPedido(prev => ({ ...prev, estado: "CANCELADO" }));
+      setPedido(prev => ({...prev, estado: "CANCELADO"}));
       showSuccess("Pedido cancelado correctamente.");
     } catch (error) {
       console.error(error);
@@ -72,6 +71,28 @@ const DetallePedido = () => {
       setLoading(false);
     }
   };
+
+  const handleItemCancelado = (itemId) => {
+    setPedido(prev => ({
+      ...prev,
+      items: prev.items.map(i =>
+        i._id === itemId ? { ...i, estado: "CANCELADO" } : i
+      )
+    }));
+  };
+
+  useEffect(() => {
+    if (!pedido?.items) return;
+
+    const todosCancelados = pedido.items.every(i => i.estado === "CANCELADO");
+
+    if (todosCancelados && pedido.estado !== "CANCELADO") {
+      setPedido(prev => ({ ...prev, estado: "CANCELADO" }));
+      showSuccess("Todos los ítems fueron cancelados. Pedido cancelado.");
+    }
+  }, [pedido?.items]);
+
+
   
   if (loading) return <LoadingSpinner message="Cargando detalle..." />;
   if (!pedido) return <ErrorMessage msg={errorMessage || "Pedido no encontrado"} />;
@@ -80,7 +101,7 @@ const DetallePedido = () => {
     <Container className="mt-5 d-flex flex-column align-items-center">
 
     <div style={{alignSelf: 'flex-start', marginBottom: '1rem'}}>
-        <Button variant="outline-secondary" onClick={() => navegar(-1)}>
+        <Button variant="primary" onClick={() => navegar(-1)}>
             &larr; Volver
         </Button>
     </div>
@@ -88,7 +109,10 @@ const DetallePedido = () => {
       <CardPedido 
       pedido={pedido} 
       onPedidoCancelado={handleCancelarPedido} 
+      onItemCancelado={handleItemCancelado}
       ShowDetalleBtn={false}
+      showItems={true}
+      showCancelarItemBtn={true}
       >
         <Badge bg={estadoColor(pedido.estado)}>{pedido.estado}</Badge>
       </CardPedido>
