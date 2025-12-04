@@ -190,6 +190,14 @@ export class PedidoService {
             listaEstados.push(itemPedido.estado)
         }
 
+        const soloCanceladoYEnviado = listaEstados.every(estado => 
+            estado === EstadoPedido.CANCELADO || estado === EstadoPedido.ENVIADO
+        ) && listaEstados.includes(EstadoPedido.ENVIADO);
+
+        if (soloCanceladoYEnviado) {
+            estadoActual = EstadoPedido.ENVIADO;
+        }
+
         pedido.actualizarEstado(estadoActual, null, 'Cambio automático de estado según items del pedido');
         const pedidoFinal = await this.pedidoRepository.update(pedido._id, this.modifToDB(pedido));
         console.log(pedidoFinal)

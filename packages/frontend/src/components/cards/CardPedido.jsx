@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from "react-bootstrap";
+import { Button, Badge } from "react-bootstrap";
 import './CardPedido.css';
 import { useNavigate } from 'react-router';
 import productosService from '../../services/productos.js'; // import default
@@ -105,7 +105,8 @@ const todosCancelados = pedidoState.items?.every(i => i.estado === "CANCELADO");
           const pid = item.producto || `item-${index}`;
           return (
             <div key={pid} className="pedido-item">
-              <span>{productosNombres[pid] || 'Cargando...'} x {item.cantidad}</span>
+              <Badge>{item.estado}</Badge>
+              <span className='ms-4 me-4'>{productosNombres[pid] || 'Cargando...'} x {item.cantidad}</span>
               <span>${(item.cantidad * item.precioUnitario).toFixed(2)}</span>
             {showCancelarItemBtn && !["ENVIADO", "CANCELADO"].includes(pedidoState.estado) &&
                                     !["ENVIADO", "CANCELADO"].includes(item.estado) &&  (
