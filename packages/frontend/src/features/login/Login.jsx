@@ -92,7 +92,7 @@ const showErrorMessage = (msg) => {
         </Button>
 
         <p className="text-center mt-3">
-          No tienes una cuenta? <a href="/register">Regístrate</a>
+          No tienes una cuenta? <Link to="/register">Regístrate</Link>
         </p>
       </Form>
     </div>
