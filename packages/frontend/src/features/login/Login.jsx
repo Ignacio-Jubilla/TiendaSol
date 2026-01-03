@@ -6,6 +6,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa"; // Importa los íconos
 import ErrorMessage from "../../components/errorMessage/ErrorMessage"
 import authServices from "../../services/auth"
 import auth from "../../services/auth"
+import { Link } from "react-router-dom"
 import './login.css'
 
 const Login = () => {
